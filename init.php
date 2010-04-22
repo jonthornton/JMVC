@@ -73,7 +73,7 @@ class JMVC {
 
 	public static function do404()
 	{
-		echo render('template', 'index', array('controller'=>'template', 'view'=>'do404'));
+		echo render('template', 'home', array('controller'=>'template', 'view'=>'do404'));
 		exit;
 	}
 	
