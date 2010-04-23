@@ -24,7 +24,9 @@ class View {
 	
 	public static function set($key, $val)
 	{
-		self::$data[$key] = $val;
+		if (!isset(self::$data[$key])) {
+			self::$data[$key] = $val;
+		}
 	}
 
 	public static function render($controller_name, $view_name, $args=array(), $site=SITE, $template=TEMPLATE)
