@@ -108,11 +108,7 @@ class Form extends Validation {
 		}
 		
 		if ($this->errors[$data['name']]) {
-			if (isset($data['class'])) {
-				$data['class'] .= ' error';
-			} else {
-				$data['class'] = 'error';
-			}
+			self::add_class($data, 'error');
 		}
 
 		return '<input'.form::attributes($data).' '.$extra.' />';
@@ -129,7 +125,7 @@ class Form extends Validation {
 		return $this->input($data, $value, $extra);
 	}
 	
-	public function date($data, $value=false, $extra = '')
+	public function date($data, $value=false, $auto=true, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -137,10 +133,19 @@ class Form extends Validation {
 		
 		if ($value) {
 			$data['value'] = $value;
+			unset($value);
 		}
 		
 		if (isset($data['value']) && is_numeric($data['value'])) {
 			$data['value'] = date('n/j/Y', $data['value']);
+		}
+		
+		self::add_class($data, 'date');
+		
+		if ($auto) {
+			self::add_class($data, 'date auto');
+		} else {
+			self::add_class($data, 'date');
 		}
 
 		return $this->input($data, $value, $extra);
@@ -183,11 +188,7 @@ class Form extends Validation {
 		unset($data['value']);
 		
 		if ($this->errors[$data['name']]) {
-			if (isset($data['class'])) {
-				$data['class'] .= ' error';
-			} else {
-				$data['class'] = 'error';
-			}
+			self::add_class($data, 'error');
 		}
 
 		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars($value).'</textarea>';
@@ -204,11 +205,7 @@ class Form extends Validation {
 		}
 		
 		if ($this->errors[$data['name']]) {
-			if (isset($data['class'])) {
-				$data['class'] .= ' error';
-			} else {
-				$data['class'] = 'error';
-			}
+			self::add_class($data, 'error');
 		}
 		
 		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
@@ -290,11 +287,7 @@ class Form extends Validation {
 		}
 		
 		if ($this->errors[$data['for']]) {
-			if (isset($data['class'])) {
-				$data['class'] .= ' error';
-			} else {
-				$data['class'] = 'error';
-			}
+			self::add_class($data, 'error');
 		}
 
 		return '<label'.form::attributes($data).' '.$extra.'>'.$text.'</label>';
@@ -314,6 +307,15 @@ class Form extends Validation {
 		}
 		
 		return $out.'</ul>';
+	}
+	
+	public static function add_class(&$data, $class)
+	{
+		if (isset($data['class'])) {
+			$data['class'] .= ' '.$class;
+		} else {
+			$data['class'] = $class;
+		}
 	}
 
 	public static function attributes($attr, $type = NULL)
