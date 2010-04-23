@@ -49,7 +49,14 @@ class View {
 			
 			ob_start();
 			include(APP_DIR.'sites/'.$site.'/views/'.$controller_name.'.'.$view_name.'.php');
-			return ob_get_clean();
+			$output = ob_get_clean();
+			
+			if ($controller && $controller->no_template) {
+				echo $output;
+				exit;
+			} else {
+				return $output;
+			}
 		}
 		
 		if (!$controller && !$view) {

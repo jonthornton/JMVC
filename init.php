@@ -23,8 +23,10 @@ class JMVC {
 		
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
+			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos+1));
 		} else {
 			define('CURRENT_URL', $_SERVER['REQUEST_URI']);
+			define('QUERY_STRING', '');
 		}
 
 		Session::start();
@@ -61,7 +63,7 @@ class JMVC {
 			$template = (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : 'home';
 
 			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : 'index';
-			$args['view'] = (count($parts)) ? array_shift($parts) : 'home';
+			$args['view'] = (count($parts) && (View::exists(SITE, $args['controller'], $parts[0]) || method_exists('controllers\\'.SITE.'\\'.$args['controller'], $parts[0]))) ? array_shift($parts) : 'home';
 
 		}
 
