@@ -27,7 +27,7 @@ class View {
 		self::$data[$key] = $val;
 	}
 
-	public static function render($controller_name, $view_name, $args=array(), $site=SITE)
+	public static function render($controller_name, $view_name, $args=array(), $site=SITE, $template=TEMPLATE)
 	{
 		$controller = false;
 		$view = false;
@@ -44,11 +44,11 @@ class View {
 			$controller = false;
 		}
 		
-		if (self::exists($site, $controller_name, $view_name)) {
+		if ($file = self::exists($site, $template, $controller_name, $view_name)) {
 			if ($controller) extract(get_object_vars($controller));
 			
 			ob_start();
-			include(APP_DIR.'sites/'.$site.'/views/'.$controller_name.'.'.$view_name.'.php');
+			include($file);
 			$output = ob_get_clean();
 			
 			if ($controller && $controller->no_template) {
@@ -58,15 +58,29 @@ class View {
 				return $output;
 			}
 		}
-		
+	
 		if (!$controller && !$view) {
 			\JMVC::do404();
 		}
 	}
 	
-	public static function exists($site, $controller_name, $view_name)
+	public static function exists($site, $template, $controller, $view, $check_controller=false)
 	{
-		return file_exists(APP_DIR.'sites/'.$site.'/views/'.$controller_name.'.'.$view_name.'.php');
+		$file = APP_DIR.'sites/'.$site.'/'.$template.'/'.$controller.'.'.$view.'.php';
+		if (file_exists($file)) {
+			return $file;
+		}
+		
+		$file = APP_DIR.'sites/'.$site.'/html/'.$controller.'.'.$view.'.php';
+		if (file_exists($file)) {
+			return $file;
+		}
+		
+		if ($check_controller && Controller::exists($site, $controller) && method_exists('controllers\\'.$site.'\\'.$controller, $view)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static function flash($msg=false)

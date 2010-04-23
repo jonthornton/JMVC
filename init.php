@@ -50,9 +50,9 @@ class JMVC {
 
 		if ($app_url == '/') {
 			DEFINE('SITE', 'www');
-			$template = 'home';
-			$args['controller'] = 'index';
-			$args['view'] = 'home';
+			DEFINE('TEMPLATE', 'html');
+			$args['controller'] = 'home';
+			$args['view'] = 'index';
 			$parts = array();
 		} else {
 
@@ -60,22 +60,24 @@ class JMVC {
 
 			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : 'www');
 			
-			$template = (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : 'home';
+			DEFINE('TEMPLATE', (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : 'html');
 
-			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : 'index';
-			$args['view'] = (count($parts) && (View::exists(SITE, $args['controller'], $parts[0]) || method_exists('controllers\\'.SITE.'\\'.$args['controller'], $parts[0]))) ? array_shift($parts) : 'home';
+			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : 'home';
+			$args['view'] = (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $parts[0], true)) ? array_shift($parts) : 'index';
 
 		}
 
 		$args['controller'] = str_replace('-', '_', $args['controller']);
 		$args['view'] = str_replace('-', '_', $args['view']);
 
-		echo render('template', $template, array_merge($parts, $args));
+		echo render('template', TEMPLATE, array_merge($parts, $args));
 	}
 
 	public static function do404()
 	{
-		echo render('template', 'home', array('controller'=>'template', 'view'=>'do404'));
+		ob_end_clean();
+	
+		echo render('template', 'html', array('controller'=>'template', 'view'=>'do404'));
 		exit;
 	}
 	
@@ -190,9 +192,9 @@ SESSION: '.print_array(jmvc\classes\Session::$d);
 	}
 }
 
-function render($controller, $view, $args=array(), $site=SITE)
+function render($controller, $view, $args=array(), $site=SITE, $template=TEMPLATE)
 {
-	return jmvc\View::render($controller, $view, $args, $site);
+	return jmvc\View::render($controller, $view, $args, $site, $template);
 }
 
 function print_array($arr, $padding="\t")
