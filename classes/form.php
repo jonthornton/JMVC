@@ -28,7 +28,7 @@ class Form extends Validation {
 	
 	public function offsetGet($key)
 	{
-		return htmlspecialchars($this->data[$key]);
+		return htmlspecialchars(trim($this->data[$key]));
 	}
 
 	public function as_array()
@@ -101,14 +101,20 @@ class Form extends Validation {
 		// Type and value are required attributes
 		$data += array('type'=>'text');
 		
-		if ($this->submitted() && !$this->errors[$data['name']]) {
-			$data['value'] = $this[$data['name']];
-		} else if ($value) {
-			$data['value'] = $value;
+		if ($data['type'] != 'checkbox') {
+			if ($this->submitted() && !$this->errors[$data['name']]) {
+				$data['value'] = $this[$data['name']];
+			} else if ($value) {
+				$data['value'] = $value;
+			}
 		}
 		
 		if ($this->errors[$data['name']]) {
 			self::add_class($data, 'error');
+		}
+		
+		if ($this->is_required($data['for'])) {
+			self::add_class($data, 'required');
 		}
 
 		return '<input'.form::attributes($data).' '.$extra.' />';
@@ -157,6 +163,17 @@ class Form extends Validation {
 			return strtotime($this[$field]);
 		}
 	}
+	
+	public function number($data, $value=false, $extra = '')
+	{
+		if (!is_array($data)) {
+			$data = array('name' => $data);
+		}
+		self::add_class($data, 'num');
+		$this->add_rules($data['name'], 'numeric');
+		
+		return $this->input($data, $value, $extra);
+	}
 
 	public function upload($data, $value=false, $extra = '')
 	{
@@ -190,6 +207,10 @@ class Form extends Validation {
 		if ($this->errors[$data['name']]) {
 			self::add_class($data, 'error');
 		}
+		
+		if ($this->is_required($data['for'])) {
+			self::add_class($data, 'required');
+		}
 
 		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars($value).'</textarea>';
 	}
@@ -206,6 +227,10 @@ class Form extends Validation {
 		
 		if ($this->errors[$data['name']]) {
 			self::add_class($data, 'error');
+		}
+		
+		if ($this->is_required($data['for'])) {
+			self::add_class($data, 'required');
 		}
 		
 		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
@@ -233,7 +258,7 @@ class Form extends Validation {
 		return $input;
 	}
 
-	public function checkbox($data, $value = '', $checked = FALSE, $extra = '')
+	public function checkbox($data, $checked = FALSE, $value = false, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -241,13 +266,21 @@ class Form extends Validation {
 
 		$data['type'] = 'checkbox';
 
-		if ($checked || (isset($data['checked']) && $data['checked'] == TRUE)) {
+		if ($checked || (isset($data['checked']) && $data['checked'] == TRUE) || ($this->submitted() && $this[$data['name']])) {
 			$data['checked'] = 'checked';
 		} else {
 			unset($data['checked']);
 		}
+		
+		if ($value) $data['value'] = $value;
+		if (empty($data['value'])) $data['value'] = 1;
 
 		return $this->input($data, $value, $extra);
+	}
+	
+	public function get_checkbox($key)
+	{
+		return $this[$key] ?: 0;
 	}
 
 	public function radio($data = '', $value = '', $checked = FALSE, $extra = '')
@@ -288,6 +321,10 @@ class Form extends Validation {
 		
 		if ($this->errors[$data['for']]) {
 			self::add_class($data, 'error');
+		}
+		
+		if ($this->is_required($data['for'])) {
+			self::add_class($data, 'required');
 		}
 
 		return '<label'.form::attributes($data).' '.$extra.'>'.$text.'</label>';

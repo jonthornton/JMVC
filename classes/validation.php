@@ -441,11 +441,20 @@ class Validation implements \ArrayAccess {
 
 	public function errors($messages=false)
 	{
+		$field_messages = array();
+		foreach ($this->messages as $field) {
+			$field_messages += $field;
+		}
+	
 		if (!$messages) {
 			if ($this->error_messages) {
 				$messages = $this->error_messages;
 			} else {
-				return $this->errors;
+				$out = array();
+				foreach ($this->errors as $key=>$error) {
+					$out[] = $key.':'.$error;
+				}
+				return array_unique($out + $field_messages);
 			}
 		}
 
@@ -475,7 +484,7 @@ class Validation implements \ArrayAccess {
 			}
 		}
 
-		return array_unique($errors + $this->messages);
+		return array_unique($errors + $field_messages);
 	}
 
 
@@ -486,6 +495,19 @@ class Validation implements \ArrayAccess {
 		} else {
 			return ! ($str === '' OR $str === NULL OR $str === FALSE);
 		}
+	}
+	
+	public function is_required($field)
+	{
+		if ($this->rules[$field]) {
+			for ($i=0; $i<count($this->rules[$field]); $i++) {
+				if ($this->rules[$field][$i][0][1] == 'required') {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	public function matches($str, array $inputs)
