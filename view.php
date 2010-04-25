@@ -11,7 +11,7 @@ class View {
 		return self::$data[$key];
 	}
 	
-	public static function push($key, $value, $unique=false)
+	public static function push($key, $val, $unique=false)
 	{
 		if (!is_array(self::$data[$key])) {
 			self::$data[$key] = array();
