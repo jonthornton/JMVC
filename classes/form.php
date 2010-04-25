@@ -164,6 +164,31 @@ class Form extends Validation {
 		}
 	}
 	
+	public function time($data, $value=null, $extra = '')
+	{
+		if (!is_array($data)) {
+			$data = array('name' => $data);
+		}
+		
+		if ($value) {
+			$data['value'] = $value;
+			unset($value);
+		}
+		
+		if (isset($data['value']) && is_numeric($data['value'])) {
+			$data['value'] = \Util::getRoundedTime2($data['value']);
+		}
+		
+		return $this->dropdown($data, Array(''=>'')+$GLOBALS['HOURS2'], $data['value'], $extra);
+	}
+	
+	public function get_date_time($date_key, $time_key)
+	{
+		if (isset($this[$date_key]) && isset($this[$time_key])) {
+			return strtotime($this[$date_key].' '.$this[$time_key]);
+		}
+	}
+	
 	public function number($data, $value=false, $extra = '')
 	{
 		if (!is_array($data)) {
