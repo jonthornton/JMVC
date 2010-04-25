@@ -109,7 +109,7 @@ class Form extends Validation {
 			}
 		}
 		
-		if ($this->errors[$data['name']]) {
+		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
 		
@@ -204,7 +204,7 @@ class Form extends Validation {
 		// Value is not part of the attributes
 		unset($data['value']);
 		
-		if ($this->errors[$data['name']]) {
+		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
 		
@@ -225,7 +225,7 @@ class Form extends Validation {
 			$selected = $this[$data['name']];
 		}
 		
-		if ($this->errors[$data['name']]) {
+		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
 		
@@ -319,7 +319,7 @@ class Form extends Validation {
 			$data = array('for' => $data);
 		}
 		
-		if ($this->errors[$data['for']]) {
+		if ($this->errors[$data['for']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
 		
