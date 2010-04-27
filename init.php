@@ -47,28 +47,51 @@ class JMVC {
 				}
 			}
 		}
+		
+		if (!defined('DEFAULT_SITE')) define('DEFAULT_SITE', 'www');
+		if (!defined('DEFAULT_TEMPLATE')) define('DEFAULT_TEMPLATE', 'html');
+		if (!defined('DEFAULT_CONTROLLER')) define('DEFAULT_CONTROLLER', 'home');
+		if (!defined('DEFAULT_VIEW')) define('DEFAULT_VIEW', 'index');
 
 		if ($app_url == '/') {
-			DEFINE('SITE', 'www');
-			DEFINE('TEMPLATE', 'html');
-			$args['controller'] = 'home';
-			$args['view'] = 'index';
+			DEFINE('SITE', DEFAULT_SITE);
+			DEFINE('TEMPLATE', DEFAULT_TEMPLATE);
+			$args['controller'] = DEFAULT_CONTROLLER;
+			$args['view'] = DEFAULT_VIEW;
 			$parts = array();
 		} else {
 
 			$parts = explode('/', trim($app_url, '/'));
 
-			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : 'www');
+			// block direct url for default site
+			if ($parts[0] == DEFAULT_SITE) {
+				self::do404();
+			}
 			
-			DEFINE('TEMPLATE', (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : 'html');
-
-			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : 'home';
-			$args['view'] = (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $parts[0], true)) ? array_shift($parts) : 'index';
+			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : DEFAULT_SITE);
+			
+			
+			if ($parts[0] == DEFAULT_TEMPLATE) {
+				self::do404();
+			}
+			DEFINE('TEMPLATE', (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : DEFAULT_TEMPLATE);
+			
+			if ($parts[0] == DEFAULT_CONTROLLER) {
+				self::do404();
+			}
+			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : DEFAULT_CONTROLLER;
+			
+			if ($parts[0] == DEFAULT_VIEW) {
+				self::do404();
+			}
+			$args['view'] = (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $parts[0], true)) ? array_shift($parts) : DEFAULT_VIEW;
 
 		}
 
 		$args['controller'] = str_replace('-', '_', $args['controller']);
 		$args['view'] = str_replace('-', '_', $args['view']);
+		
+		self::hooks('routed');
 
 		echo render('template', TEMPLATE, array_merge($parts, $args));
 	}
@@ -77,8 +100,20 @@ class JMVC {
 	{
 		ob_end_clean();
 	
-		echo render('template', 'html', array('controller'=>'template', 'view'=>'do404'));
+		header("HTTP/1.0 404 Not Found");
+		echo render('template', DEFAULT_TEMPLATE, array('controller'=>'template', 'view'=>'do404'));
 		exit;
+	}
+	
+	public function hooks($hook)
+	{
+		if (is_array($GLOBALS['HOOKS'][$hook])) {
+			foreach ($GLOBALS['HOOKS'][$hook] as $func) {
+				$func();
+			}
+		} else if (isset($GLOBALS['HOOKS'][$hook])) {
+			$GLOBALS['HOOKS'][$hook]();
+		}
 	}
 	
 	public static function autoloader($classname)
