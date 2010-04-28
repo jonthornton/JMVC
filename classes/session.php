@@ -29,7 +29,7 @@ class Session {
 		} else {
 			self::$d = array();
 		}
-		
+		pp(self::$d);
 		self::$old_d = self::$d;
 		register_shutdown_function(array('jmvc\classes\Session', 'end'));
 	}
@@ -37,6 +37,12 @@ class Session {
 	public function end()
 	{
 		if (self::$old_d == self::$d) {
+			return;
+		}
+		
+		if (empty(self::$d)) {
+			// session is empty; we can abandon it
+			setcookie(self::COOKIE_NAME, '', time()-3600, '/');
 			return;
 		}
 		
