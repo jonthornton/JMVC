@@ -11,8 +11,12 @@ class Controller {
 		$this->args = $args;
 	}
 	
-	protected static function forward($url)
+	protected static function forward($url, $permanent=false)
 	{
+		if ($permanent) {
+			header("HTTP/1.1 301 Moved Permanently");
+		}
+		
 		header('location: '.$url);
 		exit();
 	}
