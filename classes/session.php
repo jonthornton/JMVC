@@ -29,7 +29,7 @@ class Session {
 		} else {
 			self::$d = array();
 		}
-		pp(self::$d);
+		
 		self::$old_d = self::$d;
 		register_shutdown_function(array('jmvc\classes\Session', 'end'));
 	}
