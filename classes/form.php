@@ -28,7 +28,7 @@ class Form extends Validation {
 	
 	public function offsetGet($key)
 	{
-		return htmlspecialchars(trim($this->data[$key]));
+		return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
 	}
 
 	public function as_array()
@@ -459,9 +459,8 @@ class Form extends Validation {
 			return ' '.$attrs;
 
 		$compiled = '';
-		foreach ($attrs as $key => $val)
-		{ if(is_array($val)) pd($val);
-			$compiled .= ' '.$key.'="'.htmlspecialchars($val).'"';
+		foreach ($attrs as $key => $val) {
+			$compiled .= ' '.$key.'="'.htmlspecialchars(trim($val), ENT_COMPAT, 'ISO-8859-1', false).'"';
 		}
 
 		return $compiled;
