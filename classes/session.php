@@ -40,6 +40,12 @@ class Session {
 			return;
 		}
 		
+		if (empty(self::$d)) {
+			// session is empty; we can abandon it
+			setcookie(self::COOKIE_NAME, '', time()-3600, '/');
+			return;
+		}
+		
 		if (!self::$savedSession) {
 			$key = md5($_SERVER['REMOTE_ADDR'].time());
 			
