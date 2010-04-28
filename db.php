@@ -73,6 +73,8 @@ class Db {
 			
 			if (is_array($value)) {
 				$fields .= "$key = ". $value['raw'].", ";
+			} else if ($value == NULL) {
+				$fields .= $key.' = NULL, ';
 			} else {
 				$fields .= "$key = ". $this->quote($value) .", ";
 			}

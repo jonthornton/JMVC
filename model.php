@@ -25,6 +25,18 @@ class Model {
 		}
 	}
 	
+	public static function factory($id=false)
+	{
+		$type = get_called_class();
+		$obj = new $type($id);
+		
+		if ($obj->valid()) {
+			return $obj;
+		} else {
+			return false;
+		}
+	}
+	
 	public function __get($key)
 	{
 		if (isset($this->_dirty_values[$key])) {
@@ -106,7 +118,7 @@ class Model {
 		return array_merge($this->_values, $this->_dirty_values);
 	}
 	
-	private static function make_criteria($criteria, $prefix='')
+	protected static function make_criteria($criteria, $prefix='')
 	{
 	
 		$where = array();
@@ -193,6 +205,7 @@ class Model {
 		if ($this->_obj_id) {
 			// update
 			$sql = self::db()->make_update(static::$table, $this->_dirty_values, array('id'=>$this->_obj_id));
+			
 			self::db()->update($sql);
 		} else {
 			// insert
