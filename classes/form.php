@@ -28,7 +28,11 @@ class Form extends Validation {
 	
 	public function offsetGet($key)
 	{
-		return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
+		if (is_array($this->data[$key])) {
+			return $this->data[$key];
+		} else {
+			return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
+		}
 	}
 
 	public function as_array()
@@ -290,15 +294,28 @@ class Form extends Validation {
 		}
 
 		$data['type'] = 'checkbox';
+		
+		if ($value) $data['value'] = $value;
+		if (empty($data['value'])) $data['value'] = 1;
 
-		if ($checked || (isset($data['checked']) && $data['checked'] == TRUE) || ($this->submitted() && $this[$data['name']])) {
+		if ($this->submitted()) {
+			$name = rtrim($data['name'], '[]');
+		
+			if (is_array($this[$name]) && in_array($data['value'], $this[$name])) {
+				$data['checked'] = 'checked';
+			} else if (!is_array($this[$name]) && $this[$name]) {
+				$data['checked'] = 'checked';
+			} else {
+				unset($data['checked']);
+			}
+		
+		} else if ($checked || (isset($data['checked']) && $data['checked'] == TRUE)) {
 			$data['checked'] = 'checked';
 		} else {
 			unset($data['checked']);
 		}
+			
 		
-		if ($value) $data['value'] = $value;
-		if (empty($data['value'])) $data['value'] = 1;
 
 		return $this->input($data, $value, $extra);
 	}
