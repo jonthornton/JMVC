@@ -120,10 +120,18 @@ class Model {
 	
 	protected static function make_criteria($criteria, $prefix='')
 	{
-	
 		$where = array();
+		
 		foreach ($criteria as $key => $value) {
-			$where[] = ($key == 'raw_sql') ? $value : $prefix.$key.'='.self::db()->quote($value);
+			if (is_array($value)) {
+				$str = $prefix.$key.' IN(';
+				foreach ($value as $val) {
+					$str .= self::quote($val).', ';
+				}
+				$where[] = substr($str, 0, -2).')';
+			} else {
+				$where[] = ($key == 'raw_sql') ? $value : $prefix.$key.'='.self::quote($value);
+			}
 		}
 		
 		return implode(' AND ', $where);
@@ -132,10 +140,11 @@ class Model {
 	public static function find($criteria)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', 'WHERE '.self::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
+			$sql = str_replace('[[WHERE]]', 'WHERE '.static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' WHERE '.self::make_criteria($criteria);
+			$sql = 'SELECT * FROM '.static::$table.' WHERE '.static::make_criteria($criteria);
 		}
+
 		$rows = self::db()->get_rows($sql);
 		
 		if (!$rows) {
@@ -157,9 +166,9 @@ class Model {
 	protected static function find_one($criteria)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', 'WHERE '.self::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
+			$sql = str_replace('[[WHERE]]', 'WHERE '.static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' WHERE '.self::make_criteria($criteria);
+			$sql = 'SELECT * FROM '.static::$table.' WHERE '.static::make_criteria($criteria);
 		}
 		$sql .= ' LIMIT 1';
 		
@@ -190,6 +199,15 @@ class Model {
 	protected static function quote($value)
 	{
 		return self::db()->quote($value);
+	}
+	
+	protected function quote_date($value)
+	{
+		if (is_numeric($value)) {
+			$value = date('Y-m-d H:i:s', $value);
+		}
+		
+		return self::quote($value);
 	}
 	
 	public function save()
