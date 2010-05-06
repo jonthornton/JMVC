@@ -21,6 +21,19 @@ class JMVC {
 		set_error_handler('JMVC::exception_error_handler');
 		ob_start('JMVC::fatal_error_checker');
 		
+		$_SERVER['REQUEST_URI'] = strtolower($_SERVER['REQUEST_URI']);
+		
+		if (isset($REDIRECTS)) {
+			foreach ($REDIRECTS as $in=>$out) {
+				$routed_url = preg_replace('%'.$in.'%', $out, $_SERVER['REQUEST_URI'], 1, $count);
+
+				if ($count) {
+					\jmvc\Controller::forward($routed_url, true);
+					break;
+				}
+			}
+		}
+
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
 			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos+1));
@@ -70,7 +83,6 @@ class JMVC {
 			
 			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : DEFAULT_SITE);
 			
-			
 			if ($parts[0] == DEFAULT_TEMPLATE) {
 				self::do404();
 			}
@@ -91,8 +103,6 @@ class JMVC {
 		$args['controller'] = str_replace('-', '_', $args['controller']);
 		$args['view'] = str_replace('-', '_', $args['view']);
 		
-		self::hooks('routed');
-
 		echo render('template', TEMPLATE, array_merge($parts, $args));
 	}
 
