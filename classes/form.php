@@ -214,6 +214,15 @@ class Form extends Validation {
 
 		return $this->input($data, $value, $extra);
 	}
+	
+	public function get_upload($name)
+	{
+		if ($_FILES[$name]['error'] == 0) {
+			return $_FILES[$name];
+		} else {
+			return;
+		}
+	}
 
 	public function textarea($data, $value=false, $extra = '')
 	{
