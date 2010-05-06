@@ -12,6 +12,7 @@ class Form extends Validation {
 
 	protected static $formcount = 0;
 	protected static $tabindex = 0;
+	protected static $instance = false;
 
 	public function __construct($id=false)
 	{
@@ -33,6 +34,15 @@ class Form extends Validation {
 		} else {
 			return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
 		}
+	}
+	
+	public static function instance()
+	{
+		if (!self::$instance) {
+			self::$instance = new Form('instanceform');
+		}
+		
+		return self::$instance;
 	}
 	
 	public function clear()
