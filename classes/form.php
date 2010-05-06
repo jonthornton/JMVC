@@ -34,6 +34,11 @@ class Form extends Validation {
 			return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
 		}
 	}
+	
+	public function clear()
+	{
+		$this->data = array();
+	}
 
 	public function as_array()
 	{
