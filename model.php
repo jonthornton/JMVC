@@ -141,12 +141,16 @@ class Model {
 		return 'WHERE '.implode(' AND ', $where);
 	}
 	
-	public static function find($criteria)
+	public static function find($criteria, $limit=false)
 	{
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
 		} else {
 			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria);
+		}
+		
+		if ($limit) { 
+			$sql .= ' LIMIT '.$limit;
 		}
 
 		$rows = self::db()->get_rows($sql);
