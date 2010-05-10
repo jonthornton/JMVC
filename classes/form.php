@@ -120,7 +120,7 @@ class Form extends Validation {
 		// Type and value are required attributes
 		$data += array('type'=>'text');
 		
-		if ($data['type'] != 'checkbox') {
+		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
 			if ($this->submitted() && !$this->errors[$data['name']]) {
 				$data['value'] = $this[$data['name']];
 			} else if ($value) {
@@ -354,10 +354,19 @@ class Form extends Validation {
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
+		if ($value) {
+			$data['value'] = $value;
+		}
 
 		$data['type'] = 'radio';
-
-		if ($checked || (isset($data['checked']) && $data['checked'] == TRUE)) {
+			
+		if ($this->submitted()) {
+			if ($this[$data['name']] == $data['value']) {
+				$data['checked'] = 'checked';
+			} else {
+				unset($data['checked']);
+			}
+		} else if ($checked || (isset($data['checked']) && $data['checked'] == TRUE)) {
 			$data['checked'] = 'checked';
 		} else {
 			unset($data['checked']);
