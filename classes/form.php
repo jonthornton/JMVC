@@ -32,7 +32,7 @@ class Form extends Validation {
 		if (is_array($this->data[$key])) {
 			return $this->data[$key];
 		} else {
-			return htmlspecialchars(trim($this->data[$key]), ENT_COMPAT, 'ISO-8859-1', false);
+			return htmlspecialchars(strip_tags(trim($this->data[$key])), ENT_COMPAT, 'ISO-8859-1', false);
 		}
 	}
 	
@@ -349,12 +349,12 @@ class Form extends Validation {
 		return $this[$key] ?: 0;
 	}
 
-	public function radio($data = '', $value = '', $checked = FALSE, $extra = '')
+	public function radio($data = '', $value = null, $checked = FALSE, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-		if ($value) {
+		if ($value !== null) {
 			$data['value'] = $value;
 		}
 
