@@ -111,7 +111,7 @@ class Form extends Validation {
 		return $input;
 	}
 
-	public function input($data, $value=false, $extra = '')
+	public function input($data, $value=null, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -123,7 +123,7 @@ class Form extends Validation {
 		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
 			if ($this->submitted() && !$this->errors[$data['name']]) {
 				$data['value'] = $this[$data['name']];
-			} else if ($value) {
+			} else if ($value !== null) {
 				$data['value'] = $value;
 			}
 		}
