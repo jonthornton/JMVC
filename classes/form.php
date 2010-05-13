@@ -311,7 +311,7 @@ class Form extends Validation {
 		return $input;
 	}
 
-	public function checkbox($data, $checked = FALSE, $value = false, $extra = '')
+	public function checkbox($data, $checked = FALSE, $value = null, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -319,8 +319,8 @@ class Form extends Validation {
 
 		$data['type'] = 'checkbox';
 		
-		if ($value) $data['value'] = $value;
-		if (empty($data['value'])) $data['value'] = 1;
+		if ($value !== null) $data['value'] = $value;
+		if ($data['value'] === null) $data['value'] = 1;
 
 		if ($this->submitted()) {
 			$name = rtrim($data['name'], '[]');

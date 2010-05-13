@@ -246,7 +246,7 @@ class Validation implements \ArrayAccess {
 				continue;
 			}
 
-			if (empty($array[$field])) {
+			if ($array[$field] === '') {
 				if (isset($this->array_fields[$field])) {
 					// This field must be an array
 					$array[$field] = array();
@@ -279,6 +279,7 @@ class Validation implements \ArrayAccess {
 		}
 
 		foreach ($this->rules as $field => $callbacks) {
+		
 			foreach ($callbacks as $callback) {
 				// Separate the callback and arguments
 				list($callback, $args) = $callback;
