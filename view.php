@@ -5,6 +5,7 @@ namespace jmvc;
 class View {
 
 	protected static $data;
+	protected static $cacheme = array();
 	
 	public static function get($key)
 	{
@@ -13,6 +14,12 @@ class View {
 	
 	public static function push($key, $val, $unique=false)
 	{
+		if (!empty(self::$cacheme)) {
+			foreach (self::$cacheme as $key=>$data) {
+				self::$cacheme[$key]['push'][] = func_get_args();
+			}
+		}
+		
 		if (!is_array(self::$data[$key])) {
 			self::$data[$key] = array();
 		}
@@ -24,15 +31,44 @@ class View {
 	
 	public static function set($key, $val)
 	{
+		if (!empty(self::$cacheme)) {
+			foreach (self::$cacheme as $key=>$data) {
+				self::$cacheme[$key]['set'][] = func_get_args();
+			}
+		}
+		
 		if (!isset(self::$data[$key])) {
 			self::$data[$key] = $val;
 		}
 	}
 
-	public static function render($controller_name, $view_name, $args=array(), $site=SITE, $template=TEMPLATE)
+	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site=SITE, $template=TEMPLATE)
 	{
 		$controller = false;
 		$view = false;
+		
+		if ($cache !== null) {
+			$key = md5(serialize(func_get_args()));
+			
+			$output = \jmvc\classes\file_cache::get($key, $cache);
+			$meta = \jmvc\classes\file_cache::get($key.'meta', $cache);
+			
+			if ($meta) {
+				$meta = unserialize($meta);
+				foreach ($meta['push'] as $push) {
+					self::push($push[0], $push[1], $push[2]);
+				}
+				foreach ($meta['set'] as $set) {
+					self::push($set[0], $set[1]);
+				}
+			}
+			
+			if ($output) {
+				return $output;
+			}
+			
+			self::$cacheme[$key] = array('set'=>array(), 'push'=>array());
+		}
 		
 		$controller = Controller::get($site, $controller_name, $args);
 		if ($controller && method_exists($controller, $view_name)) {
@@ -52,16 +88,32 @@ class View {
 			ob_start();
 			include($file);
 			$output = ob_get_clean();
-			
-			if ($controller && $controller->no_template) {
-				echo $output;
-				exit;
-			} else {
-				return $output;
-			}
 		}
 	
-		if (!$controller && !$view) {
+		if (!$controller && !$output) {
+			\JMVC::do404();
+		}
+		
+		if ($cache !== null) {
+			\jmvc\classes\file_cache::set($key, $output);
+			\jmvc\classes\file_cache::set($key.'meta', serialize(self::$cacheme[$key]));
+			
+			unset(self::$cacheme[$key]);
+		}
+		
+		return $output;
+	}
+
+	public static function render_static($controller_name, $view_name, $args=array(), $site=SITE, $template=TEMPLATE)
+	{
+		if ($file = self::exists($site, $template, $controller_name, $view_name)) {
+			if ($controller) extract(get_object_vars($controller));
+			
+			ob_start();
+			include($file);
+			$output = ob_get_clean();
+			return $output;
+		} else {
 			\JMVC::do404();
 		}
 	}

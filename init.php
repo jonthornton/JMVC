@@ -77,27 +77,30 @@ class JMVC {
 			$parts = explode('/', trim($app_url, '/'));
 
 			// block direct url for default site
-			if ($parts[0] == DEFAULT_SITE) {
-				self::do404();
-			}
-			
+			if ($parts[0] == DEFAULT_SITE) self::do404();
 			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : DEFAULT_SITE);
 			
-			if ($parts[0] == DEFAULT_TEMPLATE) {
-				self::do404();
-			}
+			if ($parts[0] == DEFAULT_TEMPLATE) self::do404();
 			DEFINE('TEMPLATE', (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : DEFAULT_TEMPLATE);
 			
-			if ($parts[0] == DEFAULT_CONTROLLER) {
-				self::do404();
-			}
-			$args['controller'] = (Controller::exists(SITE, $parts[0])) ? array_shift($parts) : DEFAULT_CONTROLLER;
+			$possible_controller = str_replace('-', '_', $parts[0]);
+			if ($possible_controller == DEFAULT_CONTROLLER) self::do404();
 			
-			if ($parts[0] == DEFAULT_VIEW) {
-				self::do404();
+			if (Controller::exists(SITE, $possible_controller)) {
+				$args['controller'] = $possible_controller;
+				array_shift($parts);
+			} else {
+				$args['controller'] = DEFAULT_CONTROLLER;
 			}
-			$args['view'] = (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $parts[0], true)) ? array_shift($parts) : DEFAULT_VIEW;
-
+			
+			$possible_view = str_replace('-', '_', $parts[0]);
+			if ($possible_view == DEFAULT_VIEW) self::do404();
+			if (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $possible_view, true)) {
+				$args['view'] = $possible_view;
+				array_shift($parts);
+			} else {
+				$args['view'] = DEFAULT_VIEW;
+			}
 		}
 
 		$args['controller'] = str_replace('-', '_', $args['controller']);
@@ -237,9 +240,9 @@ SESSION: '.print_array(jmvc\classes\Session::$d);
 	}
 }
 
-function render($controller, $view, $args=array(), $site=SITE, $template=TEMPLATE)
+function render($controller, $view, $args=array(), $cache=null, $site=SITE, $template=TEMPLATE)
 {
-	return jmvc\View::render($controller, $view, $args, $site, $template);
+	return jmvc\View::render($controller, $view, $args, $cache, $site, $template);
 }
 
 function print_array($arr, $padding="\t")

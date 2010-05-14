@@ -4,8 +4,6 @@ namespace jmvc;
 
 class Controller {
 
-	public $no_template = false;
-
 	public function __construct($args)
 	{
 		$this->args = $args;
