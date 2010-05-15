@@ -77,6 +77,9 @@ class View {
 			if ($controller->view_override) {
 				$view_name = $controller->view_override;
 			}
+			if ($controller->controller_override) {
+				$controller_name = $controller->controller_override;
+			}
 			
 		} else {
 			$controller = false;
