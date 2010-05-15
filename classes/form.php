@@ -203,7 +203,7 @@ class Form extends Validation {
 	
 	public function get_date_time($date_key, $time_key)
 	{
-		if (isset($this[$date_key]) && isset($this[$time_key])) {
+		if ($this[$date_key] && $this[$time_key]) {
 			return strtotime($this[$date_key].' '.$this[$time_key]);
 		}
 	}
