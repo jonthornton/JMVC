@@ -67,8 +67,8 @@ class JMVC {
 		if (!defined('DEFAULT_VIEW')) define('DEFAULT_VIEW', 'index');
 
 		if ($app_url == '/') {
-			DEFINE('SITE', DEFAULT_SITE);
-			DEFINE('TEMPLATE', DEFAULT_TEMPLATE);
+			$site = DEFAULT_SITE;
+			$template = DEFAULT_TEMPLATE;
 			$args['controller'] = DEFAULT_CONTROLLER;
 			$args['view'] = DEFAULT_VIEW;
 			$parts = array();
@@ -78,15 +78,15 @@ class JMVC {
 
 			// block direct url for default site
 			if ($parts[0] == DEFAULT_SITE) self::do404();
-			DEFINE('SITE', (Controller::exists($parts[0], Template)) ? array_shift($parts) : DEFAULT_SITE);
+			$site = Controller::exists($parts[0], Template) ? array_shift($parts) : DEFAULT_SITE;
 			
 			if ($parts[0] == DEFAULT_TEMPLATE) self::do404();
-			DEFINE('TEMPLATE', (method_exists('controllers\\'.SITE.'\Template', $parts[0])) ? array_shift($parts) : DEFAULT_TEMPLATE);
+			$template = method_exists('controllers\\'.$site.'\Template', $parts[0]) ? array_shift($parts) : DEFAULT_TEMPLATE;
 			
 			$possible_controller = str_replace('-', '_', $parts[0]);
 			if ($possible_controller == DEFAULT_CONTROLLER) self::do404();
 			
-			if (Controller::exists(SITE, $possible_controller)) {
+			if (Controller::exists($site, $possible_controller)) {
 				$args['controller'] = $possible_controller;
 				array_shift($parts);
 			} else {
@@ -95,7 +95,7 @@ class JMVC {
 			
 			$possible_view = str_replace('-', '_', $parts[0]);
 			if ($possible_view == DEFAULT_VIEW) self::do404();
-			if (count($parts) && View::exists(SITE, TEMPLATE, $args['controller'], $possible_view, true)) {
+			if (count($parts) && View::exists($site, $template, $args['controller'], $possible_view, true)) {
 				$args['view'] = $possible_view;
 				array_shift($parts);
 			} else {
@@ -106,7 +106,7 @@ class JMVC {
 		$args['controller'] = str_replace('-', '_', $args['controller']);
 		$args['view'] = str_replace('-', '_', $args['view']);
 		
-		echo render('template', TEMPLATE, array_merge($parts, $args));
+		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
 	}
 
 	public static function do404()
@@ -240,7 +240,7 @@ SESSION: '.print_array(jmvc\classes\Session::$d);
 	}
 }
 
-function render($controller, $view, $args=array(), $cache=null, $site=SITE, $template=TEMPLATE)
+function render($controller, $view, $args=array(), $cache=null, $site=false, $template=false)
 {
 	return jmvc\View::render($controller, $view, $args, $cache, $site, $template);
 }

@@ -7,6 +7,9 @@ class View {
 	protected static $data;
 	protected static $cacheme = array();
 	
+	protected static $site_stack = array();
+	protected static $template_stack = array();
+	
 	public static function get($key)
 	{
 		return self::$data[$key];
@@ -42,8 +45,19 @@ class View {
 		}
 	}
 
-	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site=SITE, $template=TEMPLATE)
+	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site_name=false, $template_name=false)
 	{
+
+		if ($site_name) {
+			array_unshift(self::$site_stack, $site_name);
+		}
+		$site = self::$site_stack[0];
+		
+		if ($template_name) {
+			array_unshift(self::$template_stack, $template_name);
+		}
+		$template = self::$template_stack[0];
+	
 		$controller = false;
 		$view = false;
 		
@@ -93,9 +107,13 @@ class View {
 			$output = ob_get_clean();
 		}
 	
-		if (!$controller && !$output) {
+		if (!$controller && !$file) {
+			pd('abc');
 			\JMVC::do404();
 		}
+		
+		if ($site_name) array_shift(self::$site_stack);
+		if ($tempate_name) array_shift(self::$template_stack);
 		
 		if ($cache !== null) {
 			\jmvc\classes\file_cache::set($key, $output);
@@ -107,18 +125,32 @@ class View {
 		return $output;
 	}
 
-	public static function render_static($controller_name, $view_name, $args=array(), $site=SITE, $template=TEMPLATE)
+	public static function render_static($controller_name, $view_name, $args=array(), $site_name=false, $template_name=false)
 	{
+		if ($site_name) {
+			array_unshift(self::$site_stack, $site_name);
+		}
+		$site = self::$site_stack[0];
+		
+		if ($template_name) {
+			array_unshift(self::$template_stack, $template_name);
+		}
+		$template = self::$template_stack[0];
+		
 		if ($file = self::exists($site, $template, $controller_name, $view_name)) {
 			if ($controller) extract(get_object_vars($controller));
 			
 			ob_start();
 			include($file);
 			$output = ob_get_clean();
-			return $output;
 		} else {
 			\JMVC::do404();
 		}
+		
+		if ($site_name) array_shift(self::$site_stack);
+		if ($tempate_name) array_shift(self::$template_stack);
+		
+		return $output;
 	}
 	
 	public static function exists($site, $template, $controller, $view, $check_controller=false)
