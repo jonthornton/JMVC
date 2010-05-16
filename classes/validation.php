@@ -25,7 +25,7 @@ class Validation implements \ArrayAccess {
 	// Errors
 	protected $errors = array();
 	protected $messages = array();
-	protected $error_messages = false;
+	public $error_messages = false;
 
 	// Fields that are expected to be arrays
 	protected $array_fields = array();
