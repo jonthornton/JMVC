@@ -13,7 +13,7 @@ class Postmark_Mail extends \jmvc\classes\Mail {
 		
 		$m->subject($this->subject);
 		
-		if (strpos(trim($this->body), '<br') !== false || strpos(trim($this->body), '<p>') !== false) {
+		if (strpos($this->body, '<br') !== false || strpos($this->body, '<p>') !== false) {
 			$m->messageHtml($this->body);
 			
 			if (isset($this->plain_body)) {
