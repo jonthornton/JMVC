@@ -194,23 +194,23 @@ class Postmark
 	public function &send()
 	{
 		if (is_null(POSTMARKAPP_API_KEY)) {
-			throw new Exception('Postmark API key is not set');
+			throw new \ErrorException('Postmark API key is not set');
 		}
 		
 		if (is_null($this->_fromAddress)) {
-			throw new Exception('From address is not set');
+			throw new \ErrorException('From address is not set');
 		}
 		
 		if (empty($this->_toAddress)) {
-			throw new Exception('To address is not set');
+			throw new \ErrorException('To address is not set');
 		}
 		
 		if (!$this->_validateAddress($this->_fromAddress)) {
-			throw new Exception("Invalid from address '{$this->_fromAddress}'");
+			throw new \ErrorException("Invalid from address '{$this->_fromAddress}'");
 		}
 		
 		if (isset($this->_replyToAddress) && !$this->_validateAddress($this->_replyToAddress)) {
-			throw new Exception("Invalid reply to address '{$this->_replyToAddress}'");
+			throw new \ErrorException("Invalid reply to address '{$this->_replyToAddress}'");
 		}
 		
 		if (!IS_PRODUCTION) {
