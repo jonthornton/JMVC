@@ -25,7 +25,7 @@ class Validation implements \ArrayAccess {
 	// Errors
 	protected $errors = array();
 	protected $messages = array();
-	public $error_messages = false;
+	public $error_messages = array();
 
 	// Fields that are expected to be arrays
 	protected $array_fields = array();
@@ -40,6 +40,31 @@ class Validation implements \ArrayAccess {
 		$this->submitted = !empty($data);
 
 		$this->data = $data;
+	}
+	
+	public function absorb($val)
+	{
+		$data = $val->export();
+		$this->pre_filters = array_merge($this->pre_filters, $data['pre_filters']);
+		$this->post_filters = array_merge($this->post_filters, $data['post_filters']);
+		$this->rules = array_merge($this->rules, $data['rules']);
+		$this->callbacks = array_merge($this->callbacks, $data['callbacks']);
+		$this->empty_rules = array_merge($this->empty_rules, $data['empty_rules']);
+		$this->error_messages = array_merge($this->error_messages, $data['error_messages']);
+		$this->array_fields = array_merge($this->array_fields, $data['array_fields']);
+	}
+	
+	public function export()
+	{
+		return array(
+			'pre_filters'=>$this->pre_filters,
+			'post_filters'=>$this->post_filters,
+			'rules'=>$this->rules,
+			'callbacks'=>$this->callbacks,
+			'empty_rules'=>$this->empty_rules,
+			'error_messages'=>$this->error_messages,
+			'array_fields'=>$this->array_fields			
+		);
 	}
 	
 	public function offsetGet($key)
@@ -448,7 +473,7 @@ class Validation implements \ArrayAccess {
 		}
 	
 		if (!$messages) {
-			if ($this->error_messages) {
+			if (!empty($this->error_messages)) {
 				$messages = $this->error_messages;
 			} else {
 				$out = array();
