@@ -118,8 +118,7 @@ class View {
 		}
 	
 		if (!$controller && !$file) {
-			pd('abc');
-			\JMVC::do404();
+			throw new \ErrorException('Can\'t find view. View: '.$view_name.', Controller: '.$controller_name.', Site: '.$site.', Template: '.$template);
 		}
 		
 		if ($site_name) array_shift(self::$site_stack);
@@ -154,7 +153,7 @@ class View {
 			include($file);
 			$output = ob_get_clean();
 		} else {
-			\JMVC::do404();
+			throw new \ErrorException('Can\'t find view. View: '.$view_name.', Controller: '.$controller_name.', Site: '.$site.', Template: '.$template);
 		}
 		
 		if ($site_name) array_shift(self::$site_stack);
