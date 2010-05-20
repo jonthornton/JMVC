@@ -2,18 +2,25 @@
 
 use jmvc\Controller;
 use jmvc\View;
-use jmvc\classes\Session;
+use jmvc\classes\Benchmark;
 
 class JMVC {
 
 	public static function init($doRouting=true)
 	{
+		include(JMVC_DIR.'classes/benchmark.php');
+		Benchmark::start('total');
+		
 		include(APP_DIR.'../config.php');
 		include(APP_DIR.'constants.php');
+		
+		include(JMVC_DIR.'view.php');
+		include(JMVC_DIR.'controller.php');
 
 		if (file_exists(APP_DIR.'routes.php')) {
 			include(APP_DIR.'routes.php');
 		}
+		
 
 		date_default_timezone_set('America/New_York');
 		spl_autoload_register('JMVC::autoloader');
@@ -42,8 +49,6 @@ class JMVC {
 			}
 		}
 
-		Session::start();
-		
 		if (!$doRouting) {
 			return;
 		}
@@ -59,6 +64,10 @@ class JMVC {
 					break;
 				}
 			}
+		}
+		
+		if ($val = self::hook('post_routes', $app_url)) {
+			$app_url = $val;
 		}
 		
 		if (!defined('DEFAULT_SITE')) define('DEFAULT_SITE', 'www');
@@ -118,14 +127,10 @@ class JMVC {
 		exit;
 	}
 	
-	public function hooks($hook)
+	public function hook($hook, $args)
 	{
-		if (is_array($GLOBALS['HOOKS'][$hook])) {
-			foreach ($GLOBALS['HOOKS'][$hook] as $func) {
-				$func();
-			}
-		} else if (isset($GLOBALS['HOOKS'][$hook])) {
-			$GLOBALS['HOOKS'][$hook]();
+		if (is_callable($GLOBALS['HOOKS'][$hook])) {
+			return $GLOBALS['HOOKS'][$hook]($args);
 		}
 	}
 	
