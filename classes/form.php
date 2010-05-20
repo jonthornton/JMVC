@@ -31,6 +31,8 @@ class Form extends Validation {
 	{
 		if (is_array($this->data[$key])) {
 			return $this->data[$key];
+		} else if ($this->data[$key] == '') {
+			return;
 		} else {
 			return htmlspecialchars(strip_tags(trim($this->data[$key])), ENT_COMPAT, 'ISO-8859-1', false);
 		}
@@ -360,7 +362,7 @@ class Form extends Validation {
 
 		$data['type'] = 'radio';
 			
-		if ($this->submitted()) {
+		if ($this->submitted() && $this[$data['name']] !== null) {
 			if ($this[$data['name']] == $data['value']) {
 				$data['checked'] = 'checked';
 			} else {
