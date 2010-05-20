@@ -2,6 +2,9 @@
 
 namespace jmvc;
 
+use jmvc\classes\File_Cache;
+use jmvc\classes\Session;
+
 class View {
 
 	protected static $data;
@@ -44,6 +47,13 @@ class View {
 			self::$data[$key] = $val;
 		}
 	}
+	
+	public static function bust_cache($controller_name, $view_name, $args, $site, $template)
+	{
+		$key = md5(serialize(array($controller_name, $view_name, $args, $site, $template)));
+		File_cache::bust($key);
+		File_cache::get($key.'meta');
+	}
 
 	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site_name=false, $template_name=false)
 	{
@@ -62,10 +72,10 @@ class View {
 		$view = false;
 		
 		if ($cache !== null) {
-			$key = md5(serialize(func_get_args()));
+			$key = md5(serialize(array($controller_name, $view_name, $args, $site, $template)));
 			
-			$output = \jmvc\classes\file_cache::get($key, $cache);
-			$meta = \jmvc\classes\file_cache::get($key.'meta', $cache);
+			$output = File_cache::get($key, $cache);
+			$meta = File_cache::get($key.'meta', $cache);
 			
 			if ($meta) {
 				$meta = unserialize($meta);
@@ -116,8 +126,8 @@ class View {
 		if ($tempate_name) array_shift(self::$template_stack);
 		
 		if ($cache !== null) {
-			\jmvc\classes\file_cache::set($key, $output);
-			\jmvc\classes\file_cache::set($key.'meta', serialize(self::$cacheme[$key]));
+			File_cache::set($key, $output);
+			File_cache::set($key.'meta', serialize(self::$cacheme[$key]));
 			
 			unset(self::$cacheme[$key]);
 		}
@@ -175,19 +185,19 @@ class View {
 	public static function flash($msg=false)
 	{
 		if ($msg) {
-			if (!isset(\jmvc\classes\Session::$d['flash'])) {
-				\jmvc\classes\Session::$d['flash'] = array();
+			if (!isset(Session::$d['flash'])) {
+				Session::$d['flash'] = array();
 			}
-			\jmvc\classes\Session::$d['flash'][] = $msg;
+			Session::$d['flash'][] = $msg;
 			return;
 		}
 		
-		if (!empty(\jmvc\classes\Session::$d['flash'])) {
+		if (!empty(Session::$d['flash'])) {
 			$out = '';
-			foreach (\jmvc\classes\Session::$d['flash'] as $msg) {
+			foreach (Session::$d['flash'] as $msg) {
 				$out .= '<div class="msg">'.$msg.'</div>';
 			}
-			unset(\jmvc\classes\Session::$d['flash']);
+			unset(Session::$d['flash']);
 			return $out;
 		}
 	}

@@ -8,6 +8,16 @@ class File_Cache {
 	{
 	}
 	
+	public static function bust($key)
+	{
+		$file = CACHE_DIR.'/'.$key.'.'.$_SERVER['HTTP_HOST'].'.cache';
+		if (!file_exists($file)) {
+			return;
+		}
+		
+		unlink($file);
+	}
+	
 	public static function get($key, $expires=0)
 	{
 		if (!IS_PRODUCTION || (defined('BUST_CACHE') && BUST_CACHE)) {
