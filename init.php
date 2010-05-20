@@ -23,23 +23,23 @@ class JMVC {
 		
 		$_SERVER['REQUEST_URI'] = strtolower($_SERVER['REQUEST_URI']);
 		
-		if (isset($REDIRECTS)) {
-			foreach ($REDIRECTS as $in=>$out) {
-				$routed_url = preg_replace('%'.$in.'%', $out, $_SERVER['REQUEST_URI'], 1, $count);
-
-				if ($count) {
-					\jmvc\Controller::forward($routed_url, true);
-					break;
-				}
-			}
-		}
-
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
 			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos+1));
 		} else {
 			define('CURRENT_URL', $_SERVER['REQUEST_URI']);
 			define('QUERY_STRING', '');
+		}
+		
+		if (isset($REDIRECTS)) {
+			foreach ($REDIRECTS as $in=>$out) {
+				$routed_url = preg_replace('%'.$in.'%', $out, CURRENT_URL, 1, $count);
+
+				if ($count) {
+					\jmvc\Controller::forward($routed_url.'?'.QUERY_STRING, true);
+					break;
+				}
+			}
 		}
 
 		Session::start();
