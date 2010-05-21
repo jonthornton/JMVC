@@ -21,8 +21,8 @@ class View {
 	public static function push($key, $val, $unique=false)
 	{
 		if (!empty(self::$cacheme)) {
-			foreach (self::$cacheme as $key=>$data) {
-				self::$cacheme[$key]['push'][] = func_get_args();
+			foreach (self::$cacheme as $cache_key=>$data) {
+				self::$cacheme[$cache_key]['push'][] = func_get_args();
 			}
 		}
 		
@@ -38,14 +38,30 @@ class View {
 	public static function set($key, $val)
 	{
 		if (!empty(self::$cacheme)) {
-			foreach (self::$cacheme as $key=>$data) {
-				self::$cacheme[$key]['set'][] = func_get_args();
+			foreach (self::$cacheme as $cache_key=>$data) {
+				self::$cacheme[$cache_key]['set'][] = func_get_args();
 			}
 		}
 		
 		if (!isset(self::$data[$key])) {
 			self::$data[$key] = $val;
 		}
+	}
+	
+	public static function reset($key, $val)
+	{
+		if (!isset(self::$data[$key])) {
+			// reset can only be used on previously set values
+			return;
+		}
+		
+		if (!empty(self::$cacheme)) {
+			foreach (self::$cacheme as $cache_key=>$data) {
+				self::$cacheme[$cache_key]['reset'][] = func_get_args();
+			}
+		}
+		
+		self::$data[$key] = $val;
 	}
 	
 	public static function bust_cache($controller_name, $view_name, $args, $site, $template)
@@ -79,11 +95,15 @@ class View {
 			
 			if ($meta) {
 				$meta = unserialize($meta);
+				
 				foreach ($meta['push'] as $push) {
 					self::push($push[0], $push[1], $push[2]);
 				}
 				foreach ($meta['set'] as $set) {
-					self::push($set[0], $set[1]);
+					self::set($set[0], $set[1]);
+				}
+				foreach ($meta['reset'] as $reset) {
+					self::reset($reset[0], $reset[1]);
 				}
 			}
 			
@@ -91,7 +111,7 @@ class View {
 				return $output;
 			}
 			
-			self::$cacheme[$key] = array('set'=>array(), 'push'=>array());
+			self::$cacheme[$key] = array('set'=>array(), 'push'=>array(), 'reset'=>array());
 		}
 		
 		$controller = Controller::get($site, $controller_name, $args);
