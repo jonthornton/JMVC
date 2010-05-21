@@ -54,27 +54,12 @@ class JMVC {
 		}
 
 		$app_url = CURRENT_URL;
-
-		if (isset($ROUTES)) {
-			foreach ($ROUTES as $in=>$out) {
-				$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
-
-				if ($count) {
-					$app_url = $routed_url;
-					break;
-				}
-			}
-		}
-		
-		if ($val = self::hook('post_routes', $app_url)) {
-			$app_url = $val;
-		}
 		
 		if (!defined('DEFAULT_SITE')) define('DEFAULT_SITE', 'www');
 		if (!defined('DEFAULT_TEMPLATE')) define('DEFAULT_TEMPLATE', 'html');
 		if (!defined('DEFAULT_CONTROLLER')) define('DEFAULT_CONTROLLER', 'home');
 		if (!defined('DEFAULT_VIEW')) define('DEFAULT_VIEW', 'index');
-
+		
 		if ($app_url == '/') {
 			$site = DEFAULT_SITE;
 			$template = DEFAULT_TEMPLATE;
@@ -82,16 +67,29 @@ class JMVC {
 			$args['view'] = DEFAULT_VIEW;
 			$parts = array();
 		} else {
-
+		
 			$parts = explode('/', trim($app_url, '/'));
 
 			// block direct url for default site
 			if ($parts[0] == DEFAULT_SITE) self::do404();
 			$site = Controller::exists($parts[0], Template) ? array_shift($parts) : DEFAULT_SITE;
-			
+		
 			if ($parts[0] == DEFAULT_TEMPLATE) self::do404();
 			$template = method_exists('controllers\\'.$site.'\Template', $parts[0]) ? array_shift($parts) : DEFAULT_TEMPLATE;
 			
+			if (isset($ROUTES)) {
+				$app_url = '/'.implode('/', $parts).'/';
+				foreach ($ROUTES as $in=>$out) {
+					$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
+
+					if ($count) {
+						$app_url = $routed_url;
+						$parts = explode('/', trim($app_url, '/'));
+						break;
+					}
+				}
+			}
+		
 			$possible_controller = str_replace('-', '_', $parts[0]);
 			if ($possible_controller == DEFAULT_CONTROLLER) self::do404();
 			
@@ -110,6 +108,12 @@ class JMVC {
 			} else {
 				$args['view'] = DEFAULT_VIEW;
 			}
+		}
+		
+		if ($hook_output = self::hook('post_routing', $args+array('site'=>$site, 'template'=>$template))) {
+			$args = $hook_output;
+			$site = $args['site'];
+			$template = $args['template'];
 		}
 
 		$args['controller'] = str_replace('-', '_', $args['controller']);
