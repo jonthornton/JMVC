@@ -152,7 +152,7 @@ class Form extends Validation {
 		return $this->input($data, $value, $extra);
 	}
 	
-	public function date($data, $value=false, $auto=true, $extra = '')
+	public function date($data, $value=false, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -168,13 +168,6 @@ class Form extends Validation {
 		}
 		
 		self::add_class($data, 'date');
-		
-		if ($auto) {
-			self::add_class($data, 'date auto');
-		} else {
-			self::add_class($data, 'date');
-		}
-
 		return $this->input($data, $value, $extra);
 	}
 	
