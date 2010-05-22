@@ -493,7 +493,7 @@ class Validation implements \ArrayAccess {
 					if ((isset($messages[$input][$error]))) {
 						$errors[] = $messages[$input][$error];
 					} else if (isset($messages[$input]['default'])) {
-						$errors[] = $messages['default'];
+						$errors[] = $messages[$input]['default'];
 					} else {
 						$errors[] = $input.':'.$error;
 					}
