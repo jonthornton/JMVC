@@ -12,16 +12,27 @@ class Form extends Validation {
 
 	protected static $formcount = 0;
 	protected static $tabindex = 0;
-	protected static $instance = false;
 
 	public function __construct($id=false)
 	{
 		$this->id = $id ?: 'form'.self::$formcount;
 		
-		if (isset($_POST[$this->id])) {
-			parent::__construct($_POST);
-		} else if (isset($_GET[$this->id])) {
-			parent::__construct($_GET);
+		if ($id) {
+			if (isset($_POST[$this->id])) {
+				parent::__construct($_POST);
+			} else if (isset($_GET[$this->id])) {
+				parent::__construct($_GET);
+			} else {
+				parent::__construct();
+			}
+		} else {
+			if (!empty($_POST)) {
+				parent::__construct($_POST);
+			} else if (!empty($_GET)) {
+				parent::__construct($_GET);
+			} else {
+				parent::__construct();
+			}
 		}
 		
 		self::$formcount++;
@@ -36,15 +47,6 @@ class Form extends Validation {
 		} else {
 			return htmlspecialchars(strip_tags(trim($this->data[$key])), ENT_COMPAT, 'ISO-8859-1', false);
 		}
-	}
-	
-	public static function instance()
-	{
-		if (!self::$instance) {
-			self::$instance = new Form('instanceform');
-		}
-		
-		return self::$instance;
 	}
 	
 	public function clear()
@@ -122,7 +124,7 @@ class Form extends Validation {
 		// Type and value are required attributes
 		$data += array('type'=>'text');
 		
-		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
+		if ($data['type'] != 'checkbox' && $data['type'] != 'radio' && isset($this->data[$data['name']])) {
 			if ($this->submitted() && !$this->errors[$data['name']]) {
 				$data['value'] = $this[$data['name']];
 			} else if ($value !== null) {
@@ -269,7 +271,7 @@ class Form extends Validation {
 			$data = array('name' => $data);
 		}
 
-		if ($this->submitted() && !$this->errors[$data['name']]) {
+		if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
 			$selected = $this[$data['name']];
 		}
 		
