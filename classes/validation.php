@@ -260,7 +260,11 @@ class Validation implements \ArrayAccess {
 	public function validate($array=false)
 	{
 		if (!$array) {
-			$array = $this->data;
+			if ($this->submitted()) {
+				$array = $this->data;
+			} else {
+				return false;
+			}
 		}
 
 		// Get all field names

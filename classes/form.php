@@ -124,8 +124,8 @@ class Form extends Validation {
 		// Type and value are required attributes
 		$data += array('type'=>'text');
 		
-		if ($data['type'] != 'checkbox' && $data['type'] != 'radio' && isset($this->data[$data['name']])) {
-			if ($this->submitted() && !$this->errors[$data['name']]) {
+		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
+			if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
 				$data['value'] = $this[$data['name']];
 			} else if ($value !== null) {
 				$data['value'] = $value;
