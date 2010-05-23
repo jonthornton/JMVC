@@ -114,7 +114,7 @@ class View {
 			self::$cacheme[$key] = array('set'=>array(), 'push'=>array(), 'reset'=>array());
 		}
 		
-		$controller = Controller::get($site, $controller_name, $args);
+		$controller = Controller::get($site, $controller_name, $args+array('site'=>$site, 'template'=>$template));
 		if ($controller && method_exists($controller, $view_name)) {
 			$controller->$view_name();
 			
