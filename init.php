@@ -227,6 +227,11 @@ class JMVC {
 	{
 		if (!file_exists(LOG_DIR.'/error_state')) {
 			mail(ADMIN_EMAIL, 'Error in '.$file, $message);
+			
+			if (defined('ADMIN_ALERT')) {
+				mail(ADMIN_ALERT, 'Error on '.$_SERVER['HTTP_HOST']);
+			}
+			
 			touch(LOG_DIR.'/error_state');
 		}
 	}
