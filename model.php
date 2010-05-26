@@ -133,7 +133,7 @@ class Model {
 					$str .= self::quote($val).', ';
 				}
 				$where[] = substr($str, 0, -2).')';
-			} if ($value === NULL) {
+			} else if ($value === NULL) {
 				$where[] = $prefix.$key.' IS NULL';
 			} else {
 				$where[] = ($key == 'raw_sql') ? $value : $prefix.$key.'='.self::quote($value);
