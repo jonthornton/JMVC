@@ -23,7 +23,7 @@ class Form extends Validation {
 			} else if (isset($_GET[$this->id])) {
 				parent::__construct($_GET);
 			} else {
-				parent::__construct();
+				parent::__construct(array());
 			}
 		} else {
 			if (!empty($_POST)) {
@@ -31,7 +31,7 @@ class Form extends Validation {
 			} else if (!empty($_GET)) {
 				parent::__construct($_GET);
 			} else {
-				parent::__construct();
+				parent::__construct(array());
 			}
 		}
 		
