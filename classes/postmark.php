@@ -245,14 +245,15 @@ class Postmark
 		}
 		
 		if (curl_error($ch) != '') {
-			throw new Exception(curl_error($ch));
+			//throw new \ErrorException(curl_error($ch));
+			return $this;
 		}
 		
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		
 		if (!$this->_isTwoHundred($httpCode)) {
 			$message = json_decode($return)->Message;
-			throw new Exception("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
+			//throw new \ErrorException("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
 		}
 		
 		return $this;
