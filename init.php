@@ -21,12 +21,10 @@ class JMVC {
 			include(APP_DIR.'routes.php');
 		}
 		
-
 		date_default_timezone_set('America/New_York');
 		spl_autoload_register('JMVC::autoloader');
 		set_exception_handler('JMVC::exception_handler');
 		set_error_handler('JMVC::exception_error_handler');
-		ob_start('JMVC::fatal_error_checker');
 		
 		$_SERVER['REQUEST_URI'] = strtolower($_SERVER['REQUEST_URI']);
 		
@@ -52,6 +50,8 @@ class JMVC {
 		if (!$doRouting) {
 			return;
 		}
+		
+		ob_start('JMVC::fatal_error_checker');
 
 		$app_url = CURRENT_URL;
 		
@@ -225,11 +225,16 @@ class JMVC {
 	
 	private static function notify_admin($file, $message)
 	{
+		$fp = fopen(LOG_DIR.'/php_errors', 'a');
+		if ($fp) {
+			fwrite($fp, "\n\n".date('r')."\n".$message);
+		}
+	
 		if (!file_exists(LOG_DIR.'/error_state')) {
 			mail(ADMIN_EMAIL, 'Error in '.$file, $message);
 			
 			if (defined('ADMIN_ALERT')) {
-				mail(ADMIN_ALERT, 'Error on '.$_SERVER['HTTP_HOST']);
+				mail(ADMIN_ALERT, 'Error on '.$_SERVER['HTTP_HOST'], 'check email');
 			}
 			
 			touch(LOG_DIR.'/error_state');
