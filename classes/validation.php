@@ -377,6 +377,8 @@ class Validation implements \ArrayAccess {
 				}
 			}
 		}
+		
+		if (!empty($this->errors)) return false;
 
 		foreach ($this->callbacks as $field => $callbacks) {
 			foreach ($callbacks as $callback) {
