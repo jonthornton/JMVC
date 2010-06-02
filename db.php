@@ -84,7 +84,7 @@ class Db {
 		
 		$where_sql = Array();
 		foreach ($where as $key=>$value) {
-			array_push($where_sql, $key.'='.$this->quote($value));
+			$where_sql[] = $key.'='.$this->quote($value);
 		}
 		
 		$where = implode($where_sql, ' AND ');
@@ -121,7 +121,7 @@ class Db {
 		}
 	}
 	
-	public function get_rows($query, $key=false)
+	public function get_rows($query, $key=false, $callback=false)
 	{
 		$result = $this->select($query);
 		
@@ -133,16 +133,16 @@ class Db {
 		
 		if ($result->field_count == 1) {
 			while ($row = $result->fetch_row()) {
-				array_push($outp, $row[0]);
+				$outp[] = $row[0];
 			}
 		} else {
 			if ($key) {
 				while ($row = $result->fetch_assoc()) {
-					$outp[$row[$key]] = $row;
+					if (!$callback || $callback($row)) $outp[$row[$key]] = $row;
 				}
 			} else {
 				while ($row = $result->fetch_assoc()) {
-					array_push($outp, $row);
+					if (!$callback || $callback($row)) $outp[] = $row;
 				}
 			}
 		}
