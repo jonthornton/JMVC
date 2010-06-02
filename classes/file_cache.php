@@ -12,7 +12,7 @@ class File_Cache {
 	
 	public static function bust($key)
 	{
-		$file = CACHE_DIR.'/'.$key.'.'.$_SERVER['HTTP_HOST'].'.cache';
+		$file = CACHE_DIR.'/'.$key.'.cache';
 		if (!file_exists($file)) {
 			return;
 		}
@@ -27,7 +27,7 @@ class File_Cache {
 			return false;
 		}
 		
-		$file = CACHE_DIR.'/'.$key.'.'.$_SERVER['HTTP_HOST'].'.cache';
+		$file = CACHE_DIR.'/'.$key.'.cache';
 		
 		if (!file_exists($file)) {
 			self::$stats['misses']++;
@@ -61,7 +61,7 @@ class File_Cache {
 			return;
 		}
 		
-		$file = CACHE_DIR.'/'.$key.'.'.$_SERVER['HTTP_HOST'].'.cache';
+		$file = CACHE_DIR.'/'.$key.'.cache';
 		
 		$fp = fopen($file, 'w');
 		if (!$fp) {
