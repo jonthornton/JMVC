@@ -262,7 +262,7 @@ class Form extends Validation {
 			self::add_class($data, 'required');
 		}
 
-		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars($value).'</textarea>';
+		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars(trim($value), ENT_COMPAT, 'ISO-8859-1', false).'</textarea>';
 	}
 
 	public function dropdown($data, $options, $selected=NULL, $extra = '')
