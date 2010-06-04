@@ -142,6 +142,15 @@ class Form extends Validation {
 
 		return '<input'.form::attributes($data).' '.$extra.' />';
 	}
+	
+	public function email($data, $value=null, $extra = '')
+	{
+		if (!is_array($data)) {
+			$data = array('name' => $data);
+		}
+		$data['type'] = 'email';
+		return $this->input($data, $value, $extra);
+	}
 
 	public function password($data, $value=false, $extra = '')
 	{
