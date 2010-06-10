@@ -195,7 +195,7 @@ class Form extends Validation {
 			$data['value'] = \Util::getRoundedTime2($data['value']);
 		}
 		
-		return $this->dropdown($data, Array(''=>'')+$GLOBALS['HOURS2'], $data['value'], $extra);
+		return $this->dropdown($data, Array(''=>'Time...')+$GLOBALS['HOURS2'], $data['value'], $extra);
 	}
 	
 	public function get_date_time($date_key, $time_key)
