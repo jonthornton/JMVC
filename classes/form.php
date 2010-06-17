@@ -45,8 +45,13 @@ class Form extends Validation {
 		} else if ($this->data[$key] == '') {
 			return;
 		} else {
-			return htmlspecialchars(strip_tags(trim($this->data[$key])), ENT_COMPAT, 'ISO-8859-1', false);
+			return self::get_clean($this->data[$key]);
 		}
+	}
+	
+	public static function get_clean($data)
+	{
+		return htmlspecialchars(strip_tags(trim($data)), ENT_COMPAT, 'ISO-8859-1', false);
 	}
 	
 	public function clear()
