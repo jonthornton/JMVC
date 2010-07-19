@@ -194,6 +194,8 @@ class Model {
 		}
 		$rows = self::db()->get_rows($sql);
 		
+		if (!$rows) return false;
+		
 		$classname = get_called_class();
 		$outp = array();
 		foreach ($rows as $row) {
