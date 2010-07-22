@@ -461,6 +461,8 @@ class Form extends Validation {
 				break;
 			}
 		}
+		
+		if ($type == 'select') unset($attr['value']);
 
 		$order = array
 		(
