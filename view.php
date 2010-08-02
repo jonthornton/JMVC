@@ -214,7 +214,11 @@ class View {
 		if (!empty(Session::$d['flash'])) {
 			$out = '';
 			foreach (Session::$d['flash'] as $msg) {
-				$out .= '<div class="msg">'.$msg.'</div>';
+				if (substr($msg, 0, 7) == '<script') {
+					$out .= $msg;
+				} else {
+					$out .= '<div class="msg">'.$msg.'</div>';
+				}
 			}
 			unset(Session::$d['flash']);
 			return $out;
