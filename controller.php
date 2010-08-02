@@ -35,8 +35,8 @@ class Controller {
 		return file_exists(APP_DIR.'sites/'.$site.'/'.strtolower($controller).'.php');
 	}
 	
-	public static function flash($msg)
+	public static function flash($msg, $bucket=0)
 	{
-		View::flash($msg);
+		View::flash($msg, $bucket);
 	}
 }

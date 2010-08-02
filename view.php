@@ -201,26 +201,26 @@ class View {
 		}
 	}
 	
-	public static function flash($msg=false)
+	public static function flash($msg=false, $bucket=0)
 	{
 		if ($msg) {
-			if (!isset(Session::$d['flash'])) {
-				Session::$d['flash'] = array();
+			if (!isset(Session::$d['flash'][$bucket])) {
+				Session::$d['flash'][$bucket] = array();
 			}
-			Session::$d['flash'][] = $msg;
+			Session::$d['flash'][$bucket][] = $msg;
 			return;
 		}
 		
-		if (!empty(Session::$d['flash'])) {
+		if (!empty(Session::$d['flash'][$bucket])) {
 			$out = '';
-			foreach (Session::$d['flash'] as $msg) {
+			foreach (Session::$d['flash'][$bucket] as $msg) {
 				if (substr($msg, 0, 7) == '<script') {
 					$out .= $msg;
 				} else {
 					$out .= '<div class="msg">'.$msg.'</div>';
 				}
 			}
-			unset(Session::$d['flash']);
+			unset(Session::$d['flash'][$bucket]);
 			return $out;
 		}
 	}
