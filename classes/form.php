@@ -456,6 +456,13 @@ class Form extends Validation {
 				case 'image':
 				case 'button':
 				case 'submit':
+				case 'email':
+				case 'search':
+				case 'url':
+				case 'number':
+				case 'range':
+				case 'date':
+				case 'datetime':
 					// Only specific types of inputs use name to id matching
 					$attr['id'] = $attr['name'];
 				break;
