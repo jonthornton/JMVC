@@ -31,7 +31,7 @@ class Db {
 		if ($this->read_db) {
 			$this->read_db->close();
 		}
-		if ($this->write_db) {
+		if ($this->write_db && $this->write_db != $this->read_db) {
 			$this->write_db->close();
 		}
 	}
