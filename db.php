@@ -4,7 +4,8 @@ namespace jmvc;
 
 class Db {
 	
-	protected $db;
+	protected $write_db;
+	protected $read_db;
     protected static $instance;
 	
 	public static $stats;
@@ -12,14 +13,27 @@ class Db {
 	
 	private function __construct()
 	{
-		$this->db = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		$config = $GLOBALS['_CONFIG']['db'];
+		$this->write_db = new \mysqli($config['write']['host'], $config['write']['user'], $config['write']['pass'], $config['write']['name']);
+		
+		if ($config['read']) {
+			$read_config = $config['read'][rand(0, count($config['read'])-1)];
+			$this->read_db = new \mysqli($read_config['host'], $read_config['user'], $read_config['pass'], $read_config['name']);
+		} else {
+			$this->read_db = $this->write_db;
+		}
+		
 		self::$stats = array('select'=>0, 'insert'=>0, 'update'=>0, 'delete'=>0);
 	}
 	
 	public function __destruct()
 	{
-		if ($this->db)
-			$this->db->close();
+		if ($this->read_db) {
+			$this->read_db->close();
+		}
+		if ($this->write_db) {
+			$this->write_db->close();
+		}
 	}
 	
 	public static function instance()
@@ -38,9 +52,7 @@ class Db {
 			return $value;
 		}
 		
-		$value = "'" . $this->db->real_escape_string($value) . "'";
-
-		return $value;
+		return "'" . $this->read_db->real_escape_string($value) . "'";
 	}
 	
 	public function make_insert($table, $row)
@@ -92,13 +104,18 @@ class Db {
 		return "UPDATE $table SET $fields WHERE $where";	
 	}
 	
-	public function do_query($query)
+	public function do_query($query, $write=false)
 	{
-		$result = $this->db->query($query);
-		if (!$result) {
+		if ($write) {
+			$db = $this->write_db;
+		} else {
+			$db = $this->read_db;
+		}
 		
+		$result = $db->query($query);
+		
+		if (!$result) {
 			$message = $this->db->error;
-			
 			throw new \ErrorException($message, 0, 1, $query, 0);
 		}
 		
@@ -158,19 +175,19 @@ class Db {
 	public function delete($query)
 	{
 		self::$stats['delete']++;
-		$this->do_query($query);
+		$this->do_query($query, true);
 	}
 	
 	public function insert($query)
 	{
 		self::$stats['insert']++;
-		$this->do_query($query);
-		return $this->db->insert_id;
+		$this->do_query($query, true);
+		return $this->write_db->insert_id;
 	}
 	
 	public function update($query)
 	{
 		self::$stats['update']++;
-		$this->do_query($query);
+		$this->do_query($query, true);
 	}
 }
