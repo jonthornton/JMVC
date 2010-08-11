@@ -115,7 +115,7 @@ class Db {
 		$result = $db->query($query);
 		
 		if (!$result) {
-			$message = $this->db->error;
+			$message = $db->error;
 			throw new \ErrorException($message, 0, 1, $query, 0);
 		}
 		
