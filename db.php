@@ -122,6 +122,18 @@ class Db {
 		return $result;
 	}
 	
+	public function do_multi_query($query)
+	{
+		$result = $this->write_db->multi_query($query);
+		
+		if (!$result) {
+			$message = $this->db->error;
+			throw new \ErrorException($message, 0, 1, $query, 0);
+		}
+		
+		return $result;
+	}
+	
 	public function get_row($query)
 	{
 		$result = $this->select($query);
