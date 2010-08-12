@@ -115,6 +115,10 @@ class Model {
 	
 	public function get_data()
 	{
+		if (!$this->_loaded) {
+			$this->load();
+		}
+		
 		return array_merge($this->_values, $this->_dirty_values);
 	}
 	
