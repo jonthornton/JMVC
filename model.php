@@ -56,7 +56,9 @@ class Model {
 	
 	public function __set($key, $value)
 	{
-		$this->_dirty_values[$key] = $value;
+		if ($value !== $this->_values[$key]) {
+			$this->_dirty_values[$key] = $value;
+		}
 	}
 	
 	public function set_raw($key, $value)
