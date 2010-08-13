@@ -127,8 +127,12 @@ class Db {
 		$result = $this->write_db->multi_query($query);
 		
 		if (!$result) {
-			$message = $this->db->error;
+			$message = $this->write_db->error;
 			throw new \ErrorException($message, 0, 1, $query, 0);
+		}
+		
+		while ($this->write_db->next_result()) { 
+			// need to clear out db results before issuing new queries
 		}
 		
 		return $result;
