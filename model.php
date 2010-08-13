@@ -56,6 +56,10 @@ class Model {
 	
 	public function __set($key, $value)
 	{
+		if (!$this->_loaded) {
+			$this->load();
+		}
+		
 		if ($value !== $this->_values[$key]) {
 			$this->_dirty_values[$key] = $value;
 		}
