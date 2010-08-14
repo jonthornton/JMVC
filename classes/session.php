@@ -6,7 +6,7 @@ use jmvc\models\Session as Session_M;
 class Session {
 
 	public static $d;
-	protected static $old_d;
+	protected static $checksum;
 	protected static $savedSession = false;
 	
 	const COOKIE_NAME = 'JMVC_SESSION';
@@ -30,13 +30,13 @@ class Session {
 			self::$d = array();
 		}
 		
-		self::$old_d = self::$d;
+		self::$checksum = md5(serialize(self::$d));
 		register_shutdown_function(array('jmvc\classes\Session', 'end'));
 	}
 	
 	public function end()
 	{
-		if (self::$old_d == self::$d) {
+		if (self::$checksum == md5(serialize(self::$d))) {
 			return;
 		}
 		
