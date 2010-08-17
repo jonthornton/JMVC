@@ -78,6 +78,12 @@ class Db {
 		return "INSERT IGNORE INTO $table($fields) VALUES($values)";
 	}
 	
+	public function insert_row($table, $row)
+	{
+		$query = $this->make_insert($table, $row);
+		return $this->insert($query);
+	}
+	
 	public function make_update($table, $data, $where)
 	{
 		$fields = '';
