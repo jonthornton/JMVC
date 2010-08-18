@@ -158,7 +158,7 @@ class Model {
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria);
+			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria).' ORDER BY id';
 		}
 		
 		if ($limit) { 
@@ -200,7 +200,7 @@ class Model {
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', '', static::$_find_query);
 		} else {
-			$sql = 'SELECT * FROM '.static::$table;
+			$sql = 'SELECT * FROM '.static::$table.' ORDER BY id';
 		}
 		$rows = self::db()->get_rows($sql);
 		
