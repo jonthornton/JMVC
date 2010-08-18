@@ -39,7 +39,7 @@ class Model {
 	
 	public function __get($key)
 	{
-		if (isset($this->_dirty_values[$key])) {
+		if (array_key_exists($key, $this->_dirty_values)) {
 			return $this->_dirty_values[$key];
 		}
 		
@@ -47,7 +47,7 @@ class Model {
 			$this->load();
 		}
 		
-		if (isset($this->_values[$key])) {
+		if (array_key_exists($key, $this->_values)) {
 			return $this->_values[$key];
 		}
 		
