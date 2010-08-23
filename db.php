@@ -118,11 +118,17 @@ class Db {
 			$db = $this->read_db;
 		}
 		
+		$start = microtime(true);
 		$result = $db->query($query);
+		$time = microtime(true) - $start;
 		
 		if (!$result) {
 			$message = $db->error;
 			throw new \ErrorException($message, 0, 1, $query, 0);
+		}
+		
+		if (defined('DB_QUERY_STATS')) {
+			self::$queries[] = array('query'=>$query, 'time'=>$time);
 		}
 		
 		return $result;
