@@ -13,6 +13,7 @@ class Model {
 	protected static $_table;
 	protected static $_find_query;
 	protected static $_find_prefix = '';
+	protected static $_find_order = null;
 	
 	public function __construct($id=false)
 	{
@@ -153,10 +154,16 @@ class Model {
 		return 'WHERE '.implode(' AND ', $where);
 	}
 	
-	public static function find($criteria, $limit=false)
+	public static function find($criteria, $limit=false, $order=false)
 	{
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
+			
+			if ($order) {
+				$sql .= ' ORDER BY '.$order;
+			} else if (static::$_find_order) {
+				$sql .= ' ORDER BY '.static::$_find_order;
+			}
 		} else {
 			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria).' ORDER BY id';
 		}
@@ -195,13 +202,20 @@ class Model {
 		return self::db()->get_row($sql);
 	}
 	
-	public static function find_all()
+	public static function find_all($order=false)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', '', static::$_find_query);
+			$sql = str_replace('[[WHERE]]', '', static::$_find_query).' ORDER BY ';
+			
+			if ($order) {
+				$sql .= ' ORDER BY '.$order;
+			} else if (static::$_find_order) {
+				$sql .= ' ORDER BY '.static::$_find_order;
+			}
 		} else {
 			$sql = 'SELECT * FROM '.static::$table.' ORDER BY id';
 		}
+
 		$rows = self::db()->get_rows($sql);
 		
 		if (!$rows) return false;
