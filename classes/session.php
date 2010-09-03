@@ -16,10 +16,11 @@ class Session {
 		// static-only class
 	}
 	
-	public function start()
+	public static function start()
 	{
-		if (isset($_COOKIE[self::COOKIE_NAME])) {
-			self::$savedSession = new Session_M($_COOKIE[self::COOKIE_NAME]);
+		$key = self::id();
+		if ($key) {
+			self::$savedSession = new Session_M($key);
 			
 			if (!self::$savedSession->id) {
 				self::$savedSession = false;
@@ -34,7 +35,12 @@ class Session {
 		register_shutdown_function(array('jmvc\classes\Session', 'end'));
 	}
 	
-	public function end()
+	public static function id()
+	{
+		return $_COOKIE[self::COOKIE_NAME] ?: $_POST[self::COOKIE_NAME];
+	}
+	
+	public static function end()
 	{
 		if (self::$checksum == md5(serialize(self::$d))) {
 			return;
