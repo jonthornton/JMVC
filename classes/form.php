@@ -266,6 +266,9 @@ class Form extends Validation {
 		if ($this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
+		
+		if (!isset($data['rows'])) $data['rows'] = 10;
+		if (!isset($data['cols'])) $data['cols'] = 30;
 
 		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars(trim($value), ENT_COMPAT, 'ISO-8859-1', false).'</textarea>';
 	}
