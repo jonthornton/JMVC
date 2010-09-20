@@ -6,6 +6,7 @@ class Model {
 	
 	protected $_values = array();
 	protected $_dirty_values = array();
+	protected $_meta_values = array();
 	protected $_loaded = false;
 	protected $_criteria = false;
 	protected $_obj_id = false;
@@ -44,6 +45,10 @@ class Model {
 			return $this->_dirty_values[$key];
 		}
 		
+		if ($key[0] == '_') {
+			return $this->_meta_values[$key];
+		}
+		
 		if (!$this->_loaded) {
 			$this->load();
 		}
@@ -57,6 +62,11 @@ class Model {
 	
 	public function __set($key, $value)
 	{
+		if ($key[0] == '_') {
+			$this->_meta_values[$key] = $value;
+			return;
+		}
+		
 		if (!$this->_loaded) {
 			$this->load();
 		}
