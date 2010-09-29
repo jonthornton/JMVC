@@ -170,7 +170,7 @@ class Model {
 		return 'WHERE '.implode(' AND ', $where);
 	}
 	
-	public static function find($criteria, $limit=false, $order=false)
+	public static function find($criteria, $limit=false, $order=false, $keyed=false)
 	{
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
@@ -200,7 +200,12 @@ class Model {
 			
 			$obj = new $classname();
 			$obj->load($row);
-			$outp[] = $obj;
+			
+			if ($keyed) {
+				$outp[$obj->id] = $obj;
+			} else {
+				$outp[] = $obj;
+			}
 		}
 		
 		return $outp;
