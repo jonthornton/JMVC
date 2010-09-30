@@ -226,7 +226,7 @@ class Model {
 	public static function find_all($order=false)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', '', static::$_find_query).' ORDER BY ';
+			$sql = str_replace('[[WHERE]]', '', static::$_find_query);
 			
 			if ($order) {
 				$sql .= ' ORDER BY '.$order;
