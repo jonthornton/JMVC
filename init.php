@@ -231,6 +231,7 @@ class JMVC {
 		$fp = fopen(LOG_DIR.'/php_errors', 'a');
 		if ($fp) {
 			fwrite($fp, "\n\n".date('r')."\n".$message);
+			fclose($fp);
 		}
 	
 		if (!file_exists(LOG_DIR.'/error_state')) {

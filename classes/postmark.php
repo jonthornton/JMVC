@@ -245,6 +245,11 @@ class Postmark
 		}
 		
 		if (curl_error($ch) != '') {
+			$fp = fopen(LOG_DIR.'/php_errors', 'a');
+			if ($fp) {
+				fwrite($fp, "\n\n".date('r')."\nPostmark CURL error: ".curl_error($ch));
+				fclose($fp);
+			}
 			//throw new \ErrorException(curl_error($ch));
 			return $this;
 		}
@@ -253,6 +258,11 @@ class Postmark
 		
 		if (!$this->_isTwoHundred($httpCode)) {
 			$message = json_decode($return)->Message;
+			$fp = fopen(LOG_DIR.'/php_errors', 'a');
+			if ($fp) {
+				fwrite($fp, "\n\n".date('r')."\nPostmark Error $httpCode:".$message);
+				fclose($fp);
+			}
 			//throw new \ErrorException("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
 		}
 		
