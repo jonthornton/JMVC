@@ -468,7 +468,7 @@ class Validation implements \ArrayAccess {
 	
 	public function set_error_messages($messages)
 	{
-		$this->error_messages = $messages;
+		$this->error_messages += $messages;
 	}
 
 	public function errors($messages=false)
