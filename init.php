@@ -265,6 +265,7 @@ SESSION: '.print_array(jmvc\classes\Session::$d);
 
 function render($controller, $view, $args=array(), $cache=null, $site=false, $template=false)
 {
+	$args['top_level'] = true;
 	return jmvc\View::render($controller, $view, $args, $cache, $site, $template);
 }
 

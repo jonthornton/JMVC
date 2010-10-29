@@ -185,7 +185,11 @@ class Model {
 		}
 		
 		if ($limit) { 
-			$sql .= ' LIMIT '.$limit;
+			if (is_array($limit)) {
+				$sql .= ' LIMIT '.($limit['page']*$limit['page_size']).', '.$limit['page_size'];
+			} else if (is_numeric($limit)) {
+				$sql .= ' LIMIT '.$limit;
+			}
 		}
 
 		$rows = self::db()->get_rows($sql);
@@ -209,6 +213,17 @@ class Model {
 		}
 		
 		return $outp;
+	}
+	
+	public static function find_count()
+	{
+		if (static::$_count_query) {
+			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_count_query);
+		} else {
+			$sql = 'SELECT COUNT(*) FROM '.static::$table.' '.static::make_criteria($criteria);
+		}
+		
+		return self::db()->get_row($sql);
 	}
 	
 	protected static function find_one($criteria)
@@ -251,6 +266,11 @@ class Model {
 		}
 		
 		return $outp;
+	}
+	
+	public static function find_all_count()
+	{
+		return self::db()->get_row('SELECT COUNT(*) FROM '.static::$table);
 	}
 	
 	protected static function quote($value)
