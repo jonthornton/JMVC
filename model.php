@@ -155,15 +155,27 @@ class Model {
 		
 		foreach ($criteria as $key => $value) {
 			if (is_array($value)) {
+				// IN criteria
 				$str = $prefix.$key.' IN(';
 				foreach ($value as $val) {
 					$str .= self::quote($val).', ';
 				}
 				$where[] = substr($str, 0, -2).')';
 			} else if ($value === NULL) {
+				// NULL
 				$where[] = $prefix.$key.' IS NULL';
+			} else if (substr($key, -7) == '_before') {
+				// DateTime range
+				$where[] = $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
+			} else if (substr($key, -6) == '_after') {
+				// DateTime range
+				$where[] = $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
+			} else if ($key == 'raw_sql') {
+				// Raw (non-quoted) SQL
+				$where[] = $value;
 			} else {
-				$where[] = ($key == 'raw_sql') ? $value : $prefix.$key.'='.self::quote($value);
+				// equals
+				$where[] = $prefix.$key.'='.self::quote($value);
 			}
 		}
 		
