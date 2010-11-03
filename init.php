@@ -26,13 +26,11 @@ class JMVC {
 		set_exception_handler('JMVC::exception_handler');
 		set_error_handler('JMVC::exception_error_handler');
 		
-		$_SERVER['REQUEST_URI'] = strtolower($_SERVER['REQUEST_URI']);
-		
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
-			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
+			define('CURRENT_URL', substr(strtolower($_SERVER['REQUEST_URI']), 0, $qPos));
 			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos+1));
 		} else {
-			define('CURRENT_URL', $_SERVER['REQUEST_URI']);
+			define('CURRENT_URL', strtolower($_SERVER['REQUEST_URI']));
 			define('QUERY_STRING', '');
 		}
 		
