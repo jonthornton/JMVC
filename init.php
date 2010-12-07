@@ -84,7 +84,16 @@ class JMVC {
 					$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
 
 					if ($count) {
-						$app_url = $routed_url;
+						list($app_url, $qstring) = explode('?', $routed_url);
+						
+						if (!empty($qstring)) {
+							foreach (explode('&', $qstring) as $pair) {
+								list($key, $val) = explode('=', $pair);
+								$_GET[$key] = $val;
+								$_REQUEST[$key] = $val;
+							}
+						}
+						
 						$parts = explode('/', trim($app_url, '/'));
 						break;
 					}
