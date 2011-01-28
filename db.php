@@ -55,7 +55,16 @@ class Db {
 		return "'" . $this->read_db->real_escape_string($value) . "'";
 	}
 	
-	public function make_insert($table, $row)
+	public function quote_date($value)
+	{
+		if (is_numeric($value)) {
+			$value = date('Y-m-d H:i:s', $value);
+		}
+		
+		return $this->quote($value);
+	}
+	
+	public function make_insert($table, $row, $field_types=array())
 	{
 		$fields = '';
 		$values = '';
@@ -68,7 +77,21 @@ class Db {
 			} else if ($value === NULL) {
 				$values .= 'NULL, ';
 			} else {
-				$values .= $this->quote($value).', ';
+				
+				if (isset($field_types[$key])) {
+					switch ($field_types[$key]) {
+						case 'date':
+						case 'datetime':
+							$values .= $this->quote_date($value).', ';
+							break;
+							
+						default:
+							$values .= $this->quote($value).', ';
+							break;
+					}
+				} else {
+					$values .= $this->quote($value).', ';
+				}
 			}
 		}
 		
@@ -84,7 +107,7 @@ class Db {
 		return $this->insert($query);
 	}
 	
-	public function make_update($table, $data, $where)
+	public function make_update($table, $data, $where, $field_types=array())
 	{
 		$fields = '';
 		foreach($data as $key => $value) {
@@ -93,8 +116,21 @@ class Db {
 				$fields .= "`$key` = ". $value['raw'].", ";
 			} else if ($value === NULL) {
 				$fields .= "`$key` = NULL, ";
-			} else {
-				$fields .= "`$key` = ". $this->quote($value) .", ";
+			} else {				
+				if (isset($field_types[$key])) {
+					switch ($field_types[$key]) {
+						case 'date':
+						case 'datetime':
+							$fields .= "`$key` = ". $this->quote_date($value) .", ";
+							break;
+							
+						default:
+							$fields .= "`$key` = ". $this->quote($value) .", ";
+							break;
+					}
+				} else {
+					$fields .= "`$key` = ". $this->quote($value) .", ";
+				}
 			}
 		}
 		

@@ -15,6 +15,7 @@ class Model {
 	protected static $_find_query;
 	protected static $_find_prefix = '';
 	protected static $_find_order = null;
+	protected static $_field_types = array();
 	
 	public function __construct($id=false)
 	{
@@ -292,11 +293,7 @@ class Model {
 	
 	protected function quote_date($value)
 	{
-		if (is_numeric($value)) {
-			$value = date('Y-m-d H:i:s', $value);
-		}
-		
-		return self::quote($value);
+		return self::db()->quote_date($value);
 	}
 	
 	public function save()
@@ -311,12 +308,12 @@ class Model {
 		
 		if ($this->_obj_id) {
 			// update
-			$sql = self::db()->make_update(static::$table, $this->_dirty_values, array('id'=>$this->_obj_id));
+			$sql = self::db()->make_update(static::$table, $this->_dirty_values, array('id'=>$this->_obj_id), static::$_field_types);
 			
 			self::db()->update($sql);
 		} else {
 			// insert
-			$sql = self::db()->make_insert(static::$table, $this->_dirty_values);
+			$sql = self::db()->make_insert(static::$table, $this->_dirty_values, static::$_field_types);
 			
 			$insert_id = self::db()->insert($sql);
 			$this->_obj_id = ($this->_dirty_values['id']) ?: $insert_id;
