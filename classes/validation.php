@@ -533,7 +533,7 @@ class Validation implements \ArrayAccess {
 	{
 		if ($this->rules[$field]) {
 			for ($i=0; $i<count($this->rules[$field]); $i++) {
-				if ($this->rules[$field][$i][0][1] == 'required') {
+				if (is_array($this->rules[$field][$i][0]) && $this->rules[$field][$i][0][1] == 'required') {
 					return true;
 				}
 			}
