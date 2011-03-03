@@ -74,11 +74,11 @@ class Model {
 		
 		if (!isset($this->_values[$key])) {
 			$this->_dirty_values[$key] = $value;
-		} else if (is_numeric($value) && is_numeric($this->_values[$key])) {
-			if ($value*1.0 != $this->_values[$key]*1.0) {
+		} else if (is_numeric($value) && is_numeric($this->$key)) {
+			if ($value*1.0 != $this->$key*1.0) {
 				$this->_dirty_values[$key] = $value;
 			}
-		} else if ($value !== $this->_values[$key]) {
+		} else if ($value !== $this->$key) {
 			$this->_dirty_values[$key] = $value;
 		}
 	}
