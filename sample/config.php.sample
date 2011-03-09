@@ -1,0 +1,2 @@
+<?php
+define('IS_PRODUCTION', false);

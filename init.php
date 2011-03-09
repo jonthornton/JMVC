@@ -12,13 +12,16 @@ class JMVC {
 		Benchmark::start('total');
 		
 		include(APP_DIR.'../config.php');
-		include(APP_DIR.'constants.php');
 		
 		include(JMVC_DIR.'view.php');
 		include(JMVC_DIR.'controller.php');
 
 		if (file_exists(APP_DIR.'routes.php')) {
 			include(APP_DIR.'routes.php');
+		}
+		
+		if (file_exists(APP_DIR.'constants.php')) {
+			include(APP_DIR.'constants.php');
 		}
 		
 		date_default_timezone_set('America/New_York');
