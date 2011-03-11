@@ -9,6 +9,27 @@ class Controller {
 		$this->args = $args;
 	}
 	
+	public function route_object($model, $default=false)
+	{
+		if (!is_numeric($this->args[0])) {
+			return false;
+		}
+		
+		$method = $this->args[1] ?: $default;
+		if (!method_exists($this, $method)) {
+			\jmvc::do404();
+		}
+		
+		$obj = $model::factory($this->args[0]);
+		if (!$obj) {
+			\jmvc::do404();
+		}
+		
+		$this->view_override = $method;
+		$this->$method($obj);
+		return true;
+	}
+	
 	public static function forward($url, $permanent=false)
 	{
 		if ($permanent) {
