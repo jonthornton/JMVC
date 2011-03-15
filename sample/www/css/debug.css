@@ -1,0 +1,16 @@
+
+#admin_debug { position: fixed; bottom: 0; right: 0; width: 200px; z-index: 1000; }
+#debug_openbutton { background: #000; color: #fff; padding: 5px; font: bold 15px arial; cursor: pointer; width: 20px; text-align: center; margin-left: auto; }
+#debug_toolbar { border: 3px solid #000; background: #e8e8e8; padding: 5px; font: 11px arial; }
+#debug_toolbar h2 { margin: -5px -5px 10px -5px; background: #000; color: #fff; padding: 0 0 3px 0; font-size: 16px; text-align: center; }
+#debug_toolbar .panel { margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #888; }
+#debug_toolbar .panel h3 { font-size: 13px; }
+#debug_toolbar table.data td { font-size: 11px; background: #fff; }
+
+#debug_toolbar .options li { cursor: pointer; margin-bottom: 5px; }
+#debug_toolbar .options li:hover { text-decoration: underline; }
+#debug_toolbar .options .on { color: #0a0; font-weight: bold; }
+
+#infoWindows > div { width: 780px; padding: 10px; display:none; overflow: auto; position: absolute; z-index: 100; top: 100px; left: 50%; margin-left: -400px; background: #fff; border: 3px solid #888; }
+
+#db_queries .query { display: none; }
