@@ -182,7 +182,7 @@ class JMVC {
 				break;
 				
 			default:
-				$filename = APP_DIR.$classname.'.php';
+				$filename = APP_DIR.strtolower($classname).'.php';
 		}
 		
 		if (file_exists($filename)) {
