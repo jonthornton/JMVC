@@ -132,6 +132,13 @@ class JMVC {
 		$args['controller'] = str_replace('-', '_', $args['controller']);
 		$args['view'] = str_replace('-', '_', $args['view']);
 		
+		if ($args['controller'] == 'template') {
+			ob_end_clean();
+			header("HTTP/1.0 404 Not Found");
+			echo 'Page not found.';
+			exit;
+		}
+		
 		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
 	}
 
