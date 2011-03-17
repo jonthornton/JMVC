@@ -199,6 +199,39 @@ class JMVC {
 		}
 	}
 	
+	public static function input($name, $global=null, $raw=false)
+	{
+		switch (strtolower($global)) {
+			case 'get':
+				$inp = $_GET[$name];
+				break;
+			
+			case 'post':
+				$inp = $_POST[$name];
+				break;
+				
+			case 'cookie':
+				$inp = $_COOKIE[$name];
+				break;
+				
+			case 'server':
+				$inp = $_SERVER[$name];
+				break;
+				
+			default:
+				$inp = $_REQUEST[$name];
+				break;
+		}
+		
+		if ($raw) {
+			return trim($inp);
+		} else {
+			return htmlspecialchars(strip_tags(trim($inp)), ENT_COMPAT, 'ISO-8859-1', false);
+		}
+		
+		
+	}
+	
 	public static function exception_handler($ex)
 	{
 		// clear the output buffer
