@@ -133,21 +133,22 @@ class JMVC {
 		$args['view'] = str_replace('-', '_', $args['view']);
 		
 		if ($args['controller'] == 'template') {
-			ob_end_clean();
-			header("HTTP/1.0 404 Not Found");
-			echo 'Page not found.';
-			exit;
+			self::do404(false);
 		}
 		
 		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
 	}
 
-	public static function do404()
+	public static function do404($template=true)
 	{
 		ob_end_clean();
 	
 		header("HTTP/1.0 404 Not Found");
-		echo render('template', DEFAULT_TEMPLATE, array('controller'=>'template', 'view'=>'do404'));
+		if ($template) {
+			echo render('template', DEFAULT_TEMPLATE, array('controller'=>'template', 'view'=>'do404'));
+		} else {
+			echo 'Page not found.';
+		}
 		exit;
 	}
 	

@@ -73,6 +73,9 @@ class View {
 
 	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site_name=false, $template_name=false)
 	{
+		if (in_array($view_name, array('get', 'route_object', 'forward', 'exists', 'flash'))) {
+			\jmvc::do404(false);
+		}
 
 		if ($site_name) {
 			array_unshift(self::$site_stack, $site_name);
