@@ -22,14 +22,12 @@ class Postmark_Mail extends \jmvc\classes\Mail {
 			$m->messageHtml($this->body);
 			
 			if (isset($this->plain_body)) {
-				$m->messagePlain($this->plain_body);
+				$m->messagePlain(html_entity_decode($this->plain_body));
 			}
 		} else {
-			$m->messagePlain($this->body);
+			$m->messagePlain(html_entity_decode($this->body));
 		}
 		
-		if (IS_PRODUCTION) {
-			return $m->send();
-		}
+		return $m->send();
 	}
 }
