@@ -13,7 +13,7 @@ class Postmark_Mail extends \jmvc\classes\Mail {
 		
 		$m->subject($this->subject);
 		
-		if (strpos($this->body, '<br') !== false || strpos($this->body, '<p>') !== false) {
+		if (strpos($this->body, '<br') !== false || strpos($this->body, '<p') !== false) {
 		
 			if (\jmvc\View::get('use_template') && \jmvc\View::exists('www', 'html', 'template', 'email')) {
 				$this->body = \jmvc\View::render_static('template', 'email', array('content'=>$this->body), 'www', 'html');
