@@ -131,7 +131,7 @@ class Postmark
 	{
 		foreach (func_get_args() as $address) {
 			if (!$this->_validateAddress($address)) {
-				die('invalid email address: '.$address);
+				throw new \Exception('invalid email address: '.$address);
 			}
 			
 			$this->_toAddress[] = $address;

@@ -21,6 +21,10 @@ class Postmark_Mail extends \jmvc\classes\Mail {
 			
 			$m->messageHtml($this->body);
 			
+			// echo nl2br($this->plain_body);
+			// echo $this->body;
+			// exit;
+			
 			if (isset($this->plain_body)) {
 				$m->messagePlain(html_entity_decode($this->plain_body));
 			}
