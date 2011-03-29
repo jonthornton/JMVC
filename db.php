@@ -48,16 +48,18 @@ class Db {
 	
 	public function quote($value)
 	{
-		if (is_numeric($value)) {
+		if ($value === NULL) {
+			return 'NULL';
+		} else if (is_numeric($value)) {
 			return $value;
+		} else {
+			return "'" . $this->read_db->real_escape_string($value) . "'";
 		}
-		
-		return "'" . $this->read_db->real_escape_string($value) . "'";
 	}
 	
 	public function quote_date($value)
 	{
-		if (is_numeric($value)) {
+		if (!empty($value) && is_numeric($value)) {
 			$value = date('Y-m-d H:i:s', $value);
 		}
 		
