@@ -12,6 +12,8 @@ class View {
 	
 	protected static $site_stack = array();
 	protected static $template_stack = array();
+	protected static $controller_stack = array();
+	protected static $view_stack = array();
 	
 	public static function get($key)
 	{
@@ -77,15 +79,21 @@ class View {
 			\jmvc::do404(false);
 		}
 
-		if ($site_name) {
-			array_unshift(self::$site_stack, $site_name);
-		}
+		if ($site_name) array_unshift(self::$site_stack, $site_name);
 		$site = self::$site_stack[0];
 		
-		if ($template_name) {
-			array_unshift(self::$template_stack, $template_name);
-		}
+		if ($template_name) array_unshift(self::$template_stack, $template_name);
 		$template = self::$template_stack[0];
+		
+		array_unshift(self::$controller_stack, $controller_name);
+		array_unshift(self::$view_stack, $view_name);
+		
+		if (isset(self::$view_stack[1])) $parent['view'] = self::$view_stack[1];
+		if (isset(self::$controller_stack[1])) $parent['controller'] = self::$controller_stack[1];
+		if (isset(self::$template_stack[1])) $parent['template'] = self::$template_stack[1];
+		if (isset(self::$site_stack[1])) $parent['site'] = self::$site_stack[1];
+		
+		if (!empty($parent)) $args['parent'] = $parent;
 	
 		$controller = false;
 		$view = false;
@@ -146,6 +154,8 @@ class View {
 		
 		if ($site_name) array_shift(self::$site_stack);
 		if ($tempate_name) array_shift(self::$template_stack);
+		array_shift(self::$controller_stack);
+		array_shift(self::$view_stack);
 		
 		if ($cache !== null) {
 			File_cache::set($key, $output);
@@ -159,15 +169,21 @@ class View {
 
 	public static function render_static($controller_name, $view_name, $args=array(), $site_name=false, $template_name=false)
 	{
-		if ($site_name) {
-			array_unshift(self::$site_stack, $site_name);
-		}
+		if ($site_name) array_unshift(self::$site_stack, $site_name);
 		$site = self::$site_stack[0];
 		
-		if ($template_name) {
-			array_unshift(self::$template_stack, $template_name);
-		}
+		if ($template_name) array_unshift(self::$template_stack, $template_name);
 		$template = self::$template_stack[0];
+		
+		array_unshift(self::$controller_stack, $controller_name);
+		array_unshift(self::$view_stack, $view_name);
+		
+		if (isset(self::$view_stack[1])) $parent['view'] = self::$view_stack[1];
+		if (isset(self::$controller_stack[1])) $parent['controller'] = self::$controller_stack[1];
+		if (isset(self::$template_stack[1])) $parent['template'] = self::$template_stack[1];
+		if (isset(self::$site_stack[1])) $parent['site'] = self::$site_stack[1];
+		
+		if (!empty($parent)) $args['parent'] = $parent;
 		
 		if ($file = self::exists($site, $template, $controller_name, $view_name)) {
 			if ($controller) extract(get_object_vars($controller));
@@ -181,6 +197,8 @@ class View {
 		
 		if ($site_name) array_shift(self::$site_stack);
 		if ($tempate_name) array_shift(self::$template_stack);
+		array_shift(self::$controller_stack);
+		array_shift(self::$view_stack);
 		
 		return $output;
 	}
