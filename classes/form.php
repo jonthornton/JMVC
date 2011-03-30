@@ -140,7 +140,7 @@ class Form extends Validation {
 		$data += array('type'=>'text');
 		
 		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
-			if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
+			if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']]) && !is_array($this->data[$data['name']])) {
 				$data['value'] = $this[$data['name']];
 			} else if ($value !== null) {
 				$data['value'] = $value;
