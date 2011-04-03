@@ -262,7 +262,7 @@ class Model {
 		return $outp;
 	}
 	
-	public static function find_count()
+	public static function find_count($criteria)
 	{
 		if (static::$_count_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_count_query);
