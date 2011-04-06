@@ -341,6 +341,56 @@ class Form extends Validation {
 		return $input;
 	}
 
+	public function multiselect($data, $options, $selected=NULL, $extra = '')
+	{
+		if (!is_array($data)) {
+			$data = array('name' => $data);
+		}
+		
+		$data['multiple'] = 'multiple';
+		
+
+		if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
+			$selected = $this[$data['name']];
+		}
+		if (!is_array($selected)) {
+			$selected = array($selected);
+		}
+		
+		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
+			self::add_class($data, 'error');
+		}
+		
+		if ($this->is_required($data['for'])) {
+			self::add_class($data, 'required');
+		}
+		
+		$data['name'] .= '[]';
+		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
+		foreach ((array) $options as $key => $val) {
+			// Key should always be a string
+			$key = (string) $key;
+
+			if (is_array($val)) {
+				$input .= '<optgroup label="'.$key.'">'."\n";
+				foreach ($val as $inner_key => $inner_val) {
+					// Inner key should always be a string
+					$inner_key = (string) $inner_key;
+
+					$sel = ($inner_key == $selected) ? ' selected="selected"' : '';
+					$input .= '<option value="'.$inner_key.'"'.$sel.'>'.$inner_val.'</option>'."\n";
+				}
+				$input .= '</optgroup>'."\n";
+			} else {
+				$sel = (in_array($key, $selected)) ? ' selected="selected"' : '';
+				$input .= '<option value="'.$key.'"'.$sel.'>'.$val.'</option>'."\n";
+			}
+		}
+		$input .= '</select>';
+
+		return $input;
+	}
+
 	public function checkbox($data, $checked = FALSE, $value = null, $extra = '')
 	{
 		if (!is_array($data)) {
