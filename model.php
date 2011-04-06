@@ -165,38 +165,37 @@ class Model {
 	
 	protected static function make_criteria($criteria, $prefix='')
 	{
-		if (empty($criteria)) {
-			return '';
-		}
+		if (!empty($criteria)) {
 		
-		$where = array();
-		foreach ($criteria as $key => $value) {
-		
-			if ($key == 'raw_sql') {
-				// Raw (non-quoted) SQL
-				$where[] = $value;
-			} else if ($key == 'having') {
-				// Raw (non-quoted) SQL
-				$having = $value;
-			} else if (is_array($value)) {
-				// IN criteria
-				$str = $prefix.$key.' IN(';
-				foreach ($value as $val) {
-					$str .= self::quote($val).', ';
+			$where = array();
+			foreach ($criteria as $key => $value) {
+			
+				if ($key == 'raw_sql') {
+					// Raw (non-quoted) SQL
+					$where[] = $value;
+				} else if ($key == 'having') {
+					// Raw (non-quoted) SQL
+					$having = $value;
+				} else if (is_array($value)) {
+					// IN criteria
+					$str = $prefix.$key.' IN(';
+					foreach ($value as $val) {
+						$str .= self::quote($val).', ';
+					}
+					$where[] = substr($str, 0, -2).')';
+				} else if ($value === NULL) {
+					// NULL
+					$where[] = $prefix.$key.' IS NULL';
+				} else if (substr($key, -7) == '_before') {
+					// DateTime range
+					$where[] = $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
+				} else if (substr($key, -6) == '_after') {
+					// DateTime range
+					$where[] = $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
+				} else {
+					// equals
+					$where[] = $prefix.$key.'='.self::quote($value);
 				}
-				$where[] = substr($str, 0, -2).')';
-			} else if ($value === NULL) {
-				// NULL
-				$where[] = $prefix.$key.' IS NULL';
-			} else if (substr($key, -7) == '_before') {
-				// DateTime range
-				$where[] = $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
-			} else if (substr($key, -6) == '_after') {
-				// DateTime range
-				$where[] = $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
-			} else {
-				// equals
-				$where[] = $prefix.$key.'='.self::quote($value);
 			}
 		}
 		
