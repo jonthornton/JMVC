@@ -365,6 +365,7 @@ class Form extends Validation {
 			self::add_class($data, 'required');
 		}
 		
+		$data['id'] = $data['name'];
 		$data['name'] .= '[]';
 		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
 		foreach ((array) $options as $key => $val) {
