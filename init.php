@@ -31,7 +31,7 @@ class JMVC {
 		
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr(strtolower($_SERVER['REQUEST_URI']), 0, $qPos));
-			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos+1));
+			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos));
 		} else {
 			define('CURRENT_URL', strtolower($_SERVER['REQUEST_URI']));
 			define('QUERY_STRING', '');
@@ -135,7 +135,7 @@ class JMVC {
 		if ($args['controller'] == 'template') {
 			self::do404(false);
 		}
-		
+		$template = 'json_api';
 		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
 	}
 
