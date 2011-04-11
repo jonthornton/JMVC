@@ -163,7 +163,7 @@ class Model {
 		return array_merge($this->_values, $this->_dirty_values);
 	}
 	
-	protected static function make_criteria($criteria, $prefix='')
+	protected static function make_criteria($criteria)
 	{
 		if (!empty($criteria)) {
 		
@@ -178,23 +178,23 @@ class Model {
 					$having = $value;
 				} else if (is_array($value)) {
 					// IN criteria
-					$str = $prefix.$key.' IN(';
+					$str = static::$_find_prefix.$key.' IN(';
 					foreach ($value as $val) {
 						$str .= self::quote($val).', ';
 					}
 					$where[] = substr($str, 0, -2).')';
 				} else if ($value === NULL) {
 					// NULL
-					$where[] = $prefix.$key.' IS NULL';
+					$where[] = static::$_find_prefix.$key.' IS NULL';
 				} else if (substr($key, -7) == '_before') {
 					// DateTime range
-					$where[] = $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
+					$where[] = static::$_find_prefix.substr($key, 0, -7).' < '.self::quote_date($value);
 				} else if (substr($key, -6) == '_after') {
 					// DateTime range
-					$where[] = $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
+					$where[] = static::$_find_prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
 				} else {
 					// equals
-					$where[] = $prefix.$key.'='.self::quote($value);
+					$where[] = static::$_find_prefix.$key.'='.self::quote($value);
 				}
 			}
 		}
@@ -219,7 +219,7 @@ class Model {
 	public static function find($criteria, $limit=false, $order=false, $keyed=false)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
+			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_find_query);
 			
 			if ($order) {
 				$sql .= ' ORDER BY '.$order;
@@ -264,7 +264,7 @@ class Model {
 	public static function find_count($criteria)
 	{
 		if (static::$_count_query) {
-			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_count_query);
+			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_count_query);
 		} else {
 			$sql = 'SELECT COUNT(*) FROM '.static::$table.' '.static::make_criteria($criteria);
 		}
@@ -275,7 +275,7 @@ class Model {
 	protected static function find_one($criteria)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria, static::$_find_prefix), static::$_find_query);
+			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_find_query);
 		} else {
 			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria);
 		}
@@ -287,7 +287,7 @@ class Model {
 	public static function find_all($order=false)
 	{
 		if (static::$_find_query) {
-			$sql = str_replace('[[WHERE]]', '', static::$_find_query);
+			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_find_query);
 			
 			if ($order) {
 				$sql .= ' ORDER BY '.$order;
