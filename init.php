@@ -135,7 +135,7 @@ class JMVC {
 		if ($args['controller'] == 'template') {
 			self::do404(false);
 		}
-		$template = 'json_api';
+		
 		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
 	}
 
