@@ -362,6 +362,8 @@ class Model {
 		
 		// refresh the data next time we need to access it
 		$this->_loaded = false;
+		
+		return true;
 	}
 	
 	public function delete()
