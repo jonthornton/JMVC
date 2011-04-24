@@ -2,6 +2,23 @@
 
 namespace jmvc;
 
+class DataException extends \Exception {
+
+	protected $field;
+	
+	public function __construct($field, $message)
+	{
+		$this->field = $field;
+		
+		parent::__construct($message);
+	}
+	
+	public function getField()
+	{
+		return $this->field;
+	}
+}
+
 class Model {
 	
 	protected $_values = array();
