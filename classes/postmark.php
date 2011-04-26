@@ -207,9 +207,9 @@ class Postmark
 	
 	public static function flush_queue()
 	{
-		/*if (!IS_PRODUCTION) {
+		if (!IS_PRODUCTION) {
 			return;
-		}*/
+		}
 		
 		$headers = array(
 			'Accept: application/json',
