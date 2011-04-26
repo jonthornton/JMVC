@@ -172,6 +172,10 @@ class Postmark
 	*/
 	public function &messagePlain($message)
 	{
+		if ($message) {
+			$message = html_entity_decode($message);
+		}
+		
 		$this->_messagePlain = $message;
 		return $this;
 	}
@@ -183,15 +187,84 @@ class Postmark
 	*/
 	public function &messageHtml($message)
 	{
+		if ($message && \jmvc\View::get('use_template') && \jmvc\View::exists('www', 'html', 'template', 'email')) {
+			$message = \jmvc\View::render_static('template', 'email', array('content'=>$message), 'www', 'html');
+		}
+		
 		$this->_messageHtml = $message;
 		return $this;
 	}
 	
-	/**
-	* Sends the e-mail. Prints debug output if debug mode is turned on
-	* @return Mail_Postmark
-	*/
-	public function &send()
+	public function queue()
+	{
+		$this->preSendCheck();
+		$data = $this->_prepareData();
+		
+		$m = new \jmvc\models\Postmark_Mail_Queue();
+		$m->data = json_encode($data);
+		$m->save();
+	}
+	
+	public static function flush_queue()
+	{
+		/*if (!IS_PRODUCTION) {
+			return;
+		}*/
+		
+		$headers = array(
+			'Accept: application/json',
+			'Content-Type: application/json',
+			'X-Postmark-Server-Token: ' . POSTMARKAPP_API_KEY
+		);
+		
+		while ($queued_messages = \jmvc\models\Postmark_Mail_Queue::get_batch()) {
+		
+			$data = '[';
+			$ids = array();
+			
+			foreach ($queued_messages as $msg) {
+				$ids[] = $msg->id;
+				$data .= $msg->data.', ';
+			}
+			
+			$data = substr($data, 0, -2).']';
+		
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'http://api.postmarkapp.com/email/batch');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			
+			$return = curl_exec($ch);
+			
+			if (curl_error($ch) != '') {
+				$fp = fopen(LOG_DIR.'/php_errors', 'a');
+				if ($fp) {
+					fwrite($fp, "\n\n".date('r')."\nPostmark CURL error: ".curl_error($ch));
+					fclose($fp);
+				}
+				throw new \ErrorException(curl_error($ch));
+				return $this;
+			}
+			
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			
+			if (!self::_isTwoHundred($httpCode)) {
+				$message = json_decode($return)->Message;
+				$fp = fopen(LOG_DIR.'/php_errors', 'a');
+				if ($fp) {
+					fwrite($fp, "\n\n".date('r')."\nPostmark Error $httpCode:".$message);
+					fclose($fp);
+				}
+				throw new \ErrorException("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
+			}
+		
+			\jmvc\models\Postmark_Mail_Queue::clear_ids($ids);
+		}
+	}
+	
+	private function preSendCheck()
 	{
 		if (is_null(POSTMARKAPP_API_KEY)) {
 			throw new \ErrorException('Postmark API key is not set');
@@ -212,6 +285,15 @@ class Postmark
 		if (isset($this->_replyToAddress) && !$this->_validateAddress($this->_replyToAddress)) {
 			throw new \ErrorException("Invalid reply to address '{$this->_replyToAddress}'");
 		}
+	}
+	
+	/**
+	* Sends the e-mail. Prints debug output if debug mode is turned on
+	* @return Mail_Postmark
+	*/
+	public function &send()
+	{
+		$this->preSendCheck();
 		
 		if (!IS_PRODUCTION) {
 			return;
@@ -256,7 +338,7 @@ class Postmark
 		
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		
-		if (!$this->_isTwoHundred($httpCode)) {
+		if (!self::_isTwoHundred($httpCode)) {
 			$message = json_decode($return)->Message;
 			$fp = fopen(LOG_DIR.'/php_errors', 'a');
 			if ($fp) {
@@ -304,7 +386,7 @@ class Postmark
 	/**
 	* If a number is 200-299
 	*/
-	private function _isTwoHundred($value)
+	private static function _isTwoHundred($value)
 	{
 		return intval($value / 100) == 2;
 	}

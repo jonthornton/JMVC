@@ -76,7 +76,7 @@ class JMVC {
 
 			// block direct url for default site
 			if ($parts[0] == DEFAULT_SITE) self::do404();
-			$site = Controller::exists($parts[0], Template) ? array_shift($parts) : DEFAULT_SITE;
+			$site = Controller::exists($parts[0], 'template') ? array_shift($parts) : DEFAULT_SITE;
 		
 			if ($parts[0] == DEFAULT_TEMPLATE) self::do404();
 			$template = method_exists('controllers\\'.$site.'\Template', $parts[0]) ? array_shift($parts) : DEFAULT_TEMPLATE;
@@ -152,7 +152,7 @@ class JMVC {
 		exit;
 	}
 	
-	public function hook($hook, $args)
+	public static function hook($hook, $args)
 	{
 		if (is_callable($GLOBALS['HOOKS'][$hook])) {
 			return $GLOBALS['HOOKS'][$hook]($args);
