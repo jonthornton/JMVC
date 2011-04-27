@@ -280,10 +280,19 @@ class Model {
 	
 	public static function find_count($criteria)
 	{
+		if (static::$_group_by) {
+			$group = static::$_group_by;
+			static::$_group_by = null;
+		}
+		
 		if (static::$_count_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_count_query);
 		} else {
 			$sql = 'SELECT COUNT(*) FROM '.static::$table.' '.static::make_criteria($criteria);
+		}
+		
+		if ($group) {
+			static::$_group_by = $group;
 		}
 		
 		return self::db()->get_row($sql);
