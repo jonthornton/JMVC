@@ -355,9 +355,14 @@ class Model {
 		return self::db()->quote_date($value);
 	}
 	
+	public function is_dirty()
+	{
+		return (!empty($this->_dirty_values));
+	}
+	
 	public function save()
 	{
-		if (empty($this->_dirty_values)) {
+		if (!$this->is_dirty()) {
 			return;
 		}
 		
