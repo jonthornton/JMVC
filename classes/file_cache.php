@@ -48,7 +48,9 @@ class File_Cache {
 			}
 		}
 		
-		$content = fread($fp, $stat['size']);
+		if ($stat['size']) {
+			$content = fread($fp, $stat['size']);
+		}
 		fclose($fp);
 		
 		self::$stats['hits']++;
@@ -57,8 +59,12 @@ class File_Cache {
 	
 	public static function set($key, $text)
 	{
-		if (!IS_PRODUCTION || empty($text)) {
+		if (!IS_PRODUCTION) {
 			return;
+		}
+		
+		if (empty($text)) {
+			$text = ' ';
 		}
 		
 		$file = CACHE_DIR.'/'.$key.'.cache';
