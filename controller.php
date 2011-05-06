@@ -9,7 +9,7 @@ class Controller {
 		$this->args = $args;
 	}
 	
-	public function route_object($model, $default=false)
+	public function route_object($model, $default=false, &$obj=null)
 	{
 		if (!is_numeric($this->args[0])) {
 			return false;
