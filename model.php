@@ -93,7 +93,7 @@ class Model {
 	public function __set($key, $value)
 	{
 		if ($key[0] == '_') {
-			parent::__set($key, $value);
+			$this->$key = $value;
 			return;
 		}
 		
