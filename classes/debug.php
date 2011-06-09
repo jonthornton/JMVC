@@ -86,10 +86,31 @@ class Debug {
 			$content .= '</div>';
 		}
 		
+		$stats = \jmvc\classes\Memcache::$stats;
+		if (is_array($stats)) {
+			$content .= '<div class="panel">
+				<h3>Memcache Stats</h3>
+				<table class="data">
+					<tr>
+						<td>Hits</td>
+						<td class="num">'.$stats['hits'].'</td>
+					</tr>
+					<tr>
+						<td>Misses</td>
+						<td class="num">'.$stats['misses'].'</td>
+					</tr>
+					<tr>
+						<td>Writes</td>
+						<td class="num">'.$stats['writes'].'</td>
+					</tr>
+				</table>
+			</div>';
+		}
+		
 		$stats = \jmvc\classes\File_Cache::$stats;
 		if (is_array($stats)) {
 			$content .= '<div class="panel">
-				<h3>Cache Stats</h3>
+				<h3>File Cache Stats</h3>
 				<table class="data">
 					<tr>
 						<td>Hits</td>

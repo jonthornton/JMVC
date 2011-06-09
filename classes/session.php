@@ -1,13 +1,13 @@
 <?php
 
 namespace jmvc\classes;
-use jmvc\models\Session as Session_M;
 
 class Session {
 
-	public static $d;
+	public static $d = false;
 	protected static $checksum;
-	protected static $savedSession = false;
+	protected static $sessionModel = false;
+	protected static $memcached = false;
 	
 	const COOKIE_NAME = 'JMVC_SESSION';
 	
@@ -18,16 +18,27 @@ class Session {
 	
 	public static function start()
 	{
-		$key = self::id();
-		if ($key) {
-			self::$savedSession = new Session_M($key);
+		
+		if ($key = self::id()) {
+		
+			if ($GLOBALS['_CONFIG']['session_driver'] == 'memcached') {
+				self::$memcached = \jmvc\classes\Memcache::instance();
+				
+				self::$memcached->get($key, $data);
+				self::$d = $data;
 			
-			if (!self::$savedSession->id) {
-				self::$savedSession = false;
+			} else {
+				self::$sessionModel = new \jmvc\models\Session($key);
+				
+				if (self::$sessionModel->id) {
+					self::$d = (self::$sessionModel->data) ? unserialize(self::$sessionModel->data) : array();
+				} else {
+					self::$sessionModel = new \jmvc\models\Session();
+				}
 			}
-			
-			self::$d = (self::$savedSession) ? unserialize(self::$savedSession->data) : array();
-		} else {
+		}
+		
+		if (!is_array(self::$d)) {
 			self::$d = array();
 		}
 		
@@ -38,6 +49,16 @@ class Session {
 	public static function id()
 	{
 		return $_COOKIE[self::COOKIE_NAME] ?: $_POST[self::COOKIE_NAME];
+	}
+	
+	protected static function generate_id()
+	{
+		$key = 'session'.md5($_SERVER['REMOTE_ADDR'].time());
+		
+		setcookie(self::COOKIE_NAME, $key, 0, '/');
+		$_COOKIE[self::COOKIE_NAME] = $key;
+		
+		return $key;
 	}
 	
 	public static function end()
@@ -52,17 +73,23 @@ class Session {
 			return;
 		}
 		
-		if (!self::$savedSession) {
-			$key = md5($_SERVER['REMOTE_ADDR'].time());
-			
-			setcookie(self::COOKIE_NAME, $key, 0, '/');
-			$_COOKIE[self::COOKIE_NAME] = $key;
-			
-			self::$savedSession = new Session_M();
-			self::$savedSession->id = $key;
+		if (!self::$sessionModel && !self::$memcached) {
+			if ($GLOBALS['_CONFIG']['session_driver'] == 'memcached') {
+				self::$memcached = \jmvc\classes\Memcache::instance();
+			} else {
+				self::$sessionModel = new \jmvc\models\Session();
+			}
 		}
 		
-		self::$savedSession->data = serialize(self::$d);
-		self::$savedSession->save();
+		$key = self::id() ?: self::generate_id();
+		
+		if (self::$memcached) {
+			self::$memcached->set($key, self::$d, ONE_DAY);
+		} else if (self::$sessionModel) {
+			self::$sessionModel->id = $key;
+			self::$sessionModel->data = serialize(self::$d);
+			self::$sessionModel->save();
+		}
+		
 	}
 }
