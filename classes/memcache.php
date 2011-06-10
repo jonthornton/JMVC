@@ -83,8 +83,14 @@ class Memcache {
 		return $this->m->delete($key);
 	}
 	
-	public function get($key, &$result)
+	public function get($key, &$result, $nobust=false)
 	{
+		if (BUST_CACHE && !$nobust) {
+			$this->m->delete($key);
+			self::$stats['misses']++;
+			return false;
+		}
+	
 		$data = $this->m->get($key);
 		
 		if ($data === false) {

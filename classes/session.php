@@ -20,17 +20,16 @@ class Session {
 	{
 		
 		if ($key = self::id()) {
-		
 			if ($GLOBALS['_CONFIG']['session_driver'] == 'memcached') {
 				self::$memcached = \jmvc\classes\Memcache::instance();
 				
-				self::$memcached->get($key, $data);
+				self::$memcached->get($key, $data, true);
 				self::$d = $data;
 			
 			} else {
-				self::$sessionModel = new \jmvc\models\Session($key);
+				self::$sessionModel = \jmvc\models\Session::factory($key);
 				
-				if (self::$sessionModel->id) {
+				if (self::$sessionModel) {
 					self::$d = (self::$sessionModel->data) ? unserialize(self::$sessionModel->data) : array();
 				} else {
 					self::$sessionModel = new \jmvc\models\Session();
@@ -53,7 +52,7 @@ class Session {
 	
 	protected static function generate_id()
 	{
-		$key = 'session'.md5($_SERVER['REMOTE_ADDR'].time());
+		$key = 'sesh'.substr(md5($_SERVER['REMOTE_ADDR'].time()), 0, 28);
 		
 		setcookie(self::COOKIE_NAME, $key, 0, '/');
 		$_COOKIE[self::COOKIE_NAME] = $key;
@@ -90,6 +89,5 @@ class Session {
 			self::$sessionModel->data = serialize(self::$d);
 			self::$sessionModel->save();
 		}
-		
 	}
 }
