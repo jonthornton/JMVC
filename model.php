@@ -144,6 +144,11 @@ class Model {
 		return Db::instance();
 	}
 	
+	protected static function mc()
+	{
+		return \jmvc\classes\Memcache::instance();
+	}
+	
 	public function load($data=false)
 	{
 		if (!$this->_criteria && $this->_obj_id) $this->_criteria = array('id'=>$this->_obj_id);
