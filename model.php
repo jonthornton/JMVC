@@ -27,6 +27,9 @@ class Model {
 	protected $_criteria = false;
 	protected $_obj_id = false;
 	
+	private static $db;
+	private static $cache;
+	
 	protected static $_table;
 	protected static $_find_query;
 	protected static $_find_prefix = '';
@@ -141,12 +144,20 @@ class Model {
 	
 	protected static function db()
 	{
-		return Db::instance();
+		if (!self::$db) {
+			self::$db = Db::instance();
+		}
+		
+		return self::$db;
 	}
 	
-	protected static function mc()
+	protected static function cache()
 	{
-		return \jmvc\classes\Memcache::instance();
+		if (!self::$cache) {
+			self::$cache = \jmvc\classes\Memcache::instance();
+		}
+		
+		return self::$cache;
 	}
 	
 	public function load($data=false)

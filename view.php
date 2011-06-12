@@ -2,18 +2,32 @@
 
 namespace jmvc;
 
-use jmvc\classes\File_Cache;
 use jmvc\classes\Session;
 
 class View {
 
 	protected static $data;
 	protected static $cacheme = array();
-	
 	protected static $site_stack = array();
 	protected static $template_stack = array();
 	protected static $controller_stack = array();
 	protected static $view_stack = array();
+	
+	private static $cache;
+	
+	private function __construct()
+	{
+		// pure static class
+	}
+	
+	public static function cache()
+	{
+		if (!self::$cache) {
+			self::$cache = \jmvc\classes\Memcache::instance();
+		}
+		
+		return self::$cache;
+	}
 	
 	public static function get($key)
 	{
@@ -69,11 +83,11 @@ class View {
 	public static function bust_cache($controller_name, $view_name, $args, $site, $template)
 	{
 		$key = md5(serialize(array($controller_name, $view_name, $args, $site, $template)));
-		File_cache::bust($key);
-		File_cache::get($key.'meta');
+		self::cache()->delete($key);
+		self::cache()->delete($key.'meta');
 	}
 
-	public static function render($controller_name, $view_name, $args=array(), $cache=null, $site_name=false, $template_name=false)
+	public static function render($controller_name, $view_name, $args=array(), $cache_expires=null, $site_name=false, $template_name=false)
 	{
 		if (in_array($view_name, array('get', 'route_object', 'forward', 'exists', 'flash'))) {
 			\jmvc::do404(false);
@@ -98,14 +112,10 @@ class View {
 		$controller = false;
 		$view = false;
 		
-		if ($cache !== null) {
-			$key = md5(serialize(array($controller_name, $view_name, $args, $site, $template)));
+		if ($cache_expires !== null) {
+			$key = 'view'.md5(serialize(array($controller_name, $view_name, $args, $site, $template)));
 			
-			$output = File_cache::get($key, $cache);
-			$meta = File_cache::get($key.'meta', $cache);
-			
-			if ($meta) {
-				$meta = unserialize($meta);
+			if (self::cache()->get($key.'meta', $meta)) {
 				
 				foreach ($meta['push'] as $push) {
 					self::push($push[0], $push[1], $push[2]);
@@ -118,7 +128,7 @@ class View {
 				}
 			}
 			
-			if ($output) {
+			if (self::cache()->get($key, $output)) {
 				return $output;
 			}
 			
@@ -157,9 +167,9 @@ class View {
 		array_shift(self::$controller_stack);
 		array_shift(self::$view_stack);
 		
-		if ($cache !== null) {
-			File_cache::set($key, $output);
-			File_cache::set($key.'meta', serialize(self::$cacheme[$key]));
+		if ($cache_expires !== null) {
+			self::cache()->set($key, $output, $cache_expires);
+			self::cache()->set($key.'meta', self::$cacheme[$key], $cache_expires);
 			
 			unset(self::$cacheme[$key]);
 		}

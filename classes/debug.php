@@ -103,8 +103,26 @@ class Debug {
 						<td>Writes</td>
 						<td class="num">'.$stats['writes'].'</td>
 					</tr>
-				</table>
-			</div>';
+				</table>';
+			
+			if (!empty($stats['keys'])) {
+				$rows = '';
+				foreach ($stats['keys'] as $key) {
+					$rows .= '<tr>
+						<td>'.$key.'</td>
+					</tr>';
+				}
+				
+				$infoWindows .= '<div id="cache_keys">
+					<table class="data">
+						'.$rows.'
+					</table>
+				</div>';
+				
+				$content .= '<a href="#" rel="cache_keys" class="infoWindowLink">Show Keys</a>';
+			}
+			
+			$content .= '</div>';
 		}
 		
 		$stats = \jmvc\classes\File_Cache::$stats;

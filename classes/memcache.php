@@ -23,7 +23,7 @@ class Memcache {
 			throw new \Exception('Error connecting to memcached server at '.$config['host'].' port '.$config['port']);
 		}
 		
-		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0);
+		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0, 'keys'=>array());
 	}
 	
 	public static function instance()
@@ -85,6 +85,8 @@ class Memcache {
 	
 	public function get($key, &$result, $nobust=false)
 	{
+		self::$stats['keys'][] = $key;
+		
 		if (BUST_CACHE && !$nobust) {
 			$this->m->delete($key);
 			self::$stats['misses']++;
@@ -106,6 +108,7 @@ class Memcache {
 	public function set($key, $val, $expires=0)
 	{
 		self::$stats['writes']++;
+		self::$stats['keys'][] = $key;
 		
 		if (!is_array($val)) {
 			$val = self::falsify($val);
