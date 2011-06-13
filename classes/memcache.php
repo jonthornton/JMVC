@@ -85,11 +85,10 @@ class Memcache {
 	
 	public function get($key, &$result, $nobust=false)
 	{
-		self::$stats['keys'][] = $key;
-		
 		if (BUST_CACHE && !$nobust) {
 			$this->m->delete($key);
 			self::$stats['misses']++;
+			self::$stats['keys'][] = array($key, 'miss');
 			return false;
 		}
 	
@@ -97,9 +96,11 @@ class Memcache {
 		
 		if ($data === false) {
 			self::$stats['misses']++;
+			self::$stats['keys'][] = array($key, 'miss');
 			return false;
 		} else {
 			self::$stats['hits']++;
+			self::$stats['keys'][] = array($key, 'hit');
 			$result = self::defalsify($data);
 			return true;
 		}
@@ -108,7 +109,7 @@ class Memcache {
 	public function set($key, $val, $expires=0)
 	{
 		self::$stats['writes']++;
-		self::$stats['keys'][] = $key;
+		self::$stats['keys'][] = array($key, 'write');
 		
 		if (!is_array($val)) {
 			$val = self::falsify($val);

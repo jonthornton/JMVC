@@ -109,7 +109,8 @@ class Debug {
 				$rows = '';
 				foreach ($stats['keys'] as $key) {
 					$rows .= '<tr>
-						<td>'.$key.'</td>
+						<td>'.$key[0].'</td>
+						<td>'.$key[1].'</td>
 					</tr>';
 				}
 				
