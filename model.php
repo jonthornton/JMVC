@@ -29,6 +29,7 @@ class Model {
 	
 	private static $db;
 	private static $cache;
+	public static $obj_cache;
 	
 	protected static $_table;
 	protected static $_find_query;
@@ -50,6 +51,10 @@ class Model {
 	
 	public static function factory($id=false)
 	{
+		if (is_numeric($id) && isset(self::$obj_cache[static::$_table][$id])) {
+			return self::$obj_cache[static::$_table][$id];
+		}
+		
 		$type = get_called_class();
 		$obj = new $type($id);
 		
@@ -166,7 +171,7 @@ class Model {
 		if (!$data && $this->_criteria) {
 			$data = self::find_one($this->_criteria);
 		}
-	
+		
 		$this->_loaded = true;
 		
 		if (!$data) {
@@ -175,6 +180,8 @@ class Model {
 		
 		$this->_values = $data;
 		$this->_obj_id = $data['id'];
+		
+		self::$obj_cache[static::$_table][$this->id] = $this;
 	}
 	
 	public function load_dirty($data)
@@ -255,7 +262,7 @@ class Model {
 				$sql .= ' ORDER BY '.static::$_find_order;
 			}
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria).' ORDER BY id';
+			$sql = 'SELECT * FROM '.static::$_table.' '.static::make_criteria($criteria).' ORDER BY id';
 		}
 		
 		if ($limit) { 
@@ -299,7 +306,7 @@ class Model {
 		if (static::$_count_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_count_query);
 		} else {
-			$sql = 'SELECT COUNT(*) FROM '.static::$table.' '.static::make_criteria($criteria);
+			$sql = 'SELECT COUNT(*) FROM '.static::$_table.' '.static::make_criteria($criteria);
 		}
 		
 		if ($group) {
@@ -314,7 +321,7 @@ class Model {
 		if (static::$_find_query) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_find_query);
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' '.static::make_criteria($criteria);
+			$sql = 'SELECT * FROM '.static::$_table.' '.static::make_criteria($criteria);
 		}
 		$sql .= ' LIMIT 1';
 		
@@ -332,7 +339,7 @@ class Model {
 				$sql .= ' ORDER BY '.static::$_find_order;
 			}
 		} else {
-			$sql = 'SELECT * FROM '.static::$table.' ORDER BY id';
+			$sql = 'SELECT * FROM '.static::$_table.' ORDER BY id';
 		}
 
 		$rows = self::db()->get_rows($sql);
@@ -353,7 +360,7 @@ class Model {
 	
 	public static function find_all_count()
 	{
-		return self::db()->get_row('SELECT COUNT(*) FROM '.static::$table);
+		return self::db()->get_row('SELECT COUNT(*) FROM '.static::$_table);
 	}
 	
 	protected static function quote($value)
@@ -361,7 +368,7 @@ class Model {
 		return self::db()->quote($value);
 	}
 	
-	protected function quote_date($value)
+	protected static function quote_date($value)
 	{
 		return self::db()->quote_date($value);
 	}
@@ -389,12 +396,12 @@ class Model {
 		
 		if ($this->_obj_id) {
 			// update
-			$sql = self::db()->make_update(static::$table, $this->_dirty_values, array('id'=>$this->_obj_id), static::$_field_types);
+			$sql = self::db()->make_update(static::$_table, $this->_dirty_values, array('id'=>$this->_obj_id), static::$_field_types);
 			
 			self::db()->update($sql);
 		} else {
 			// insert
-			$sql = self::db()->make_insert(static::$table, $this->_dirty_values, static::$_field_types);
+			$sql = self::db()->make_insert(static::$_table, $this->_dirty_values, static::$_field_types);
 			
 			$insert_id = self::db()->insert($sql);
 			$this->_obj_id = ($this->_dirty_values['id']) ?: $insert_id;
@@ -414,7 +421,7 @@ class Model {
 			$this->load();
 		}
 		
-		$sql = 'DELETE FROM '.static::$table.' WHERE id="'.$this->_obj_id.'"';
+		$sql = 'DELETE FROM '.static::$_table.' WHERE id="'.$this->_obj_id.'"';
 		self::db()->delete($sql);
 	}
 	
