@@ -5,7 +5,7 @@ use jmvc\Model;
 
 class Postmark_Mail_Queue extends Model {
 
-	protected static $table = 'postmark_mail_queue';
+	protected static $_table = 'postmark_mail_queue';
 	
 	public static function get_batch()
 	{

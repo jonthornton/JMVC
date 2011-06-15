@@ -5,7 +5,7 @@ use jmvc\Model;
 
 class Session extends Model {
 
-	protected static $table = 'sessions';
+	protected static $_table = 'sessions';
 	
 	public static function clean_old()
 	{
