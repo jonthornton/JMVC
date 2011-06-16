@@ -244,9 +244,11 @@ class Postmark
 					fwrite($fp, "\n\n".date('r')."\nPostmark CURL error: ".curl_error($ch));
 					fclose($fp);
 				}
-				throw new \ErrorException(curl_error($ch));
+				throw new \Exception(curl_error($ch));
 				return $this;
 			}
+		
+			\jmvc\models\Postmark_Mail_Queue::clear_ids($ids);
 			
 			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			
@@ -257,10 +259,8 @@ class Postmark
 					fwrite($fp, "\n\n".date('r')."\nPostmark Error $httpCode:".$message);
 					fclose($fp);
 				}
-				throw new \ErrorException("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
+				throw new \Exception("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
 			}
-		
-			\jmvc\models\Postmark_Mail_Queue::clear_ids($ids);
 		}
 	}
 	
