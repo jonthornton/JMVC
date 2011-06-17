@@ -1,8 +1,8 @@
 <?php
 
-namespace jmvc\Classes;
+namespace jmvc\classes;
 
-class Memcache {
+class Memcache implements Cache_Interface {
 	
 	protected $m;
     protected static $instance;
@@ -29,8 +29,13 @@ class Memcache {
 	public static function instance()
 	{
 		if (!isset(self::$instance)) {
-			$c = __CLASS__;
-			self::$instance = new $c;
+			if (isset($GLOBALS['_CONFIG']['memcached'])) {
+				$c = __CLASS__;
+				self::$instance = new $c;
+			} else {
+				self::$instance = Memcache_Stub::instance();
+			}
+			
 		}
 		
 		return self::$instance;
