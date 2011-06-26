@@ -179,9 +179,11 @@ class Model {
 		$this->_loaded = true;
 		
 		if (!$data) {
-			$this->_values = null;
-			$this->_obj_id = null;
-			self::$obj_cache[static::$_table][$this->_obj_id] = null;
+			if ($this->_obj_id) {
+				$this->_values = array();
+				$this->_obj_id = null;
+				self::$obj_cache[static::$_table][$this->_obj_id] = null;
+			}
 			return false;
 		}
 		
