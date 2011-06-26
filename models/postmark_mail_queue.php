@@ -9,7 +9,7 @@ class Postmark_Mail_Queue extends Model {
 	
 	public static function get_batch()
 	{
-		return self::find(array(), 20);
+		return self::find(array(), 100);
 	}
 	
 	public static function clear_ids($ids)
