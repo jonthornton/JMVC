@@ -46,6 +46,10 @@ class Model {
 			} else {
 				$this->_criteria = array('id'=>$id);
 			}
+			
+			if (is_numeric($id)) {
+				$this->_obj_id = $id;
+			}
 		}
 	}
 	
@@ -175,13 +179,16 @@ class Model {
 		$this->_loaded = true;
 		
 		if (!$data) {
+			$this->_values = null;
+			$this->_obj_id = null;
+			self::$obj_cache[static::$_table][$this->_obj_id] = null;
 			return false;
 		}
 		
 		$this->_values = $data;
 		$this->_obj_id = $data['id'];
 		
-		self::$obj_cache[static::$_table][$this->id] = $this;
+		self::$obj_cache[static::$_table][$this->_obj_id] = $this;
 	}
 	
 	public function load_dirty($data)
@@ -378,14 +385,10 @@ class Model {
 		return (!empty($this->_dirty_values));
 	}
 	
-	public function save()
+	public function save($reload=true)
 	{
 		if (!$this->is_dirty()) {
 			return;
-		}
-		
-		if (!$this->_loaded) {
-			$this->load();
 		}
 		
 		foreach (array_keys($this->_dirty_values) as $key) {
@@ -409,18 +412,14 @@ class Model {
 		
 		$this->_dirty_values = array();
 		
-		// refresh the data next time we need to access it
-		$this->_loaded = false;
-		
-		return true;
+		if ($reload) {
+			// refresh the data next time we need to access it
+			$this->_loaded = false;
+		}
 	}
 	
 	public function delete()
 	{
-		if (!$this->_loaded) {
-			$this->load();
-		}
-		
 		$sql = 'DELETE FROM '.static::$_table.' WHERE id="'.$this->_obj_id.'"';
 		self::db()->delete($sql);
 	}
