@@ -171,7 +171,7 @@ class Model {
 	
 	public function load($data=false)
 	{
-		if (!$this->_criteria && $this->_obj_id) $this->_criteria = array('id'=>$this->_obj_id);
+		if ($this->_obj_id) $this->_criteria = array('id'=>$this->_obj_id);
 		if (!$data && $this->_criteria) {
 			$data = self::find_one($this->_criteria);
 		}
