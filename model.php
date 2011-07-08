@@ -394,7 +394,7 @@ class Model {
 		}
 		
 		foreach (array_keys($this->_dirty_values) as $key) {
-			if (static::$_field_types[$key] == 'array') {
+			if (static::$_field_types[$key] == 'array' && is_array($this->_dirty_values[$key])) {
 				$this->_dirty_values[$key] = serialize($this->_dirty_values[$key]);
 			}
 		}
