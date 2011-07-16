@@ -16,7 +16,7 @@ class Db {
 		$config = $GLOBALS['_CONFIG']['db'];
 		$this->write_db = new \mysqli($config['write']['host'], $config['write']['user'], $config['write']['pass'], $config['write']['name']);
 		
-		if ($config['read']) {
+		if (isset($config['read'])) {
 			$read_config = $config['read'][rand(0, count($config['read'])-1)];
 			$this->read_db = new \mysqli($read_config['host'], $read_config['user'], $read_config['pass'], $read_config['name']);
 		} else {

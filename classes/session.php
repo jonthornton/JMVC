@@ -47,7 +47,11 @@ class Session {
 	
 	public static function id()
 	{
-		return $_COOKIE[self::COOKIE_NAME] ?: $_POST[self::COOKIE_NAME];
+		if (isset($_COOKIE[self::COOKIE_NAME])) {
+			return $_COOKIE[self::COOKIE_NAME];
+		} else if (isset($_POST[self::COOKIE_NAME])) {
+			return $_POST[self::COOKIE_NAME];
+		}
 	}
 	
 	protected static function generate_id()

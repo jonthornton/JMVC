@@ -87,10 +87,11 @@ class JMVC {
 					$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
 
 					if ($count) {
-						list($app_url, $qstring) = explode('?', $routed_url);
+						$routed_parts = explode('?', $routed_url);
+						$app_url = $routed_parts[0];
 						
-						if (!empty($qstring)) {
-							foreach (explode('&', $qstring) as $pair) {
+						if (isset($routed_parts[1]) && !empty($routed_parts[1])) {
+							foreach (explode('&', $routed_parts[1]) as $pair) {
 								list($key, $val) = explode('=', $pair);
 								$_GET[$key] = $val;
 								$_REQUEST[$key] = $val;
@@ -204,33 +205,33 @@ class JMVC {
 	{
 		switch (strtolower($global)) {
 			case 'get':
-				$inp = $_GET[$name];
+				if (isset($_GET[$name])) $inp = $_GET[$name];
 				break;
 			
 			case 'post':
-				$inp = $_POST[$name];
+				if (isset($_POST[$name])) $inp = $_POST[$name];
 				break;
 				
 			case 'cookie':
-				$inp = $_COOKIE[$name];
+				if (isset($_COOKIE[$name])) $inp = $_COOKIE[$name];
 				break;
 				
 			case 'server':
-				$inp = $_SERVER[$name];
+				if (isset($_SERVER[$name])) $inp = $_SERVER[$name];
 				break;
 				
 			default:
-				$inp = $_REQUEST[$name];
+				if (isset($_REQUEST[$name])) $inp = $_REQUEST[$name];
 				break;
 		}
 		
-		if ($raw) {
-			return trim($inp);
-		} else {
-			return htmlspecialchars(strip_tags(trim($inp)), ENT_COMPAT, 'ISO-8859-1', false);
+		if (isset($inp)) {
+			if ($raw) {
+				return trim($inp);
+			} else {
+				return htmlspecialchars(strip_tags(trim($inp)), ENT_COMPAT, 'ISO-8859-1', false);
+			}
 		}
-		
-		
 	}
 	
 	public static function exception_handler($ex)

@@ -73,7 +73,7 @@ class Model {
 	{
 		$data = $this->get_value($key);
 		
-		if (static::$_field_types[$key] == 'array' && !is_array($data)) {
+		if (isset(static::$_field_types[$key]) && static::$_field_types[$key] == 'array' && !is_array($data)) {
 			if (empty($data)) {
 				$this->_values[$key] = array();
 			} else {

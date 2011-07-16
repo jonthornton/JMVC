@@ -147,11 +147,11 @@ class Form extends Validation {
 			}
 		}
 		
-		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
+		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
 		
-		if ($this->is_required($data['for'])) {
+		if (isset($data['for']) && $this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
 
@@ -185,7 +185,7 @@ class Form extends Validation {
 		}
 		
 		self::add_class($data, 'date');
-		return $this->input($data, $value, $extra);
+		return $this->input($data, null, $extra);
 	}
 	
 	public function get_date($field)
@@ -208,6 +208,8 @@ class Form extends Validation {
 		
 		if (isset($data['value']) && is_numeric($data['value'])) {
 			$data['value'] = self::int2time($data['value']);
+		} else if (!isset($data['value'])) {
+			$data['value'] = null;
 		}
 		
 		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra);
@@ -308,11 +310,11 @@ class Form extends Validation {
 			$selected = $this[$data['name']];
 		}
 		
-		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
+		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
 		
-		if ($this->is_required($data['for'])) {
+		if (isset($data['for']) && $this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
 		
@@ -401,7 +403,7 @@ class Form extends Validation {
 		$data['type'] = 'checkbox';
 		
 		if ($value !== null) $data['value'] = $value;
-		if ($data['value'] === null) $data['value'] = 1;
+		if (isset($data['value']) && $data['value'] === null) $data['value'] = 1;
 
 		if ($this->submitted()) {
 			$name = rtrim($data['name'], '[]');
@@ -475,7 +477,7 @@ class Form extends Validation {
 			$data = array('for' => $data);
 		}
 		
-		if ($this->errors[$data['for']] || $this->messages[$data['for']]) {
+		if (isset($this->errors[$data['for']]) || isset($this->messages[$data['for']])) {
 			self::add_class($data, 'error');
 		}
 		

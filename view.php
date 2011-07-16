@@ -31,7 +31,9 @@ class View {
 	
 	public static function get($key)
 	{
-		return self::$data[$key];
+		if (isset(self::$data[$key])) {
+			return self::$data[$key];
+		}
 	}
 	
 	public static function push($key, $val, $unique=false)
@@ -42,7 +44,7 @@ class View {
 			}
 		}
 		
-		if (!is_array(self::$data[$key])) {
+		if (!isset(self::$data[$key]) || !is_array(self::$data[$key])) {
 			self::$data[$key] = array();
 		}
 		
@@ -139,10 +141,10 @@ class View {
 		if ($controller && method_exists($controller, $view_name)) {
 			$controller->$view_name();
 			
-			if ($controller->view_override) {
+			if (isset($controller->view_override)) {
 				$view_name = $controller->view_override;
 			}
-			if ($controller->controller_override) {
+			if (isset($controller->controller_override)) {
 				$controller_name = $controller->controller_override;
 			}
 			
@@ -163,7 +165,7 @@ class View {
 		}
 		
 		if ($site_name) array_shift(self::$site_stack);
-		if ($tempate_name) array_shift(self::$template_stack);
+		if ($template_name) array_shift(self::$template_stack);
 		array_shift(self::$controller_stack);
 		array_shift(self::$view_stack);
 		
@@ -196,7 +198,7 @@ class View {
 		if (!empty($parent)) $args['parent'] = $parent;
 		
 		if ($file = self::exists($site, $template, $controller_name, $view_name)) {
-			if ($controller) extract(get_object_vars($controller));
+			if (isset($controller)) extract(get_object_vars($controller));
 			
 			ob_start();
 			include($file);
@@ -206,7 +208,7 @@ class View {
 		}
 		
 		if ($site_name) array_shift(self::$site_stack);
-		if ($tempate_name) array_shift(self::$template_stack);
+		if ($template_name) array_shift(self::$template_stack);
 		array_shift(self::$controller_stack);
 		array_shift(self::$view_stack);
 		
