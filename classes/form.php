@@ -403,7 +403,7 @@ class Form extends Validation {
 		$data['type'] = 'checkbox';
 		
 		if ($value !== null) $data['value'] = $value;
-		if (isset($data['value']) && $data['value'] === null) $data['value'] = 1;
+		if (!isset($data['value']) || $data['value'] === null) $data['value'] = 1;
 
 		if ($this->submitted()) {
 			$name = rtrim($data['name'], '[]');
