@@ -234,6 +234,18 @@ class JMVC {
 		}
 	}
 	
+	public function log($data, $logname=false)
+	{
+		$host = $_SERVER['HTTP_HOST'] ?: 'cmd';
+		if ($logname) $host .= '.';
+		$log = fopen(LOG_DIR.'/'.$host.$logname.'.log', 'a');
+		
+		if ($log) {
+			fwrite($log, $data."\n\n");
+			fclose($log);
+		}
+	}
+	
 	public static function exception_handler($ex)
 	{
 		// clear the output buffer
@@ -339,11 +351,15 @@ function print_array($arr, $padding="\t")
 
 function pp($data)
 {
-	echo '<pre>'.htmlspecialchars(print_r($data,true)).'</pre>';
+	if (!IS_PRODUCTION) {
+		echo '<pre>'.htmlspecialchars(print_r($data,true)).'</pre>';
+	}
 }
 
 function pd($data)
 {
-	pp($data);
-	die();
+	if (!IS_PRODUCTION) {
+		pp($data);
+		die();
+	}
 }

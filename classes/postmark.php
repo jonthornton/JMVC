@@ -241,13 +241,8 @@ class Postmark
 			$return = curl_exec($ch);
 			
 			if (curl_error($ch) != '') {
-				$fp = fopen(LOG_DIR.'/php_errors', 'a');
-				if ($fp) {
-					fwrite($fp, "\n\n".date('r')."\nPostmark CURL error: ".curl_error($ch));
-					fclose($fp);
-				}
-				throw new \Exception(curl_error($ch));
-				return $this;
+				\jmvc::log(date('r')."\nPostmark CURL error: ".curl_error($ch), 'postmark');
+				return;
 			}
 		
 			\jmvc\models\Postmark_Mail_Queue::clear_ids($ids);
@@ -256,12 +251,7 @@ class Postmark
 			
 			if (!self::_isTwoHundred($httpCode)) {
 				$message = json_decode($return)->Message;
-				$fp = fopen(LOG_DIR.'/php_errors', 'a');
-				if ($fp) {
-					fwrite($fp, "\n\n".date('r')."\nPostmark Error $httpCode:".$message);
-					fclose($fp);
-				}
-				throw new \Exception("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
+				\jmvc::log(date('r')."\nPostmark Error $httpCode:".$message, 'postmark');
 			}
 		}
 	}
@@ -329,12 +319,7 @@ class Postmark
 		}
 		
 		if (curl_error($ch) != '') {
-			$fp = fopen(LOG_DIR.'/php_errors', 'a');
-			if ($fp) {
-				fwrite($fp, "\n\n".date('r')."\nPostmark CURL error: ".curl_error($ch));
-				fclose($fp);
-			}
-			//throw new \ErrorException(curl_error($ch));
+			\jmvc::log(date('r')."\nPostmark CURL error: ".curl_error($ch), 'postmark');
 			return $this;
 		}
 		
@@ -342,12 +327,7 @@ class Postmark
 		
 		if (!self::_isTwoHundred($httpCode)) {
 			$message = json_decode($return)->Message;
-			$fp = fopen(LOG_DIR.'/php_errors', 'a');
-			if ($fp) {
-				fwrite($fp, "\n\n".date('r')."\nPostmark Error $httpCode:".$message);
-				fclose($fp);
-			}
-			//throw new \ErrorException("Error while mailing. Postmark returned HTTP code $httpCode with message \"$message\"");
+			\jmvc::log(date('r')."\nPostmark Error $httpCode:".$message, 'postmark');
 		}
 		
 		return $this;
