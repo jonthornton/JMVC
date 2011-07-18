@@ -238,7 +238,7 @@ class JMVC {
 	{
 		$host = $_SERVER['HTTP_HOST'] ?: 'cmd';
 		if ($logname) $host .= '.';
-		$log = fopen(LOG_DIR.'/'.$host.$logname.'.log', 'a');
+		$log = @fopen(LOG_DIR.'/'.$host.$logname.'.log', 'a');
 		
 		if ($log) {
 			fwrite($log, $data."\n\n");
@@ -292,11 +292,7 @@ class JMVC {
 	
 	private static function notify_admin($file, $message)
 	{
-		$fp = fopen(LOG_DIR.'/php_errors', 'a');
-		if ($fp) {
-			fwrite($fp, "\n\n".date('r')."\n".$message);
-			fclose($fp);
-		}
+		self::log(date('r')."\n".$message, 'php_errors');
 	
 		if (!file_exists(LOG_DIR.'/error_state')) {
 			mail(ADMIN_EMAIL, 'Error in '.$file, $message);
