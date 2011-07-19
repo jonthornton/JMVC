@@ -92,6 +92,8 @@ class Form extends Validation {
 
 		// Set action
 		if (empty($attr['action'])) $attr['action'] = $action;
+		
+		if ($attr['method'] == 'post') $attr['action'] .= QUERY_STRING;
 
 		// Form opening tag
 		$form = '<form'.form::attributes($attr).'>'."\n";
