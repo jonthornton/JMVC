@@ -221,12 +221,17 @@ class Model {
 					// Raw (non-quoted) SQL
 					$having = $value;
 				} else if (is_array($value)) {
-					// IN criteria
-					$str = static::$_find_prefix.$key.' IN(';
-					foreach ($value as $val) {
-						$str .= self::quote($val).', ';
+				
+					if (empty($value)) {
+						$where[] = static::$_find_prefix.$key.' IS NULL';
+					} else {
+						// IN criteria
+						$str = static::$_find_prefix.$key.' IN(';
+						foreach ($value as $val) {
+							$str .= self::quote($val).', ';
+						}
+						$where[] = substr($str, 0, -2).')';
 					}
-					$where[] = substr($str, 0, -2).')';
 				} else if ($value === NULL) {
 					// NULL
 					$where[] = static::$_find_prefix.$key.' IS NULL';
