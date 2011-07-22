@@ -417,12 +417,14 @@ class Model {
 			$this->_obj_id = ($this->_dirty_values['id']) ?: $insert_id;
 		}
 		
-		$this->_dirty_values = array();
-		
 		if ($reload) {
 			// refresh the data next time we need to access it
 			$this->_loaded = false;
+		} else {
+			array_merge($this->_values, $this->_dirty_values);
 		}
+		
+		$this->_dirty_values = array();
 	}
 	
 	public function delete()
