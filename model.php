@@ -29,6 +29,7 @@ class Model {
 	
 	private static $db;
 	private static $cache;
+	protected static $cache_count = 0;
 	public static $obj_cache;
 	
 	protected static $_table;
@@ -190,12 +191,25 @@ class Model {
 		$this->_values = $data;
 		$this->_obj_id = $data['id'];
 		
-		self::$obj_cache[static::$_table][$this->_obj_id] = $this;
+		self::cache_object($this, $this->_obj_id);
 	}
 	
 	public function load_dirty($data)
 	{
 		$this->_dirty_values = array_merge($this->_dirty_values, $data);
+	}
+	
+	protected static function cache_object($object, $id)
+	{
+		if (!isset(self::$obj_cache[static::$_table][$id])) {
+			self::$cache_count++;
+			
+			if (self::$cache_count > 100) {
+				self::$obj_cache = array();
+			}
+		}
+		
+		self::$obj_cache[static::$_table][$id] = $object;
 	}
 	
 	public function get_data()
