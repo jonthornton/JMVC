@@ -214,6 +214,12 @@ class Form extends Validation {
 			$data['value'] = null;
 		}
 		
+		if (isset($data['class'])) {
+			$data['class'] .= ' time';
+		} else {
+			$data['class'] = 'time';
+		}
+		
 		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra);
 	}
 	
