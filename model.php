@@ -223,6 +223,9 @@ class Model {
 			
 				if ($key == 'raw_sql') {
 					// Raw (non-quoted) SQL
+					
+					if (is_array($value)) $value = implode(' AND ', $value);
+					
 					$where[] = $value;
 				} else if ($key == 'having') {
 					// Raw (non-quoted) SQL
