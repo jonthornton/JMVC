@@ -13,7 +13,7 @@ class Debug {
 	
 	private function table_names($query)
 	{
-		if (preg_match_all('/(FROM|JOIN|INTO|UPDATE)\s+([a-z0-9]+)/i', $query, $matches)) {
+		if (preg_match_all('/(FROM|JOIN|INTO|UPDATE)\s+([a-z0-9_]+)/i', $query, $matches)) {
 			return implode(', ', array_unique($matches[2]));
 		}
 	}
