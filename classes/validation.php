@@ -316,6 +316,11 @@ class Validation implements \ArrayAccess {
 				// Function or method name of the rule
 				$rule = is_array($callback) ? $callback[1] : $callback;
 
+				if (is_object($rule)) {
+					// rule is a callback
+					$rule = 'callback';
+				}
+
 				if ($field === '*') {
 					foreach ($fields as $f) {
 						// Note that continue, instead of break, is used when
