@@ -197,14 +197,12 @@ class Postmark
 	
 	public function queue()
 	{
-		$this->send();
-		
-		/*$this->preSendCheck();
+		$this->preSendCheck();
 		$data = $this->_prepareData();
 		
 		$m = new \jmvc\models\Postmark_Mail_Queue();
 		$m->data = json_encode($data);
-		$m->save();*/
+		$m->save();
 	}
 	
 	public static function flush_queue()
