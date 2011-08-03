@@ -68,11 +68,6 @@ class View {
 	
 	public static function reset($key, $val)
 	{
-		if (!isset(self::$data[$key])) {
-			// reset can only be used on previously set values
-			return;
-		}
-		
 		if (!empty(self::$cacheme)) {
 			foreach (self::$cacheme as $cache_key=>$data) {
 				self::$cacheme[$cache_key]['reset'][] = func_get_args();
