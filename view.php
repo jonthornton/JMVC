@@ -137,10 +137,11 @@ class View {
 			$controller->$view_name();
 			
 			if (isset($controller->view_override)) {
-				$view_name = $controller->view_override;
-			}
-			if (isset($controller->controller_override)) {
-				$controller_name = $controller->controller_override;
+				if (strrchr($controller->view_override, '.')) {
+					list($controller_name, $view_name) = explode('.', $controller->view_override);
+				} else {
+					$view_name = $controller->view_override;
+				}
 			}
 			
 		} else {
