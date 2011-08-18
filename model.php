@@ -104,6 +104,15 @@ class Model {
 		return null;
 	}
 	
+	public function id()
+	{
+		if (isset($this->_obj_id)) {
+			return $this->_obj_id;
+		} else {
+			throw new \Exception('Invalid acces to _obj_id!');
+		}
+	}
+	
 	public function __set($key, $value)
 	{
 		if ($key[0] == '_') {
