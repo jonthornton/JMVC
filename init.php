@@ -162,36 +162,36 @@ class JMVC {
 	
 	public static function autoloader($classname)
 	{
-		$parts = explode('\\', $classname);
+		$parts = explode('\\', strtolower($classname));
 
 		switch ($parts[0]) {
 			case 'jmvc':
 			
 				switch ($parts[1]) {
 					case 'classes':
-						$filename = JMVC_DIR.'classes/'.strtolower($parts[2]).'.php';
+						$filename = JMVC_DIR.'classes/'.$parts[2].'.php';
 						break;
 						
 					case 'models':
-						$filename = JMVC_DIR.'models/'.strtolower($parts[2]).'.php';
+						$filename = JMVC_DIR.'models/'.$parts[2].'.php';
 						break;
 						
 					default:
-						$filename = JMVC_DIR.strtolower($parts[1]).'.php';
+						$filename = JMVC_DIR.$parts[1].'.php';
 						break;
 				}
 				break;
 			
 			case 'models':
-				$filename = APP_DIR.'models/'.strtolower($parts[1]).'.php';
+				$filename = APP_DIR.'models/'.$parts[1].'.php';
 				break;
 				
 			case 'controllers':
-				$filename = APP_DIR.'sites/'.$parts[1].'/'.strtolower($parts[2]).'.php';
+				$filename = APP_DIR.'sites/'.$parts[1].'/'.$parts[2].'.php';
 				break;
 				
 			default:
-				$filename = APP_DIR.strtolower($classname).'.php';
+				$filename = APP_DIR.$classname.'.php';
 		}
 		
 		if (file_exists($filename)) {
