@@ -162,7 +162,8 @@ class JMVC {
 	
 	public static function autoloader($classname)
 	{
-		$parts = explode('\\', strtolower($classname));
+		$classname = strtolower($classname);
+		$parts = explode('\\', $classname);
 
 		switch ($parts[0]) {
 			case 'jmvc':
