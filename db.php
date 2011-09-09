@@ -280,6 +280,7 @@ class Db {
 	{
 		self::$stats['delete']++;
 		$this->do_query($query, true);
+		return $this->write_db->affected_rows;
 	}
 	
 	public function insert($query)
@@ -293,5 +294,6 @@ class Db {
 	{
 		self::$stats['update']++;
 		$this->do_query($query, true);
+		return $this->write_db->affected_rows;
 	}
 }
