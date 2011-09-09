@@ -230,39 +230,11 @@ class Model {
 			$where = array();
 			foreach ($criteria as $key => $value) {
 			
-				if ($key == 'raw_sql') {
-					// Raw (non-quoted) SQL
-					
-					if (is_array($value)) $value = implode(' AND ', $value);
-					
-					$where[] = $value;
-				} else if ($key == 'having') {
+				if ($key == 'having') {
 					// Raw (non-quoted) SQL
 					$having = $value;
-				} else if (is_array($value)) {
-				
-					if (empty($value)) {
-						$where[] = static::$_find_prefix.$key.' IS NULL';
-					} else {
-						// IN criteria
-						$str = static::$_find_prefix.$key.' IN(';
-						foreach ($value as $val) {
-							$str .= self::quote($val).', ';
-						}
-						$where[] = substr($str, 0, -2).')';
-					}
-				} else if ($value === NULL) {
-					// NULL
-					$where[] = static::$_find_prefix.$key.' IS NULL';
-				} else if (substr($key, -7) == '_before') {
-					// DateTime range
-					$where[] = static::$_find_prefix.substr($key, 0, -7).' < '.self::quote_date($value);
-				} else if (substr($key, -6) == '_after') {
-					// DateTime range
-					$where[] = static::$_find_prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
 				} else {
-					// equals
-					$where[] = static::$_find_prefix.$key.'='.self::quote($value);
+					$where[] = self::db()->make_parameter($key, $value, static::$_find_prefix);
 				}
 			}
 		}

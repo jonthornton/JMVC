@@ -66,6 +66,44 @@ class Db {
 		return $this->quote($value);
 	}
 	
+	public function make_parameter($key, $value, $prefix=null)
+	{
+		if ($key == 'raw_sql') {
+			// Raw (non-quoted) SQL
+			return (is_array($value)) ? implode(' AND ', $value) : $value;
+		}
+	
+		if (strpos($key, '.')) {
+			list($prefix, $key) = explode('.', $key);
+			$prefix .= '.';
+		}
+	
+		if (is_array($value)) {
+			if (empty($value)) { // NULL
+				return $prefix.$key.' IS NULL';
+				
+			} else { // IN criteria
+				$str = $prefix.$key.' IN(';
+				foreach ($value as $val) {
+					$str .= self::quote($val).', ';
+				}
+				return substr($str, 0, -2).')';
+			}
+			
+		} else if ($value === NULL) { // NULL
+			return $prefix.$key.' IS NULL';
+			
+		} else if (substr($key, -7) == '_before') { // DateTime range
+			return $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
+			
+		} else if (substr($key, -6) == '_after') { // DateTime range
+			return $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
+			
+		} else { // equals
+			return $prefix.$key.'='.$this->quote($value);
+		}
+	}
+	
 	public function make_insert($table, $row, $field_types=array())
 	{
 		$fields = '';
