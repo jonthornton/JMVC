@@ -85,7 +85,7 @@ class Memcache implements Cache_Interface {
 	
 	public function delete($key)
 	{
-		return $this->m->delete($key);
+		return $this->m->delete($key, 0);
 	}
 	
 	public function get($key, &$result, $nobust=false)
