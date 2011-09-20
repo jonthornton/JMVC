@@ -416,7 +416,7 @@ class Form extends Validation {
 		if ($this->submitted()) {
 			$name = rtrim($data['name'], '[]');
 		
-			if (is_array($this[$name]) && in_array($data['value'], $this[$name])) {
+			if (is_array($this[$name]) && in_array(html_entity_decode($data['value']), $this[$name])) {
 				$data['checked'] = 'checked';
 			} else if (!is_array($this[$name]) && $this[$name]) {
 				$data['checked'] = 'checked';
