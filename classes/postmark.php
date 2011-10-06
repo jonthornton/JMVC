@@ -286,7 +286,14 @@ class Postmark
 		$this->preSendCheck();
 		
 		if (!IS_PRODUCTION) {
-			return;
+			static $sent = false;
+		
+			if (!defined('TEST_EMAIL_ADDRESS') || $sent) {
+				return;
+			}
+		
+			$this->_toAddress = array(TEST_EMAIL_ADDRESS);
+			$sent = true;
 		}
 		
 		$data = $this->_prepareData();
