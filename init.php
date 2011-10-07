@@ -6,7 +6,7 @@ use jmvc\classes\Benchmark;
 
 class JMVC {
 
-	public static function init($doRouting=true)
+	public static function init()
 	{
 		include(JMVC_DIR.'classes/benchmark.php');
 		Benchmark::start('total');
@@ -28,6 +28,11 @@ class JMVC {
 		spl_autoload_register('JMVC::autoloader');
 		set_exception_handler('JMVC::exception_handler');
 		set_error_handler('JMVC::exception_error_handler');
+		ob_start('JMVC::fatal_error_checker');
+
+		if (!isset($_SERVER['REQUEST_URI'])) { //don't do routing if we're not running as a web server process
+			return;
+		}
 		
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr(strtolower($_SERVER['REQUEST_URI']), 0, $qPos));
@@ -50,39 +55,42 @@ class JMVC {
 				}
 			}
 		}
-
-		if (!$doRouting) {
-			return;
-		}
 		
-		ob_start('JMVC::fatal_error_checker');
-
+		if (defined('DEFAULT_SITE')) \jmvc\View::$CONTEXT_DEFAULTS['site'] = DEFAULT_SITE;
+		if (defined('DEFAULT_TEMPLATE')) \jmvc\View::$CONTEXT_DEFAULTS['template'] = DEFAULT_TEMPLATE;
+		if (defined('DEFAULT_CONTROLLER')) \jmvc\View::$CONTEXT_DEFAULTS['controller'] = DEFAULT_CONTROLLER;
+		if (defined('DEFAULT_VIEW')) \jmvc\View::$CONTEXT_DEFAULTS['view'] = DEFAULT_VIEW;
+		
 		$app_url = CURRENT_URL;
 		
-		if (!defined('DEFAULT_SITE')) define('DEFAULT_SITE', 'www');
-		if (!defined('DEFAULT_TEMPLATE')) define('DEFAULT_TEMPLATE', 'html');
-		if (!defined('DEFAULT_CONTROLLER')) define('DEFAULT_CONTROLLER', 'home');
-		if (!defined('DEFAULT_VIEW')) define('DEFAULT_VIEW', 'index');
-		
 		if ($app_url == '/') {
-			$site = DEFAULT_SITE;
-			$template = DEFAULT_TEMPLATE;
-			$args['controller'] = DEFAULT_CONTROLLER;
-			$args['view'] = DEFAULT_VIEW;
-			$parts = array();
+			$context = \jmvc\View::$CONTEXT_DEFAULTS;
+			$url_parts = array(); 
 		} else {
 		
-			$parts = explode('/', trim($app_url, '/'));
-
-			// block direct url for default site
-			if ($parts[0] == DEFAULT_SITE) self::do404();
-			$site = Controller::exists($parts[0], 'template') ? array_shift($parts) : DEFAULT_SITE;
-		
-			if ($parts[0] == DEFAULT_TEMPLATE) self::do404();
-			$template = method_exists('controllers\\'.$site.'\Template', $parts[0]) ? array_shift($parts) : DEFAULT_TEMPLATE;
+			$url_parts = explode('/', trim($app_url, '/'));
+			
+			
+			if (Controller::exists($url_parts[0], 'template')) $context['site'] = array_shift($url_parts);
+			if ($context['site'] == \jmvc\View::$CONTEXT_DEFAULTS['site']) { // block direct url for default site
+				\jmvc::do404();
+			} else if (!isset($context['site'])) {
+				$context['site'] = \jmvc\View::$CONTEXT_DEFAULTS['site'];
+			}
+			
+			if (method_exists('jmvc\\controller', $url_parts[0])) {
+				\jmvc::do404();
+			}
+			
+			if (method_exists('controllers\\'.$context['site'].'\Template', $url_parts[0])) $context['template'] = array_shift($url_parts);
+			if ($context['template'] == \jmvc\View::$CONTEXT_DEFAULTS['template']) { // block direct url for default template
+				\jmvc::do404();
+			} else if (!isset($context['template'])) {
+				$context['template'] = \jmvc\View::$CONTEXT_DEFAULTS['template'];
+			}
 			
 			if (isset($ROUTES)) {
-				$app_url = '/'.implode('/', $parts).'/';
+				$app_url = '/'.implode('/', $url_parts).'/';
 				foreach ($ROUTES as $in=>$out) {
 					$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
 
@@ -98,46 +106,41 @@ class JMVC {
 							}
 						}
 						
-						$parts = explode('/', trim($app_url, '/'));
+						$url_parts = explode('/', trim($app_url, '/'));
 						break;
 					}
 				}
 			}
 		
-			$possible_controller = str_replace('-', '_', $parts[0]);
-			if ($possible_controller == DEFAULT_CONTROLLER) self::do404();
-			
-			if (Controller::exists($site, $possible_controller)) {
-				$args['controller'] = $possible_controller;
-				array_shift($parts);
-			} else {
-				$args['controller'] = DEFAULT_CONTROLLER;
+			$possible_controller = str_replace('-', '_', $url_parts[0]);
+			if ($possible_controller == \jmvc\View::$CONTEXT_DEFAULTS['controller'] || $possible_controller == 'template') { // block direct url for default controller
+				\jmvc::do404();
 			}
 			
-			$possible_view = str_replace('-', '_', $parts[0]);
-			if ($possible_view == DEFAULT_VIEW) self::do404();
-			if (count($parts) && View::exists($site, $template, $args['controller'], $possible_view, true)) {
-				$args['view'] = $possible_view;
-				array_shift($parts);
-			} else {
-				$args['view'] = DEFAULT_VIEW;
+			if (Controller::exists($context['site'], $possible_controller)) {
+				$context['controller'] = $possible_controller;
+				array_shift($url_parts);
+			} if (!isset($context['controller'])) {
+				$context['controller'] = \jmvc\View::$CONTEXT_DEFAULTS['controller'];
+			}
+			
+			$possible_view = str_replace('-', '_', $url_parts[0]);
+			if ($possible_view == \jmvc\View::$CONTEXT_DEFAULTS['view']) { // block direct url for default view
+				\jmvc::do404();
+			}
+			
+			if (count($url_parts) && View::exists($context+array('view'=>$possible_view), true)) {
+				$context['view'] = $possible_view;
+				array_shift($url_parts);
+			} if (!isset($context['view'])) {
+				$context['view'] = \jmvc\View::$CONTEXT_DEFAULTS['view'];
 			}
 		}
 		
-		if ($hook_output = self::hook('post_routing', $args+array('site'=>$site, 'template'=>$template))) {
-			$args = $hook_output;
-			$site = $args['site'];
-			$template = $args['template'];
-		}
-
-		$args['controller'] = str_replace('-', '_', $args['controller']);
-		$args['view'] = str_replace('-', '_', $args['view']);
-		
-		if ($args['controller'] == 'template') {
-			self::do404(false);
-		}
-		
-		echo render('template', $template, array_merge($parts, $args), null, $site, $template);
+		self::hook('post_routing', $context);
+	
+		echo \jmvc\View::render(array_merge($context, array('controller'=>'template', 'view'=>$context['template'])), 
+			array_merge($url_parts, array('context'=>$context)));
 	}
 
 	public static function do404($template=true)
@@ -145,11 +148,10 @@ class JMVC {
 		ob_end_clean();
 	
 		header("HTTP/1.0 404 Not Found");
-		if ($template) {
-			echo render('template', DEFAULT_TEMPLATE, array('controller'=>'template', 'view'=>'do404'));
-		} else {
-			echo 'Page not found.';
-		}
+		
+		echo \jmvc\View::render(array('controller'=>'template', 'view'=>\jmvc\View::$CONTEXT_DEFAULTS['template'], 
+			'site'=>\jmvc\View::$CONTEXT_DEFAULTS['site'], 'template'=>\jmvc\View::$CONTEXT_DEFAULTS['template']), 
+			array('context'=>array('controller'=>'template', 'view'=>'do404')));
 		exit;
 	}
 	
@@ -314,36 +316,49 @@ class JMVC {
 
 REQUEST URI: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
-SERVER: '.print_array($_SERVER).'
+SERVER: '.return_print_r($_SERVER).'
 
-GET: '.print_array($_GET).'
+GET: '.return_print_r($_GET).'
 
-POST: '.print_array($_POST).' 
+POST: '.return_print_r($_POST).' 
 
-SESSION: '.print_array(jmvc\classes\Session::$d);
+SESSION: '.return_print_r(jmvc\classes\Session::$d);
 	}
 }
 
-function render($controller, $view, $args=array(), $cache=null, $site=false, $template=false)
-{
-	return jmvc\View::render($controller, $view, $args, $cache, $site, $template);
-}
 
-function print_array($arr, $padding="\t")
-{
-	$outp = "{\n";
+function return_print_r($var, $html = false, $level = 0) {
+	$spaces = "";
+	$space = $html ? "&nbsp;" : " ";
+	$newline = $html ? "<br />" : "\n";
 	
-	foreach ($arr as $key=>$value) {
-		$outp .= $padding.$key.' => ';
-		
-		if (is_array($value)) {
-			$outp .= print_array($value, $padding."\t")."\n";
-		} else {
-			$outp .= $value."\n";
+	for ($i = 1; $i <= 6; $i++) {
+		$spaces .= $space;
+	}
+	
+	$tabs = $spaces;
+	for ($i = 1; $i <= $level; $i++) {
+		$tabs .= $spaces;
+	}
+	
+	if (is_array($var)) {
+		$title = "Array";
+	} elseif (is_object($var)) {
+		$title = get_class($var)." Object";
+	}
+	
+	$output = $title . $newline . $newline;
+	
+	foreach($var as $key => $value) {
+		if (is_array($value) || is_object($value)) {
+			$level++;
+			$value = return_print_r($value, true, $html, $level);
+			$level--;
 		}
+		$output .= $tabs . "[" . $key . "] => " . $value . $newline;
 	}
 	
-	return $outp.substr($padding,0, -1).'}';
+	return $output;
 }
 
 function pp($data)
@@ -354,8 +369,8 @@ function pp($data)
 }
 
 function pd($data)
-{
-	if (!IS_PRODUCTION) {
+{ 
+	if (!IS_PRODUCTION) { 
 		pp($data);
 		die();
 	}
