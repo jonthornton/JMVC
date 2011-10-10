@@ -129,7 +129,7 @@ class View {
 			$controller->$context['view']();
 			
 			if ($override = $controller->view_override()) {
-				$context = array_merge($context, $override);
+				$context = self::push_context($override);
 			}
 			
 		} else {
@@ -143,13 +143,16 @@ class View {
 			include($view_file);
 			$output = ob_get_clean();
 		}
-	
+
 		// must find either a controller method or view file
-		if (!$controller && !$view_file) { die;
+		if (!$controller && !$view_file) {
 			throw new \ErrorException('Can\'t find view. View: '.$context['view'].', Controller: '.$context['controller'].', 
 				Template: '.$context['template'].', Site: '.$context['site']);
 		}
 		
+		if ($override) {
+			self::pop_context($override);
+		}
 		self::pop_context($view_name);
 		
 		if ($cache_expires !== null) {
@@ -186,7 +189,7 @@ class View {
 		return $output;
 	}
 	
-	private function push_context($context_args, &$parent)
+	private function push_context($context_args, &$parent=array())
 	{
 		// build context and update context stack
 		if (is_array($context_args)) {
