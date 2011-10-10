@@ -79,7 +79,7 @@ class View {
 	
 	public static function cache_key($view, $args)
 	{
-		return md5(serialize(array_merge($view, $args)));
+		return md5(serialize(array_merge($view, (array)$args)));
 	}
 	
 	public static function bust_cache($view, $args)
