@@ -76,7 +76,7 @@ class Form extends Validation {
 		return $arr;
 	}
 
-	public function open($attr = array(), $action = CURRENT_URL, $hidden = NULL)
+	public function open($attr=array(), $hidden=NULL)
 	{
 		// Make sure that the method is always set
 		if (empty($attr['method'])) $attr['method'] = 'post';
@@ -91,9 +91,10 @@ class Form extends Validation {
 		}
 
 		// Set action
-		if (empty($attr['action'])) $attr['action'] = $action;
-		
-		if ($attr['method'] == 'post') $attr['action'] .= QUERY_STRING;
+		if (empty($attr['action'])) {
+			$attr['action'] = CURRENT_URL;
+			if ($attr['method'] == 'post') $attr['action'] .= QUERY_STRING;
+		}
 
 		// Form opening tag
 		$form = '<form'.form::attributes($attr).'>'."\n";
@@ -104,7 +105,7 @@ class Form extends Validation {
 		return $form;
 	}
 	
-	public function open_multipart($attr = array(), $action = CURRENT_URL, $hidden = array())
+	public function open_multipart($attr=array(), $hidden=array())
 	{
 		// Set multi-part form type
 		$attr['enctype'] = 'multipart/form-data';
