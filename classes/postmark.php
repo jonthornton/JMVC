@@ -187,11 +187,6 @@ class Postmark
 	*/
 	public function &messageHtml($message)
 	{
-		$context = array('view'=>'email', 'controller'=>'template', 'template'=>'html', 'site'=>'www');
-		if ($message && \jmvc\View::get('use_template') && \jmvc\View::exists($context)) {
-			$message = \jmvc\View::render_static($context, array('content'=>$message));
-		}
-		
 		$this->_messageHtml = $message;
 		return $this;
 	}
