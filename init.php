@@ -155,7 +155,7 @@ class JMVC {
 		exit;
 	}
 	
-	public static function hook($hook, $args)
+	public static function hook($hook, &$args)
 	{
 		if (is_callable($GLOBALS['HOOKS'][$hook])) {
 			return $GLOBALS['HOOKS'][$hook]($args);
