@@ -19,7 +19,8 @@ class valid {
 	 */
 	public static function email($email)
 	{
-		return (bool) preg_match('/^[-_a-z0-9\'+*$^&%=~!?{}]++(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*+@(?:(?![-.])[-a-z0-9.]+(?<![-.])\.[a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})(?::\d++)?$/iD', (string) $email);
+		// http://php.net/manual/en/function.filter-var.php
+		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 	}
 
 	/**

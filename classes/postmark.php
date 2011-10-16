@@ -292,6 +292,7 @@ class Postmark
 			$sent = true;
 		}
 		
+		
 		$data = $this->_prepareData();
 		$headers = array(
 			'Accept: application/json',
@@ -389,7 +390,6 @@ class Postmark
 	*/
 	private function _validateAddress($email)
 	{
-		// http://php.net/manual/en/function.filter-var.php
-		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+		return \jmvc\classes\Valid::email($email);
 	}
 }
