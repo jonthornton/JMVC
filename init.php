@@ -47,10 +47,7 @@ class JMVC {
 				$routed_url = preg_replace('%'.$in.'%', $out, CURRENT_URL, 1, $count);
 
 				if ($count) {
-					if (strlen(QUERY_STRING)) {
-						$q = '?'.QUERY_STRING;
-					}
-					\jmvc\Controller::forward($routed_url.$q, true);
+					\jmvc\Controller::forward($routed_url.QUERY_STRING, true);
 					break;
 				}
 			}
