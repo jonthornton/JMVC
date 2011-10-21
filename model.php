@@ -225,35 +225,38 @@ class Model {
 	
 	protected static function make_criteria($criteria)
 	{
-		if (!empty($criteria)) {
-		
-			$where = array();
-			foreach ($criteria as $key => $value) {
-			
-				if ($key == 'having') {
-					// Raw (non-quoted) SQL
-					$having = $value;
-				} else {
-					$where[] = self::db()->make_parameter($key, $value, static::$_find_prefix);
-				}
-			}
-		}
-		
-		$sql = '';
-		
-		if (!empty($where)) {
-			$sql .= 'WHERE '.implode(' AND ', $where);
-		}
-		
+		$sql = self::make_where($criteria);
+
 		if (static::$_group_by) {
 			$sql .= ' GROUP BY '.static::$_group_by;
 			
-			if (!empty($having)) {
-				$sql .= ' HAVING '.implode(' AND ', $having);
+			if (isset($criteria['having']) && !empty($criteria['having'])) {
+				$sql .= ' HAVING '.implode(' AND ', $criteria['having']);
 			}
 		}
 		
 		return $sql;
+	}
+
+	protected static function make_where($criteria)
+	{
+		if (empty($criteria)) {
+			return '';
+		}
+		
+		$where = array();
+		foreach ($criteria as $key => $value) {
+		
+			if ($key == 'having') { //non-where argument passed with criteria
+				continue;
+			} else {
+				$where[] = self::db()->make_parameter($key, $value, static::$_find_prefix);
+			}
+		}
+
+		if (!empty($where)) {
+			return 'WHERE '.implode(' AND ', $where);
+		}
 	}
 	
 	public static function find($criteria, $limit=false, $order=false, $keyed=false)
