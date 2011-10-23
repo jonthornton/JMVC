@@ -139,13 +139,15 @@ class JMVC {
 		
 		self::hook('post_routing', $context);
 	
+		ob_start();
 		echo \jmvc\View::render(array_merge($context, array('controller'=>'template', 'view'=>$context['template'])), 
 			array_merge($url_parts, array('context'=>$context)));
 	}
 
 	public static function do404($template=true)
 	{
-		ob_end_clean();
+		// clear the output buffer
+		while(ob_get_length()) { ob_end_clean(); }
 	
 		header("HTTP/1.0 404 Not Found");
 		
@@ -251,9 +253,7 @@ class JMVC {
 	
 	public static function handle_exception($ex)
 	{
-	echo ob_get_length();
 		// clear the output buffer
-		
 		while(ob_get_length()) { ob_end_clean(); }
 		
 		if (IS_PRODUCTION) {
