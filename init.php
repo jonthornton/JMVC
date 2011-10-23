@@ -25,10 +25,11 @@ class JMVC {
 		}
 		
 		date_default_timezone_set('America/New_York');
-		spl_autoload_register('JMVC::autoloader');
-		set_exception_handler('JMVC::exception_handler');
-		set_error_handler('JMVC::exception_error_handler');
-		ob_start('JMVC::fatal_error_checker');
+		spl_autoload_register(array('JMVC', 'autoloader'));
+		set_exception_handler(array('JMVC', 'handle_exception'));
+		set_error_handler(array('JMVC', 'handle_error'), E_ERROR | E_WARNING);
+		register_shutdown_function(array('JMVC', 'fatal_error_checker'));
+		//ob_start('JMVC::fatal_error_checker');
 
 		if (!isset($_SERVER['REQUEST_URI'])) { //don't do routing if we're not running as a web server process
 			return;
@@ -246,7 +247,7 @@ class JMVC {
 		}
 	}
 	
-	public static function exception_handler($ex)
+	public static function handle_exception($ex)
 	{
 		// clear the output buffer
 		$a = 0;
@@ -255,45 +256,33 @@ class JMVC {
 		if (IS_PRODUCTION) {
 			self::notify_admin($ex->getFile(), self::make_error_report($ex->getFile(), $ex->getLine(), $ex->getMessage()));
 			header('HTTP/1.1 500 Internal Server Error');
-			exit();
 			
 		} else {
 			include(JMVC_DIR.'exception_html.php');
 		}
 
+		die();
 	}
 	
-	public static function exception_error_handler($errno, $errstr, $errfile, $errline)
+	public static function handle_error($errno, $errstr, $errfile, $errline)
 	{
-		if ($errno > 2) {
-			return;
-		}
-		
+		if (error_reporting() == 0) return; 
 		throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 	}
-	
-	public static function fatal_error_checker($output)
+
+	public static function fatal_error_checker()
 	{
-		if ($error = error_get_last()) {
-			if ($error['type'] <= 2) {
-				if (IS_PRODUCTION) {
-					self::notify_admin($error['file'], self::make_error_report($error['file'], $error['line'], $error['message']));
-					header('HTTP/1.1 500 Internal Server Error');
-					exit();
-				} else {
-					header('Content-type: text/plain');
-					return self::make_error_report($error['file'], $error['line'], $error['message']);
-				}
+		if ($error = error_get_last()) { 
+			if ($error['type'] <= 2) { 
+				self::handle_exception(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
 			}
 		}
-		
-		return $output;
 	}
 	
 	private static function notify_admin($file, $message)
 	{
 		self::log(date('r')."\n".$message, 'php_errors');
-	
+
 		if (!file_exists(LOG_DIR.'/error_state')) {
 			mail(ADMIN_EMAIL, 'Error in '.$file, $message);
 			
@@ -307,55 +296,30 @@ class JMVC {
 	
 	private static function make_error_report($file, $line, $message)
 	{
-		return 'An error occurred on line '.$line.' of '.$file.'
+		$out = 'An error occurred on line '.$line.' of '.$file.'
 
 '.$message.'
 
-REQUEST URI: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+REQUEST URI: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."\n\n";
 
-SERVER: '.return_print_r($_SERVER).'
-
-GET: '.return_print_r($_GET).'
-
-POST: '.return_print_r($_POST).' 
-
-SESSION: '.return_print_r(jmvc\classes\Session::$d);
-	}
+if (!empty($_GET)) {
+	$out .= 'GET: '.print_r($_GET, true)."\n\n";
 }
 
+if (!empty($_POST)) {
+	$out .= 'POST: '.print_r($_POST, true)."\n\n";
+}
 
-function return_print_r($var, $html = false, $level = 0) {
-	$spaces = "";
-	$space = $html ? "&nbsp;" : " ";
-	$newline = $html ? "<br />" : "\n";
-	
-	for ($i = 1; $i <= 6; $i++) {
-		$spaces .= $space;
+if (!empty(jmvc\classes\Session::$d)) {
+	$out .= 'SESSION: '.print_r(jmvc\classes\Session::$d, true)."\n\n";
+}
+
+if (!empty($_SERVER)) {
+	$out .= 'SERVER: '.print_r($_SERVER, true)."\n\n";
+}
+
+		return $out;
 	}
-	
-	$tabs = $spaces;
-	for ($i = 1; $i <= $level; $i++) {
-		$tabs .= $spaces;
-	}
-	
-	if (is_array($var)) {
-		$title = "Array";
-	} elseif (is_object($var)) {
-		$title = get_class($var)." Object";
-	}
-	
-	$output = $title . $newline . $newline;
-	
-	foreach($var as $key => $value) {
-		if (is_array($value) || is_object($value)) {
-			$level++;
-			$value = return_print_r($value, true, $html, $level);
-			$level--;
-		}
-		$output .= $tabs . "[" . $key . "] => " . $value . $newline;
-	}
-	
-	return $output;
 }
 
 function pp($data)
