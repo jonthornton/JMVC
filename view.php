@@ -189,7 +189,7 @@ class View {
 		return $output;
 	}
 	
-	private function push_context($context_args, &$parent=array())
+	private static function push_context($context_args, &$parent=array())
 	{
 		// build context and update context stack
 		if (is_array($context_args)) {
@@ -212,8 +212,13 @@ class View {
 				$context[$part] = self::$stacks[$part][0] ?: self::$CONTEXT_DEFAULTS[$part];
 			}
 			
-			if ($context[$part] != self::$stacks[$part][1]) $same_view = false;
-			if (isset(self::$stacks[$part][1])) $parent[$part] = self::$stacks[$part][1];
+			
+			if (isset(self::$stacks[$part][1])) {
+				if ($context[$part] != self::$stacks[$part][1]) $same_view = false;
+				$parent[$part] = self::$stacks[$part][1];
+			} else {
+				$same_view = false;
+			}
 		}
 		
 		if ($same_view) {
@@ -224,7 +229,7 @@ class View {
 		return $context;
 	}
 	
-	private function pop_context($context_args)
+	private static function pop_context($context_args)
 	{
 		// remove additions to the context stacks
 		if (is_array($context_args)) {

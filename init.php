@@ -26,10 +26,12 @@ class JMVC {
 		
 		date_default_timezone_set('America/New_York');
 		spl_autoload_register(array('JMVC', 'autoloader'));
+		
+		// set error handling
+		error_reporting(E_ERROR | E_WARNING);
 		set_exception_handler(array('JMVC', 'handle_exception'));
 		set_error_handler(array('JMVC', 'handle_error'), E_ERROR | E_WARNING);
 		register_shutdown_function(array('JMVC', 'fatal_error_checker'));
-		//ob_start('JMVC::fatal_error_checker');
 
 		if (!isset($_SERVER['REQUEST_URI'])) { //don't do routing if we're not running as a web server process
 			return;
@@ -249,9 +251,10 @@ class JMVC {
 	
 	public static function handle_exception($ex)
 	{
+	echo ob_get_length();
 		// clear the output buffer
-		$a = 0;
-		while(ob_end_clean()) { $a++; }
+		
+		while(ob_get_length()) { ob_end_clean(); }
 		
 		if (IS_PRODUCTION) {
 			self::notify_admin($ex->getFile(), self::make_error_report($ex->getFile(), $ex->getLine(), $ex->getMessage()));

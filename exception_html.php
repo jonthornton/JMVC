@@ -10,7 +10,7 @@ if (!function_exists('var_table')) {
 		$outp = '<table class="data">';
 		
 		foreach ($var as $key=>$val) {
-			$outp .= '<tr><td>'.$key.'</td><td>'.$val.'</td></tr>';
+			$outp .= '<tr><td>'.$key.'</td><td>'.print_r($val, true).'</td></tr>';
 		}
 		
 		return $outp.'</table>';
