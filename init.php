@@ -45,6 +45,8 @@ class JMVC {
 			define('QUERY_STRING', '');
 		}
 
+		define('IS_AJAX', isset($_SERVER['HTTP_X_REQUESTED_WITH']));
+
 		if (isset($REDIRECTS)) {
 			foreach ($REDIRECTS as $in=>$out) {
 				$routed_url = preg_replace('%'.$in.'%', $out, CURRENT_URL, 1, $count);
