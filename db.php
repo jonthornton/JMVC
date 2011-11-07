@@ -11,6 +11,9 @@ class Db {
 	public static $stats;
 	public static $queries;
 
+	/**
+	 * Singleton classe
+	 */
 	private function __construct()
 	{
 		$config = $GLOBALS['_CONFIG']['db'];
@@ -36,6 +39,10 @@ class Db {
 		}
 	}
 
+	/**
+	 * Retrieve the DB instance
+	 * @return \jmvc\Db
+	 */
 	public static function instance()
 	{
 		if (!isset(self::$instance)) {
@@ -46,6 +53,11 @@ class Db {
 		return self::$instance;
 	}
 
+	/**
+	 * MySQL quote a value. Performs some type detection to try to match MySQL type. Protects against SQL injection.
+	 * @param string $value
+	 * @return string
+	 */
 	public function quote($value)
 	{
 		if ($value === NULL) {
@@ -57,6 +69,11 @@ class Db {
 		}
 	}
 
+	/**
+	 * MySQL quote a date. Accepts either datetime strings or Unix timestamps
+	 * @param mixed $value
+	 * @return string
+	 */
 	public function quote_date($value)
 	{
 		if (!empty($value) && is_numeric($value)) {
@@ -66,11 +83,23 @@ class Db {
 		return $this->quote($value);
 	}
 
+	/**
+	 * Quote a string without any type detection
+	 * @param string $value
+	 * @return string
+	 */
 	public function escape_string($value)
 	{
 		return $this->read_db->real_escape_string($value);
 	}
 
+	/**
+	 * Generate a MySQL key=value argument pair
+	 * @param string $key Table column
+	 * @param string $value Argument value. Will be quoted.
+	 * @param string $prefix Prefix to put on column names in SQL. Typically \jmvc\Model::$_find_prefix.
+	 * @return string
+	 */
 	public function make_parameter($key, $value, $prefix=null)
 	{
 		if ($key == 'raw_sql') {
@@ -109,6 +138,13 @@ class Db {
 		}
 	}
 
+	/**
+	 * Generate SQL to insert associative array into MySQL table
+	 * @param string $table
+	 * @param array $row Array keys match column names
+	 * @param array $field_types Array of field information. Keys match column names. Allowed values are 'datetime'.
+	 * @return string
+	 */
 	public function make_insert($table, $row, $field_types=array())
 	{
 		$fields = '';
@@ -146,12 +182,26 @@ class Db {
 		return "INSERT IGNORE INTO $table($fields) VALUES($values)";
 	}
 
+	/**
+	 * Insert an array into MySQL. Wraps make_insert().
+	 * @param string $table
+	 * @param array $row
+	 * @return int MySQL INSERT_ID
+	 */
 	public function insert_row($table, $row)
 	{
 		$query = $this->make_insert($table, $row);
 		return $this->insert($query);
 	}
 
+	/**
+	 * Generate SQL to update an existing row. Similar to make_insert().
+	 * @param string $table
+	 * @param array $data
+	 * @param array $where Array of key=value pairs that will be used as WHERE criteria.
+	 * @param array $field_types
+	 * @return string
+	 */
 	public function make_update($table, $data, $where, $field_types=array())
 	{
 		$fields = '';
@@ -191,6 +241,12 @@ class Db {
 		return "UPDATE $table SET $fields WHERE $where";
 	}
 
+	/**
+	 * Execute a single SQL command.
+	 * @param string $query
+	 * @param bool $write In a multi-db environment, force query to go to the master db
+	 * @return mysqli_result
+	 */
 	public function do_query($query, $write=false)
 	{
 		if ($write) {
@@ -215,6 +271,11 @@ class Db {
 		return $result;
 	}
 
+	/**
+	 * Execute multiple SQL commands separated by ;
+	 * @param string $query
+	 * @return mysqli_result
+	 */
 	public function do_multi_query($query)
 	{
 		$result = $this->write_db->multi_query($query);
@@ -231,6 +292,13 @@ class Db {
 		return $result;
 	}
 
+	/**
+	 * Perform a select query and retreive a single row from the database. Will return false if the query
+	 * returns more than one row.
+	 * @param string $query
+	 * @return mixed If return is a single column, data value will be returned (string/int). Otherwise,
+	 * 					and associative array of the row data will be returned.
+	 */
 	public function get_row($query)
 	{
 		$result = $this->select($query);
@@ -247,6 +315,13 @@ class Db {
 		}
 	}
 
+	/**
+	 * Retrieve multiple rows from the database.
+	 * @param string $query
+	 * @param bool $key If true, array keys match the ID column
+	 * @param function $callback Function to filter returned data
+	 * @return mixed False if query returned no rows; array of associative arrays otherwise
+	 */
 	public function get_rows($query, $key=false, $callback=false)
 	{
 		$result = $this->select($query);
@@ -275,12 +350,22 @@ class Db {
 		return $outp;
 	}
 
+	/**
+	 * Perform a SELECT query
+	 * @param string $query
+	 * @return mysqli_result
+	 */
 	public function select($query)
 	{
 		self::$stats['select']++;
 		return $this->do_query($query);
 	}
 
+	/**
+	 * Perform a DELETE query
+	 * @param string $query
+	 * @return int Number of deleted rows
+	 */
 	public function delete($query)
 	{
 		self::$stats['delete']++;
@@ -288,6 +373,11 @@ class Db {
 		return $this->write_db->affected_rows;
 	}
 
+	/**
+	 * Perform an INSERT query
+	 * @param string $query
+	 * @return int INSERT_ID of row added
+	 */
 	public function insert($query)
 	{
 		self::$stats['insert']++;
@@ -295,6 +385,11 @@ class Db {
 		return $this->write_db->insert_id;
 	}
 
+	/**
+	 * Perform an UPDATE query
+	 * @param string $query
+	 * @return int Number of affected rows
+	 */
 	public function update($query)
 	{
 		self::$stats['update']++;

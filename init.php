@@ -6,8 +6,13 @@ use jmvc\classes\Benchmark;
 
 class JMVC {
 
+	/**
+	 * Main bootstrapping function. Initialize framework, perform routing, hand things off to template controller.
+	 * @return void
+	 */
 	public static function init()
 	{
+		// Load classes that will always be used; faster than autoloader
 		include(JMVC_DIR.'classes/benchmark.php');
 		Benchmark::start('total');
 
@@ -24,7 +29,7 @@ class JMVC {
 			include(APP_DIR.'constants.php');
 		}
 
-		date_default_timezone_set('America/New_York');
+		date_default_timezone_set('America/New_York'); // TODO: make this configurable
 		spl_autoload_register(array('JMVC', 'autoloader'));
 
 		// set error handling
@@ -37,6 +42,7 @@ class JMVC {
 			return;
 		}
 
+		// define some helper constants
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
 			define('CURRENT_URL', substr(strtolower($_SERVER['REQUEST_URI']), 0, $qPos));
 			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos));
@@ -47,6 +53,7 @@ class JMVC {
 
 		define('IS_AJAX', isset($_SERVER['HTTP_X_REQUESTED_WITH']));
 
+		// check if we need to do a URL redirect (301)
 		if (isset($REDIRECTS)) {
 			foreach ($REDIRECTS as $in=>$out) {
 				$routed_url = preg_replace('%'.$in.'%', $out, CURRENT_URL, 1, $count);
@@ -58,6 +65,7 @@ class JMVC {
 			}
 		}
 
+		// Set default context
 		if (defined('DEFAULT_SITE')) \jmvc\View::$CONTEXT_DEFAULTS['site'] = DEFAULT_SITE;
 		if (defined('DEFAULT_TEMPLATE')) \jmvc\View::$CONTEXT_DEFAULTS['template'] = DEFAULT_TEMPLATE;
 		if (defined('DEFAULT_CONTROLLER')) \jmvc\View::$CONTEXT_DEFAULTS['controller'] = DEFAULT_CONTROLLER;
@@ -65,14 +73,16 @@ class JMVC {
 
 		$app_url = CURRENT_URL;
 
+		// routing
 		if ($app_url == '/') {
 			$context = \jmvc\View::$CONTEXT_DEFAULTS;
 			$url_parts = array();
 		} else {
 
+			// Parse each segment of the URL, left to right
 			$url_parts = explode('/', trim($app_url, '/'));
 
-
+			// Set site
 			if (Controller::exists($url_parts[0], 'template')) $context['site'] = array_shift($url_parts);
 			if ($context['site'] == \jmvc\View::$CONTEXT_DEFAULTS['site']) { // block direct url for default site
 				\jmvc::do404();
@@ -80,10 +90,12 @@ class JMVC {
 				$context['site'] = \jmvc\View::$CONTEXT_DEFAULTS['site'];
 			}
 
+			// Do not allow access to base class methods
 			if (method_exists('jmvc\\controller', $url_parts[0])) {
 				\jmvc::do404();
 			}
 
+			// Set template
 			if (method_exists('controllers\\'.$context['site'].'\Template', $url_parts[0])) $context['template'] = array_shift($url_parts);
 			if ($context['template'] == \jmvc\View::$CONTEXT_DEFAULTS['template']) { // block direct url for default template
 				\jmvc::do404();
@@ -91,6 +103,7 @@ class JMVC {
 				$context['template'] = \jmvc\View::$CONTEXT_DEFAULTS['template'];
 			}
 
+			// Check for any internal URL mapping
 			if (isset($ROUTES)) {
 				$app_url = '/'.implode('/', $url_parts).'/';
 				foreach ($ROUTES as $in=>$out) {
@@ -114,6 +127,7 @@ class JMVC {
 				}
 			}
 
+			// Get controller
 			$possible_controller = str_replace('-', '_', $url_parts[0]);
 			if ($possible_controller == \jmvc\View::$CONTEXT_DEFAULTS['controller'] || $possible_controller == 'template') { // block direct url for default controller
 				\jmvc::do404();
@@ -126,6 +140,7 @@ class JMVC {
 				$context['controller'] = \jmvc\View::$CONTEXT_DEFAULTS['controller'];
 			}
 
+			// Get view
 			$possible_view = str_replace('-', '_', $url_parts[0]);
 			if ($possible_view == \jmvc\View::$CONTEXT_DEFAULTS['view']) { // block direct url for default view
 				\jmvc::do404();
@@ -141,12 +156,18 @@ class JMVC {
 
 		self::hook('post_routing', $context);
 
+		// Hand things off to the template controller
 		ob_start();
 		echo \jmvc\View::render(array_merge($context, array('controller'=>'template', 'view'=>$context['template'])),
 			array_merge($url_parts, array('context'=>$context)));
 	}
 
-	public static function do404($template=true)
+	/**
+	 * Display a 404 error to the user. Stops execution of the script.
+	 * @param bool $template
+	 * @return void
+	 */
+	public static function do404()
 	{
 		// clear the output buffer
 		while(ob_get_length()) { ob_end_clean(); }
@@ -159,6 +180,13 @@ class JMVC {
 		exit;
 	}
 
+	/**
+	 * Call a hook during a certain part of the app lifecycle. Hooks are defined in a global $HOOKS array
+	 * with keys matching hook names. Only 'post_routing' is supported at this time.
+	 * @param strin $hook Hook to call. Only 'post_routing' is supported at this time
+	 * @param mixed &$args Arbitrary argument to be passed to hook function. Passed by reference.
+	 * @return void
+	 */
 	public static function hook($hook, &$args)
 	{
 		if (is_callable($GLOBALS['HOOKS'][$hook])) {
@@ -166,6 +194,11 @@ class JMVC {
 		}
 	}
 
+	/**
+	 * Class autoloaded. Translates namespaceing into file paths
+	 * @param string $classname
+	 * @return void
+	 */
 	public static function autoloader($classname)
 	{
 		$classname = strtolower($classname);
@@ -208,6 +241,13 @@ class JMVC {
 		}
 	}
 
+	/**
+	 * Return cleaned data from superglobals
+	 * @param string $name Key
+	 * @param string $global Superglobal to access
+	 * @param bool $raw Only trim the value, don't clean. Defaults to false
+	 * @return string
+	 */
 	public static function input($name, $global=null, $raw=false)
 	{
 		switch (strtolower($global)) {
@@ -241,6 +281,12 @@ class JMVC {
 		}
 	}
 
+	/**
+	 * Append data to a file.
+	 * @param string $data Data to be recorded
+	 * @param string $logname Optional
+	 * @return void
+	 */
 	public function log($data, $logname=false)
 	{
 		$host = $_SERVER['HTTP_HOST'] ?: 'cmd';
@@ -327,6 +373,11 @@ if (!empty($_SERVER)) {
 	}
 }
 
+/**
+ * Dump the contents of a variable with some pretty formatting
+ * @param mixed $data
+ * @return void
+ */
 function pp($data)
 {
 	if (!IS_PRODUCTION) {
@@ -334,6 +385,11 @@ function pp($data)
 	}
 }
 
+/**
+ * Dump the contents of a variable and exit(). Similar to pp()
+ * @param mixed $data
+ * @return void
+ */
 function pd($data)
 {
 	if (!IS_PRODUCTION) {
