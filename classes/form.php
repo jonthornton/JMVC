@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Form helper class.
  *
@@ -7,26 +7,16 @@
  * @license    http://kohanaphp.com/license.html
  */
  namespace jmvc\classes;
- 
+
 class Form extends Validation {
 
 	protected static $formcount = 0;
 	protected static $tabindex = 0;
-	
-	protected static $HOURS = Array('00:00'=>'12:00 am', '00:30'=>'12:30 am', '01:00'=>'1:00 am', '01:30'=>'1:30 am', '02:00'=>'2:00 am', '02:30'=>'2:30 am', 
-		'03:00'=>'3:00 am', '03:30'=>'3:30 am', '04:00'=>'4:00 am',
-		'04:30'=>'4:30 am', '05:00'=>'5:00 am', '05:30'=>'5:30 am', '06:00'=>'6:00 am', '06:30'=>'6:30 am', '07:00'=>'7:00 am',
-		'07:30'=>'7:30 am', '08:00'=>'8:00 am', '08:30'=>'8:30 am', '09:00'=>'9:00 am', '09:30'=>'9:30 am', '10:00'=>'10:00 am',
-		'10:30'=>'10:30 am', '11:00'=>'11:00 am', '11:30'=>'11:30 am', '12:00'=>'12:00 pm', '12:30'=>'12:30 pm',
-		'13:00'=>'1:00 pm', '13:30'=>'1:30 pm', '14:00'=>'2:00 pm', '14:30'=>'2:30 pm', '15:00'=>'3:00 pm', '15:30'=>'3:30 pm',
-		'16:00'=>'4:00 pm', '16:30'=>'4:30 pm', '17:00'=>'5:00 pm', '17:30'=>'5:30 pm', '18:00'=>'6:00 pm', '18:30'=>'6:30 pm',
-		'19:00'=>'7:00 pm', '19:30'=>'7:30 pm', '20:00'=>'8:00 pm', '20:30'=>'8:30 pm', '21:00'=>'9:00 pm', '21:30'=>'9:30 pm',
-		'22:00'=>'10:00 pm', '22:30'=>'10:30 pm', '23:00'=>'11:00 pm', '23:30'=>'11:30 pm');
 
 	public function __construct($id=false)
 	{
 		$this->id = $id ?: 'form'.self::$formcount;
-		
+
 		if ($id) {
 			if (isset($_POST[$this->id])) {
 				parent::__construct($_POST);
@@ -44,10 +34,10 @@ class Form extends Validation {
 				parent::__construct(array());
 			}
 		}
-		
+
 		self::$formcount++;
 	}
-	
+
 	public function offsetGet($key)
 	{
 		if (is_array($this->data[$key])) {
@@ -58,12 +48,12 @@ class Form extends Validation {
 			return self::get_clean($this->data[$key]);
 		}
 	}
-	
+
 	public static function get_clean($data)
 	{
 		return htmlspecialchars(strip_tags(trim($data)), ENT_COMPAT, 'ISO-8859-1', false);
 	}
-	
+
 	public function clear()
 	{
 		$this->data = array();
@@ -85,7 +75,7 @@ class Form extends Validation {
 			// If the method is invalid, use post
 			$attr['method'] = 'post';
 		}
-		
+
 		if (empty($attr['id'])) {
 			$attr['id'] = $this->id;
 		}
@@ -104,7 +94,7 @@ class Form extends Validation {
 
 		return $form;
 	}
-	
+
 	public function open_multipart($attr=array(), $hidden=array())
 	{
 		// Set multi-part form type
@@ -141,7 +131,7 @@ class Form extends Validation {
 
 		// Type and value are required attributes
 		$data += array('type'=>'text');
-		
+
 		if ($data['type'] != 'checkbox' && $data['type'] != 'radio') {
 			if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']]) && !is_array($this->data[$data['name']])) {
 				$data['value'] = $this[$data['name']];
@@ -149,11 +139,11 @@ class Form extends Validation {
 				$data['value'] = $value;
 			}
 		}
-		
+
 		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
-		
+
 		if (isset($data['for']) && $this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
@@ -171,81 +161,74 @@ class Form extends Validation {
 
 		return $this->input($data, $value, $extra);
 	}
-	
+
 	public function date($data, $value=false, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-		
+
 		if ($value) {
 			$data['value'] = $value;
 			unset($value);
 		}
-		
+
 		if (isset($data['value']) && is_numeric($data['value'])) {
 			$data['value'] = date('n/j/Y', $data['value']);
 		}
-		
+
 		self::add_class($data, 'date');
 		return $this->input($data, null, $extra);
 	}
-	
+
 	public function get_date($field)
 	{
 		if (!empty($this[$field])) {
 			return strtotime($this[$field]);
 		}
 	}
-	
+
 	public function time($data, $value=null, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-		
+
 		if ($value) {
 			$data['value'] = $value;
 			unset($value);
 		}
-		
+
 		if (isset($data['value']) && is_numeric($data['value'])) {
 			$data['value'] = self::int2time($data['value']);
-		} else if (!isset($data['value'])) {
-			$data['value'] = null;
 		}
-		
-		if (isset($data['class'])) {
-			$data['class'] .= ' time';
-		} else {
-			$data['class'] = 'time';
-		}
-		
-		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra);
+
+		self::add_class($data, 'time');
+		return $this->input($data, null, $extra);
 	}
-	
+
 	public function int2time($ts)
 	{
 		if (!is_numeric($ts) || !$ts) {
             return $ts;
 		}
-		
+
 		if ($ts < ONE_YEAR) {
 			$ts += mktime(0, 0, 0);
 		}
-		
+
 		$ts = 1800*round($ts/1800);
-		
+
         return date('H:i', $ts);
 	}
-	
+
 	public function get_date_time($date_key, $time_key)
 	{
 		if (!empty($this[$date_key]) && isset($this[$time_key])) {
 			return strtotime($this[$date_key].' '.$this[$time_key]);
 		}
 	}
-	
+
 	public function number($data, $value=false, $extra = '')
 	{
 		if (!is_array($data)) {
@@ -253,7 +236,7 @@ class Form extends Validation {
 		}
 		self::add_class($data, 'num');
 		$this->add_rules($data['name'], 'numeric');
-		
+
 		return $this->input($data, $value, $extra);
 	}
 
@@ -267,7 +250,7 @@ class Form extends Validation {
 
 		return $this->input($data, $value, $extra);
 	}
-	
+
 	public function get_upload($name)
 	{
 		if ($_FILES[$name]['error'] == 0) {
@@ -282,7 +265,7 @@ class Form extends Validation {
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-		
+
 		if ($this->submitted() && !$this->errors[$data['name']]) {
 			$data['value'] = $this[$data['name']];
 		} else if ($value) {
@@ -294,15 +277,15 @@ class Form extends Validation {
 
 		// Value is not part of the attributes
 		unset($data['value']);
-		
+
 		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
-		
+
 		if ($this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
-		
+
 		if (!isset($data['rows'])) $data['rows'] = 10;
 		if (!isset($data['cols'])) $data['cols'] = 30;
 
@@ -318,15 +301,15 @@ class Form extends Validation {
 		if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
 			$selected = $this[$data['name']];
 		}
-		
+
 		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
-		
+
 		if (isset($data['for']) && $this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
-		
+
 		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
 		foreach ((array) $options as $key => $val) {
 			// Key should always be a string
@@ -357,9 +340,9 @@ class Form extends Validation {
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-		
+
 		$data['multiple'] = 'multiple';
-		
+
 
 		if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
 			$selected = $this[$data['name']];
@@ -367,15 +350,15 @@ class Form extends Validation {
 		if (!is_array($selected)) {
 			$selected = array($selected);
 		}
-		
+
 		if ($this->errors[$data['name']] || $this->messages[$data['for']]) {
 			self::add_class($data, 'error');
 		}
-		
+
 		if ($this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
-		
+
 		$data['id'] = $data['name'];
 		$data['name'] .= '[]';
 		$input = '<select'.form::attributes($data, 'select').' '.$extra.'>'."\n";
@@ -410,13 +393,13 @@ class Form extends Validation {
 		}
 
 		$data['type'] = 'checkbox';
-		
+
 		if ($value !== null) $data['value'] = $value;
 		if (!isset($data['value']) || $data['value'] === null) $data['value'] = 1;
 
 		if ($this->submitted()) {
 			$name = rtrim($data['name'], '[]');
-		
+
 			if (is_array($this[$name]) && in_array(html_entity_decode($data['value']), $this[$name])) {
 				$data['checked'] = 'checked';
 			} else if (!is_array($this[$name]) && $this[$name]) {
@@ -424,18 +407,18 @@ class Form extends Validation {
 			} else {
 				unset($data['checked']);
 			}
-		
+
 		} else if ($checked || (isset($data['checked']) && $data['checked'] == TRUE)) {
 			$data['checked'] = 'checked';
 		} else {
 			unset($data['checked']);
 		}
-			
-		
+
+
 
 		return $this->input($data, $value, $extra);
 	}
-	
+
 	public function get_checkbox($key)
 	{
 		return $this[$key] ?: 0;
@@ -451,7 +434,7 @@ class Form extends Validation {
 		}
 
 		$data['type'] = 'radio';
-			
+
 		if ($this->submitted() && $this[$data['name']] !== null) {
 			if ($this[$data['name']] == $data['value']) {
 				$data['checked'] = 'checked';
@@ -471,10 +454,10 @@ class Form extends Validation {
 	{
 		$data['type'] = 'submit';
 		if (empty($text)) $text = 'Submit';
-		
+
 		return $this->hidden($this->id, 1).$this->button($text, $data, $extra);
 	}
-	
+
 	public function button($text = '', $data=array(), $extra = '')
 	{
 		return '<button'.form::attributes($data, 'button').' '.$extra.'>'.$text.'</button>';
@@ -485,34 +468,34 @@ class Form extends Validation {
 		if (!is_array($data)) {
 			$data = array('for' => $data);
 		}
-		
+
 		if (isset($this->errors[$data['for']]) || isset($this->messages[$data['for']])) {
 			self::add_class($data, 'error');
 		}
-		
+
 		if ($this->is_required($data['for'])) {
 			self::add_class($data, 'required');
 		}
 
 		return '<label'.form::attributes($data).' '.$extra.'>'.$text.'</label>';
 	}
-	
+
 	public function formatted_errors()
 	{
 		$errors = $this->errors();
-		
+
 		if (empty($errors)) {
 			return '';
 		}
-		
+
 		$out = '<ul class="msg errors">';
 		foreach ($errors as $error) {
 			$out .= '<li>'.$error.'</li>';
 		}
-		
+
 		return $out.'</ul>';
 	}
-	
+
 	public static function add_class(&$data, $class)
 	{
 		if (isset($data['class'])) {
@@ -558,7 +541,7 @@ class Form extends Validation {
 				break;
 			}
 		}
-		
+
 		if ($type == 'select') unset($attr['value']);
 
 		$order = array
@@ -602,7 +585,7 @@ class Form extends Validation {
 		}
 
 		$attrs = array_merge($sorted, $attr);
-		
+
 		if (empty($attrs))
 			return '';
 
