@@ -3,29 +3,29 @@
 namespace jmvc\classes;
 
 class Memcache implements Cache_Interface {
-	
+
 	protected $m;
     protected static $instance;
-	
+
 	public static $stats;
-	
+
 	const FALSE = '^%$@FSDerwo';
 	const ZERO = '^%$@Fkdjrwo';
-	
+
 	private function __construct()
 	{
 		$config = $GLOBALS['_CONFIG']['memcached'];
 		$this->m = new \Memcache();
-		
+
 		$rc = $this->m->addServer($config['host'], $config['port']);
-		
+
 		if (!$rc) {
 			throw new \Exception('Error connecting to memcached server at '.$config['host'].' port '.$config['port']);
 		}
-		
+
 		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0, 'keys'=>array());
 	}
-	
+
 	public static function instance()
 	{
 		if (!isset(self::$instance)) {
@@ -35,12 +35,12 @@ class Memcache implements Cache_Interface {
 			} else {
 				self::$instance = Memcache_Stub::instance();
 			}
-			
+
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	protected static function falsify($data)
 	{
 		if (is_array($data)) {
@@ -58,10 +58,10 @@ class Memcache implements Cache_Interface {
 				$data = self::FALSE;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	protected static function defalsify($data)
 	{
 		if (is_array($data)) {
@@ -79,15 +79,15 @@ class Memcache implements Cache_Interface {
 				$data = FALSE;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	public function delete($key)
 	{
 		return $this->m->delete($key, 0);
 	}
-	
+
 	public function get($key, &$result, $nobust=false)
 	{
 		if (BUST_CACHE && !$nobust) {
@@ -96,9 +96,9 @@ class Memcache implements Cache_Interface {
 			self::$stats['keys'][] = array($key, 'miss');
 			return false;
 		}
-	
+
 		$data = $this->m->get($key);
-		
+
 		if ($data === false) {
 			self::$stats['misses']++;
 			self::$stats['keys'][] = array($key, 'miss');
@@ -110,16 +110,16 @@ class Memcache implements Cache_Interface {
 			return true;
 		}
 	}
-	
+
 	public function set($key, $val, $expires=0)
 	{
 		self::$stats['writes']++;
 		self::$stats['keys'][] = array($key, 'write');
-		
+
 		if (!is_array($val)) {
 			$val = self::falsify($val);
 		}
-		
+
 		return $this->m->set($key, $val, 0, $expires);
 	}
 }

@@ -6,9 +6,9 @@
  *
  * @license    http://kohanaphp.com/license.html
  */
- 
+
  namespace jmvc\classes;
- 
+
 class Validation implements \ArrayAccess {
 
 	// Filters
@@ -41,7 +41,7 @@ class Validation implements \ArrayAccess {
 
 		$this->data = $data;
 	}
-	
+
 	public function absorb($val)
 	{
 		$data = $val->export();
@@ -53,7 +53,7 @@ class Validation implements \ArrayAccess {
 		$this->error_messages = array_merge($this->error_messages, $data['error_messages']);
 		$this->array_fields = array_merge($this->array_fields, $data['array_fields']);
 	}
-	
+
 	public function export()
 	{
 		return array(
@@ -63,25 +63,25 @@ class Validation implements \ArrayAccess {
 			'callbacks'=>$this->callbacks,
 			'empty_rules'=>$this->empty_rules,
 			'error_messages'=>$this->error_messages,
-			'array_fields'=>$this->array_fields			
+			'array_fields'=>$this->array_fields
 		);
 	}
-	
+
 	public function offsetGet($key)
 	{
 		return $this->data[$key];
 	}
-	
+
 	public function offsetSet($key, $val)
 	{
 		$this->data[$key] = $val;
 	}
-	
+
 	public function offsetExists($key)
 	{
 		return isset($this->data[$key]);
 	}
-	
+
 	public function offsetUnset($key)
 	{
 		unset($this->data[$key]);
@@ -308,7 +308,7 @@ class Validation implements \ArrayAccess {
 		}
 
 		foreach ($this->rules as $field => $callbacks) {
-		
+
 			foreach ($callbacks as $callback) {
 				// Separate the callback and arguments
 				list($callback, $args) = $callback;
@@ -382,7 +382,7 @@ class Validation implements \ArrayAccess {
 				}
 			}
 		}
-		
+
 		if (!empty($this->errors)) return false;
 
 		foreach ($this->callbacks as $field => $callbacks) {
@@ -437,16 +437,16 @@ class Validation implements \ArrayAccess {
 		if (!is_array($this->messages[$input])) {
 			$this->messages[$input] = array();
 		}
-	
+
 		if ($message) {
 			$this->messages[$input][] = $message;
 			return;
 		}
-		
+
 		$errors = array();
 		if (isset($this->errors[$input])) {
 			if (isset($this->messages[$input])) {
-			
+
 				if (is_array($messages[$input])) {
 					if ((isset($messages[$input][$this->errors[$input]]))) {
 						$errors[] = $messages[$input][$this->errors[$input]];
@@ -458,7 +458,7 @@ class Validation implements \ArrayAccess {
 				} else {
 					$errors[] = $messages[$input];
 				}
-			
+
 			} else {
 				if (isset($messages['default'])) {
 					$errors[] = $messages['default'];
@@ -470,7 +470,7 @@ class Validation implements \ArrayAccess {
 
 		return array_unique($errors + $this->messages[$input]);
 	}
-	
+
 	public function set_error_messages($messages)
 	{
 		$this->error_messages += $messages;
@@ -482,7 +482,7 @@ class Validation implements \ArrayAccess {
 		foreach ($this->messages as $field) {
 			$field_messages += $field;
 		}
-	
+
 		if (!$messages) {
 			if (!empty($this->error_messages)) {
 				$messages = $this->error_messages;
@@ -499,7 +499,7 @@ class Validation implements \ArrayAccess {
 		foreach ($this->errors as $input => $error)
 		{
 			if (isset($messages[$input])) {
-			
+
 				if (is_array($messages[$input])) {
 					if (is_string($error) && (isset($messages[$input][$error]))) {
 						$errors[] = $messages[$input][$error];
@@ -511,7 +511,7 @@ class Validation implements \ArrayAccess {
 				} else {
 					$errors[] = $messages[$input];
 				}
-			
+
 			} else {
 				if (isset($messages['default'])) {
 					$errors[] = $messages['default'];
@@ -533,7 +533,7 @@ class Validation implements \ArrayAccess {
 			return ! ($str === '' OR $str === NULL OR $str === FALSE);
 		}
 	}
-	
+
 	public function is_required($field)
 	{
 		if (isset($this->rules[$field])) {
@@ -543,7 +543,7 @@ class Validation implements \ArrayAccess {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 

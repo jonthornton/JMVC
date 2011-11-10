@@ -3,31 +3,31 @@
 namespace jmvc\classes;
 
 class Memcache_Stub implements Cache_Interface {
-	
+
 	protected static $instance;
     protected static $data;
-	
+
 	public static $stats;
-	
+
 	const FALSE = '^%$@FSDerwo';
 	const ZERO = '^%$@Fkdjrwo';
-	
+
 	private function __construct()
 	{
 		self::$data;
 		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0, 'keys'=>array());
 	}
-	
+
 	public static function instance()
 	{
 		if (!isset(self::$instance)) {
 			$c = __CLASS__;
 			self::$instance = new $c;
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	protected static function falsify($data)
 	{
 		if (is_array($data)) {
@@ -45,10 +45,10 @@ class Memcache_Stub implements Cache_Interface {
 				$data = self::FALSE;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	protected static function defalsify($data)
 	{
 		if (is_array($data)) {
@@ -66,23 +66,23 @@ class Memcache_Stub implements Cache_Interface {
 				$data = FALSE;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	public function delete($key)
 	{
 		unset(self::$data[$key]);
 	}
-	
+
 	public function get($key, &$result, $nobust=false)
 	{
 		if (BUST_CACHE && !$nobust) {
 			return false;
 		}
-	
+
 		$data = self::$data[$key];
-		
+
 		if ($data === null) {
 			self::$stats['misses']++;
 			self::$stats['keys'][] = array($key, 'miss');
@@ -94,16 +94,16 @@ class Memcache_Stub implements Cache_Interface {
 			return true;
 		}
 	}
-	
+
 	public function set($key, $val, $expires=0)
 	{
 		self::$stats['writes']++;
 		self::$stats['keys'][] = array($key, 'write');
-		
+
 		if (!is_array($val)) {
 			$val = self::falsify($val);
 		}
-		
+
 		self::$data[$key] = $val;
 	}
 }

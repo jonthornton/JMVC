@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Validation helper class.
  *
@@ -6,7 +6,7 @@
  *
  * @license    http://kohanaphp.com/license.html
  */
- 
+
 namespace jmvc\classes;
 
 class valid {
@@ -208,7 +208,7 @@ class valid {
 
 	/**
 	 * Tests if a string is a valid date string.
-	 * 
+	 *
 	 * @param   string   date to check
 	 * @return  boolean
 	 */
@@ -278,7 +278,7 @@ class valid {
 	 *
 	 * @see Uses locale conversion to allow decimal point to be locale specific.
 	 * @see http://www.php.net/manual/en/function.localeconv.php
-	 * 
+	 *
 	 * @param   string   input string
 	 * @return  boolean
 	 */

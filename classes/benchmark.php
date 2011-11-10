@@ -1,8 +1,8 @@
-<?php 
+<?php
 /**
  * Based on the Kohana benchmark class
  */
- 
+
 namespace jmvc\classes;
 
 final class Benchmark {
@@ -14,7 +14,7 @@ final class Benchmark {
 		if (!isset(self::$marks[$name])) {
 			self::$marks[$name] = array();
 		}
-		
+
 		array_unshift(self::$marks[$name], array('start'=>microtime(TRUE), 'stop'=>FALSE, 'memory_start'=>memory_get_usage(), 'memory_stop'=>FALSE));
 	}
 
@@ -25,7 +25,7 @@ final class Benchmark {
 			self::$marks[$name][0]['memory_stop'] = memory_get_usage();
 		}
 	}
-	
+
 	public static function get($name, $decimals = 4)
 	{
 		if ($name === TRUE) {

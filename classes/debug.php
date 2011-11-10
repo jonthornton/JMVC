@@ -5,37 +5,37 @@ namespace jmvc\classes;
 class Debug {
 
 	public static $panels = array();
-	
+
 	private function __construct()
 	{
 		// this is a static-only class
 	}
-	
+
 	private function table_names($query)
 	{
 		if (preg_match_all('/(FROM|JOIN|INTO|UPDATE)\s+([a-z0-9_]+)/i', $query, $matches)) {
 			return implode(', ', array_unique($matches[2]));
 		}
 	}
-	
+
 	public static function add_panel($label, $link_text, $url)
 	{
 		self::$panels[] = array('label'=>$label, 'link_text'=>$link_text, 'url'=>$url);
 	}
-	
+
 	public static function make_toolbar()
 	{
 		$content = '';
 		$infowindows = '';
-		
+
 		foreach (self::$panels as $panel) {
 			$content .= '<div class="panel">'.$panel['label'].': <a href="'.$panel['url'].'">'.$panel['link_text'].'</a></div>';
 		}
-		
+
 		$stats = \jmvc\Db::$stats;
 		if (is_array($stats)) {
 			$total = $stats['select'] + $stats['insert'] + $stats['update'] + $stats['delete'];
-		
+
 			$content .= '<div class="panel">
 				<h3>Database Stats</h3>
 				<table class="data">
@@ -60,32 +60,32 @@ class Debug {
 						<td class="num">'.$stats['delete'].'</td>
 					</tr>
 				</table>';
-			
+
 			$queries = \jmvc\Db::$queries;
 			if (is_array($queries) && !empty($queries)) {
 				$rows = '';
 				foreach ($queries as $query) {
 					$rows .= '<tr>
 						<td class="num">'.round($query['time'], 4).'</td>
-						<td>'.self::table_names($query['query']).' 
+						<td>'.self::table_names($query['query']).'
 						</td>
 						<td><a href="#" class="showquery">Show Query</a>
 							<div class="query">'.nl2br($query['query']).'</div></td>
 					</tr>';
 				}
-				
+
 				$infoWindows .= '<div id="db_queries">
 					<table class="data">
 						'.$rows.'
 					</table>
 				</div>';
-				
+
 				$content .= '<a href="#" rel="db_queries" class="infoWindowLink">Show DB Queries</a>';
 			}
-			
+
 			$content .= '</div>';
 		}
-		
+
 		$stats = \jmvc\classes\Memcache::$stats;
 		if (is_array($stats)) {
 			$content .= '<div class="panel">
@@ -104,7 +104,7 @@ class Debug {
 						<td class="num">'.$stats['writes'].'</td>
 					</tr>
 				</table>';
-			
+
 			if (!empty($stats['keys'])) {
 				$rows = '';
 				foreach ($stats['keys'] as $key) {
@@ -113,19 +113,19 @@ class Debug {
 						<td>'.$key[1].'</td>
 					</tr>';
 				}
-				
+
 				$infoWindows .= '<div id="cache_keys">
 					<table class="data">
 						'.$rows.'
 					</table>
 				</div>';
-				
+
 				$content .= '<a href="#" rel="cache_keys" class="infoWindowLink">Show Keys</a>';
 			}
-			
+
 			$content .= '</div>';
 		}
-		
+
 		$stats = \jmvc\classes\File_Cache::$stats;
 		if (is_array($stats)) {
 			$content .= '<div class="panel">
@@ -146,27 +146,27 @@ class Debug {
 				</table>
 			</div>';
 		}
-		
+
 		$b = \jmvc\classes\Benchmark::get('total');
-		
+
 		return '<div id="admin_debug">
 			<div id="debug_toolbar">
 				<h2>Admin Toolbar</h2>
-				
+
 				'.$content.'
-				
+
 				<ul class="panel options">
 					<li id="bust_cache">Cache Buster</li>
 				</ul>
-			
+
 				<div>'.$b['time'].' sec</div>
 			</div>
 			<div id="debug_openbutton">X</div>
 		</div>
 		<div id="infoWindows">'.$infoWindows.'</div>
-		
+
 		<script type="text/javascript" src="/js/debug.js"></script>
-		';		
+		';
 	}
 
 }
