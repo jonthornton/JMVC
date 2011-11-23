@@ -346,15 +346,12 @@ class Form extends Validation {
 			$selected = $data['value'];
 		}
 
-<<<<<<< Updated upstream
-=======
 		unset($data['value']);
 
 		if ($use == 'timepicker') {
 			$selected = self::normalize_time($selected);
 		}
 
->>>>>>> Stashed changes
 		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
