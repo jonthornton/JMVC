@@ -206,20 +206,50 @@ class Form extends Validation {
 
 		if ($value) {
 			$data['value'] = $value;
-			unset($value);
-		}
-
-		if (isset($data['value']) && is_numeric($data['value'])) {
-			$data['value'] = self::int2time($data['value']);
-		} else if (!isset($data['value'])) {
-			$data['value'] = null;
 		}
 
 		self::add_class($data, 'time');
-		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra);
+
+		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra, 'timepicker');
 	}
 
-	public function int2time($ts)
+	public static function normalize_time($inp)
+	{
+		if (empty($inp)) {
+			return null;
+		}
+
+		if (!is_numeric($inp)) {
+			$inp = self::time2int($inp);
+		}
+
+		return self::int2time($inp);
+	}
+
+	public static function time2int($time)
+	{
+		if (stristr($time, 'pm')) {
+			$pm = true;
+			str_ireplace('pm', '', $time);
+		} else if (stristr($time, 'am')) {
+			$pm = false;
+			str_ireplace('am', '', $time);
+		}
+
+		$time = trim($time);
+		list($hour, $min, $sec) = explode(':', $time);
+
+		if ($pm && $hour != 12) $hour += 12;
+		if ($am && $hour == 12) $hour = 0;
+
+		$hour *= 3600;
+		$min *= 60;
+		$sec *= 1;
+
+		return $hour + $min + $sec;
+	}
+
+	public static  function int2time($ts)
 	{
 		if (!is_numeric($ts) || !$ts) {
             return $ts;
@@ -304,7 +334,7 @@ class Form extends Validation {
 		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars(trim($value), ENT_COMPAT, 'ISO-8859-1', false).'</textarea>';
 	}
 
-	public function dropdown($data, $options, $selected=NULL, $extra = '')
+	public function dropdown($data, $options, $selected=NULL, $extra = '', $use=null)
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -312,8 +342,19 @@ class Form extends Validation {
 
 		if ($this->submitted() && !$this->errors[$data['name']] && isset($this->data[$data['name']])) {
 			$selected = $this[$data['name']];
+		} else if (isset($data['value'])) {
+			$selected = $data['value'];
 		}
 
+<<<<<<< Updated upstream
+=======
+		unset($data['value']);
+
+		if ($use == 'timepicker') {
+			$selected = self::normalize_time($selected);
+		}
+
+>>>>>>> Stashed changes
 		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
 		}
