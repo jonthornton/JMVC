@@ -228,31 +228,30 @@ class Form extends Validation {
 
 	public static function time2int($time)
 	{
-		if (stristr($time, 'pm')) {
-			$pm = true;
-			str_ireplace('pm', '', $time);
-		} else if (stristr($time, 'am')) {
-			$pm = false;
-			str_ireplace('am', '', $time);
+		if (!preg_match('/(\d+)(?::(\d\d))?\s*([pa]?)/i', $time, $matches)) {
+			return $time;
 		}
 
-		$time = trim($time);
-		list($hour, $min, $sec) = explode(':', $time);
+		$hour = $matches[1];
 
-		if ($pm && $hour != 12) $hour += 12;
-		if ($am && $hour == 12) $hour = 0;
+		if ($matches[3]) {
+			if ($hour == 12) {
+				$hours = ($matches[3] == 'p') ? 12 : 0;
+			} else {
+				$hours = ($hour + ($matches[3] == 'p' ? 12 : 0));
+			}
 
-		$hour *= 3600;
-		$min *= 60;
-		$sec *= 1;
+		} else {
+			$hours = $hour;
+		}
 
-		return $hour + $min + $sec;
+		return $hours*3600 + $matches[2]*60;
 	}
 
-	public static  function int2time($ts)
+	public static function int2time($ts)
 	{
-		if (!is_numeric($ts) || !$ts) {
-            return $ts;
+		if (!is_numeric($ts)) {
+			return $ts;
 		}
 
 		if ($ts < ONE_YEAR) {
@@ -261,7 +260,7 @@ class Form extends Validation {
 
 		$ts = 1800*round($ts/1800);
 
-        return date('H:i', $ts);
+		return date('H:i', $ts);
 	}
 
 	public function get_date_time($date_key, $time_key)
