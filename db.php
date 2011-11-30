@@ -293,7 +293,7 @@ class Db {
 	}
 
 	/**
-	 * Perform a select query and retreive a single row from the database. Will return false if the query
+	 * Perform a select query and retreive a single row from the database. Will return null if the query
 	 * returns more than one row.
 	 * @param string $query
 	 * @return mixed If return is a single column, data value will be returned (string/int). Otherwise,
@@ -304,7 +304,7 @@ class Db {
 		$result = $this->select($query);
 
 		if (!$result || $result->num_rows != 1) {
-			return false;
+			return null;
 		}
 
 		if ($result->field_count == 1) {
@@ -320,14 +320,14 @@ class Db {
 	 * @param string $query
 	 * @param bool $key If true, array keys match the ID column
 	 * @param function $callback Function to filter returned data
-	 * @return mixed False if query returned no rows; array of associative arrays otherwise
+	 * @return mixed Null if query returned no rows; array of associative arrays otherwise
 	 */
 	public function get_rows($query, $key=false, $callback=false)
 	{
 		$result = $this->select($query);
 
 		if (!$result || $result->num_rows == 0) {
-			return false;
+			return null;
 		}
 
 		$outp = array();
