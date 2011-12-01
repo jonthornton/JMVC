@@ -61,7 +61,7 @@ abstract class Model {
 	}
 
 	/**
-	 * Retrieve an object from MySQL. If the object is not found, return false. Takes the same arguments as __construct()
+	 * Retrieve an object from MySQL. If the object is not found, return null. Takes the same arguments as __construct()
 	 * @param mixed $id
 	 * @return model subclass
 	 */
@@ -77,7 +77,7 @@ abstract class Model {
 		if ($obj->valid()) {
 			return $obj;
 		} else {
-			return false;
+			return null;
 		}
 	}
 
@@ -345,7 +345,7 @@ abstract class Model {
 		$rows = self::db()->get_rows($sql);
 
 		if (!$rows) {
-			return false;
+			return null;
 		}
 
 		$classname = get_called_class();
@@ -428,7 +428,7 @@ abstract class Model {
 
 		$rows = self::db()->get_rows($sql);
 
-		if (!$rows) return false;
+		if (!$rows) return null;
 
 		$classname = get_called_class();
 		$outp = array();
