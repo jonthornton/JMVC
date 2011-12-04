@@ -13,9 +13,34 @@ class Mail {
 		$this->to = array_unique(array_merge($this->to, func_get_args()));
 	}
 
-	public function add_to()
+	public function to()
 	{
 		$this->to = array_unique(array_merge($this->to, func_get_args()));
+		return $this;
+	}
+
+	public function subject()
+	{
+		$this->subject = html_entity_decode($subject);
+		return $this;
+	}
+
+	public function messagePlain($message)
+	{
+		$this->plain_body = $message;
+
+		if (!$this->body) {
+			$this->body = $message;
+		}
+
+		return $this;
+	}
+
+	public function messageHtml($message)
+	{
+		$this->body = $message;
+
+		return $this;
 	}
 
 	public function send()
@@ -37,9 +62,10 @@ class Mail {
 			$mail->IsHTML(true);
 
 			if (isset($this->plain_body)) {
-				$mail->AltBody = $this->plain_body;
+				$mail->AltBody = html_entity_decode($this->plain_body);
 			}
 		} else {
+			$mail->Body = html_entity_decode($this->body);
 			$mail->IsHTML(false);
 		}
 
