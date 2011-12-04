@@ -19,7 +19,7 @@ class Mail {
 		return $this;
 	}
 
-	public function subject()
+	public function subject($subject)
 	{
 		$this->subject = html_entity_decode($subject);
 		return $this;
