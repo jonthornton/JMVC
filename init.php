@@ -16,7 +16,7 @@ class JMVC {
 		include(JMVC_DIR.'classes/benchmark.php');
 		Benchmark::start('total');
 
-		include(APP_DIR.'../config.php');
+		include(CONFIG_FILE);
 
 		include(JMVC_DIR.'view.php');
 		include(JMVC_DIR.'controller.php');
