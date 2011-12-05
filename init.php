@@ -324,7 +324,7 @@ class JMVC {
 	public static function fatal_error_checker()
 	{
 		if ($error = error_get_last()) {
-			if ($error['type'] <= 2) {
+			if ($error['type'] != 8) {
 				self::handle_exception(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
 			}
 		}
