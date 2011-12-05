@@ -128,7 +128,7 @@ class Db {
 			return $prefix.$key.' IS NULL';
 
 		} else if (substr($key, -7) == '_before') { // DateTime range
-			return $prefix.substr($key, 0, -7).' < '.self::quote_date($value);
+			return $prefix.substr($key, 0, -7).' <= '.self::quote_date($value);
 
 		} else if (substr($key, -6) == '_after') { // DateTime range
 			return $prefix.substr($key, 0, -6).' >= '.self::quote_date($value);
