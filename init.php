@@ -287,7 +287,7 @@ class JMVC {
 	 * @param string $logname Optional
 	 * @return void
 	 */
-	public function log($data, $logname=false)
+	public static function log($data, $logname=false)
 	{
 		$host = $_SERVER['HTTP_HOST'] ?: 'cmd';
 		if ($logname) $host .= '.';
@@ -324,7 +324,7 @@ class JMVC {
 	public static function fatal_error_checker()
 	{
 		if ($error = error_get_last()) {
-			if ($error['type'] != 8) {
+			if ($error['type'] != 8 && (!IS_PRODUCTION || $error['type'] <= 2)) {
 				self::handle_exception(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
 			}
 		}
