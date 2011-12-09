@@ -29,9 +29,10 @@ abstract class Controller {
 	 * @param string $model Model class to attempt to load
 	 * @param string $default Default method to run if URL is /controller_name/object_id/
 	 * @param \jmvc\Model &$obj Reference return of found object
+	 * @param function $filter_callback Object will be passed to this function; if the function returns false, a 404 will be triggered
 	 * @return bool Whether an object was found or not
 	 */
-	public function route_object($model, $default=false, &$obj=null)
+	public function route_object($model, $default=false, &$obj=null, $filter_callback=null)
 	{
 		if (!is_numeric($this->args[0])) {
 			return false;
@@ -44,6 +45,10 @@ abstract class Controller {
 
 		$obj = $model::factory($this->args[0]);
 		if (!$obj) {
+			\jmvc::do404();
+		}
+
+		if ($filter_callback && !$filter_callback($obj)) {
 			\jmvc::do404();
 		}
 
