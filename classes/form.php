@@ -198,6 +198,13 @@ class Form extends Validation {
 		}
 	}
 
+	public function get_time($field)
+	{
+		if (!empty($this[$field])) {
+			return self::time2int($this[$field]);
+		}
+	}
+
 	public function time($data, $value=null, $extra = '')
 	{
 		if (!is_array($data)) {
