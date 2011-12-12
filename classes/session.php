@@ -7,7 +7,7 @@ class Session {
 	public static $d = false;
 	protected static $checksum;
 	protected static $sessionModel = false;
-	protected static $memcached = false;
+	protected static $driver = null;
 
 	const COOKIE_NAME = 'JMVC_SESSION';
 
@@ -20,10 +20,11 @@ class Session {
 	{
 
 		if ($key = self::id()) {
-			if ($GLOBALS['_CONFIG']['session_driver'] == 'memcached') {
-				self::$memcached = \jmvc\classes\Memcache::instance();
+			if (isset($GLOBALS['_CONFIG']['session_driver'])) {
+				$class = $GLOBALS['_CONFIG']['session_driver'];
+				self::$driver = $class::instance();
 
-				self::$memcached->get($key, $data, true);
+				self::$driver->get($key, $data, true);
 				self::$d = $data;
 
 			} else {
@@ -76,9 +77,10 @@ class Session {
 			return;
 		}
 
-		if (!self::$sessionModel && !self::$memcached) {
-			if ($GLOBALS['_CONFIG']['session_driver'] == 'memcached') {
-				self::$memcached = \jmvc\classes\Memcache::instance();
+		if (!self::$sessionModel && !self::$driver) {
+			if (isset($GLOBALS['_CONFIG']['session_driver'])) {
+				$class = $GLOBALS['_CONFIG']['session_driver'];
+				self::$driver = $class::instance();
 			} else {
 				self::$sessionModel = new \jmvc\models\Session();
 			}
@@ -86,8 +88,8 @@ class Session {
 
 		$key = self::id() ?: self::generate_id();
 
-		if (self::$memcached) {
-			self::$memcached->set($key, self::$d, ONE_DAY);
+		if (self::$driver) {
+			self::$driver->set($key, self::$d, ONE_DAY);
 		} else if (self::$sessionModel) {
 			self::$sessionModel->id = $key;
 			self::$sessionModel->data = serialize(self::$d);
