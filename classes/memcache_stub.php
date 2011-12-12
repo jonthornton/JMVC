@@ -2,15 +2,9 @@
 
 namespace jmvc\classes;
 
-class Memcache_Stub implements Cache_Interface {
+class Memcache_Stub extends Cache_Interface {
 
-	protected static $instance;
-    protected static $data;
-
-	public static $stats;
-
-	const FALSE = '^%$@FSDerwo';
-	const ZERO = '^%$@Fkdjrwo';
+	protected static $data;
 
 	private function __construct()
 	{
@@ -28,46 +22,9 @@ class Memcache_Stub implements Cache_Interface {
 		return self::$instance;
 	}
 
-	protected static function falsify($data)
+	public static function get_class_name()
 	{
-		if (is_array($data)) {
-			foreach ($data as $key=>$val) {
-				if ($val === 0) {
-					$data[$key] = self::ZERO;
-				} else if (!$val) {
-					$data[$key] = self::FALSE;
-				}
-			}
-		} else {
-			if ($data === 0) {
-				$data = self::ZERO;
-			} else if (!$data) {
-				$data = self::FALSE;
-			}
-		}
-
-		return $data;
-	}
-
-	protected static function defalsify($data)
-	{
-		if (is_array($data)) {
-			foreach ($data as $key=>$val) {
-				if ($val === self::ZERO) {
-					$data[$key] = 0;
-				} else if ($val === self::FALSE) {
-					$data[$key] = FALSE;
-				}
-			}
-		} else {
-			if ($data === self::ZERO) {
-				$data = 0;
-			} else if ($data === self::FALSE) {
-				$data = FALSE;
-			}
-		}
-
-		return $data;
+		return __CLASS__;
 	}
 
 	public function delete($key)

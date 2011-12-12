@@ -2,17 +2,11 @@
 
 namespace jmvc\classes;
 
-class Memcache implements Cache_Interface {
+class Memcache extends Cache_Interface {
 
-	protected $m;
-    protected static $instance;
+	protected static $CONFIG_KEY = 'memcached';
 
-	public static $stats;
-
-	const FALSE = '^%$@FSDerwo';
-	const ZERO = '^%$@Fkdjrwo';
-
-	private function __construct()
+	protected function __construct()
 	{
 		$config = $GLOBALS['_CONFIG']['memcached'];
 		$this->m = new \Memcache();
@@ -26,61 +20,9 @@ class Memcache implements Cache_Interface {
 		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0, 'keys'=>array());
 	}
 
-	public static function instance()
+	public static function get_class_name()
 	{
-		if (!isset(self::$instance)) {
-			if (isset($GLOBALS['_CONFIG']['memcached'])) {
-				$c = __CLASS__;
-				self::$instance = new $c;
-			} else {
-				self::$instance = Memcache_Stub::instance();
-			}
-
-		}
-
-		return self::$instance;
-	}
-
-	protected static function falsify($data)
-	{
-		if (is_array($data)) {
-			foreach ($data as $key=>$val) {
-				if ($val === 0) {
-					$data[$key] = self::ZERO;
-				} else if (!$val) {
-					$data[$key] = self::FALSE;
-				}
-			}
-		} else {
-			if ($data === 0) {
-				$data = self::ZERO;
-			} else if (!$data) {
-				$data = self::FALSE;
-			}
-		}
-
-		return $data;
-	}
-
-	protected static function defalsify($data)
-	{
-		if (is_array($data)) {
-			foreach ($data as $key=>$val) {
-				if ($val === self::ZERO) {
-					$data[$key] = 0;
-				} else if ($val === self::FALSE) {
-					$data[$key] = FALSE;
-				}
-			}
-		} else {
-			if ($data === self::ZERO) {
-				$data = 0;
-			} else if ($data === self::FALSE) {
-				$data = FALSE;
-			}
-		}
-
-		return $data;
+		return __CLASS__;
 	}
 
 	public function delete($key)
