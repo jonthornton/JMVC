@@ -194,13 +194,18 @@ abstract class Model {
 	}
 
 	/**
-	 * Retrieve an instance of memcache
-	 * @return \jmvc\classes\Memcache
+	 * Retrieve an instance of the cache driver
+	 * @return \jmvc\classes\Cache_interface
 	 */
 	protected static function cache()
 	{
 		if (!self::$cache) {
-			self::$cache = \jmvc\classes\Memcache::instance();
+			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
+				$class = $GLOBALS['_CONFIG']['cache_driver'];
+				self::$cache = $class::instance();
+			} else {
+				self::$cache = \jmvc\classes\Memcache_Stub::instance();
+			}
 		}
 
 		return self::$cache;

@@ -20,8 +20,8 @@ class Session {
 	{
 
 		if ($key = self::id()) {
-			if (isset($GLOBALS['_CONFIG']['session_driver'])) {
-				$class = $GLOBALS['_CONFIG']['session_driver'];
+			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
+				$class = $GLOBALS['_CONFIG']['cache_driver'];
 				self::$driver = $class::instance();
 
 				self::$driver->get($key, $data, true);
@@ -78,8 +78,8 @@ class Session {
 		}
 
 		if (!self::$sessionModel && !self::$driver) {
-			if (isset($GLOBALS['_CONFIG']['session_driver'])) {
-				$class = $GLOBALS['_CONFIG']['session_driver'];
+			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
+				$class = $GLOBALS['_CONFIG']['cache_driver'];
 				self::$driver = $class::instance();
 			} else {
 				self::$sessionModel = new \jmvc\models\Session();
