@@ -244,12 +244,17 @@ class Db {
 	/**
 	 * Execute a single SQL command.
 	 * @param string $query
-	 * @param bool $write In a multi-db environment, force query to go to the master db
+	 * @param bool $write In a multi-db environment, force query to go to the write db. All subsequent queries will be sent to write db.
 	 * @return mysqli_result
 	 */
 	public function do_query($query, $write=false)
 	{
+		static $done_write = false;
 		if ($write) {
+			$done_write = true;
+		}
+
+		if ($done_write) {
 			$db = $this->write_db;
 		} else {
 			$db = $this->read_db;
