@@ -72,8 +72,11 @@ abstract class Cache_Interface {
 		return $data;
 	}
 
+	public static function get_class_name() {
+		return '\\jmvc\\classes\\cache_interface';
+	}
+
 	abstract public function delete($key);
 	abstract public function get($key, &$result, $nobust=false);
 	abstract public function set($key, $val, $expires=0);
-	abstract public static function get_class_name();
 }
