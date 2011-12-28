@@ -21,8 +21,7 @@ class Session {
 
 		if ($key = self::id()) {
 			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
-				$class = $GLOBALS['_CONFIG']['cache_driver'];
-				self::$driver = $class::instance();
+				self::$driver = \jmvc::cache();
 
 				self::$driver->get($key, $data, true);
 				self::$d = $data;
@@ -57,7 +56,7 @@ class Session {
 
 	protected static function generate_id()
 	{
-		$key = 'sesh'.substr(md5($_SERVER['REMOTE_ADDR'].time()), 0, 28);
+		$key = 'sesh:'.substr(md5($_SERVER['REMOTE_ADDR'].time()), 0, 28);
 
 		setcookie(self::COOKIE_NAME, $key, 0, '/');
 		$_COOKIE[self::COOKIE_NAME] = $key;
@@ -79,8 +78,7 @@ class Session {
 
 		if (!self::$sessionModel && !self::$driver) {
 			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
-				$class = $GLOBALS['_CONFIG']['cache_driver'];
-				self::$driver = $class::instance();
+				self::$driver = \jmvc::cache();
 			} else {
 				self::$sessionModel = new \jmvc\models\Session();
 			}

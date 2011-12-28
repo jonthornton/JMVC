@@ -299,6 +299,26 @@ class JMVC {
 		}
 	}
 
+	/**
+	 * Retrieve an connection to the cache
+	 * @return \jmvc\classes\Cache_Interface
+	 */
+	public static function cache()
+	{
+		static $driver_instance = false;
+
+		if (!$driver_instance) {
+			if (isset($GLOBALS['_CONFIG']['cache_driver'])) {
+				$driver = $GLOBALS['_CONFIG']['cache_driver'];
+				$driver_instance = $driver::instance();
+			} else {
+				throw new \Exception('cache_driver not set!');
+			}
+		}
+
+		return $driver_instance;
+	}
+
 	public static function handle_exception($ex)
 	{
 		// clear the output buffer
