@@ -72,4 +72,35 @@ class Redis_Cache extends Cache_Interface {
 
 		return $this->m->setex(self::PREFIX.$key, $expires+self::EXPIRES_PADDING, serialize($val));
 	}
+
+	public function tag($key)
+	{
+		$tags = func_get_args();
+
+		if (count($tags) < 2) {
+			throw new \Exception('No tags passed.');
+		}
+
+		$r = $this->m->multi(\Redis::PIPELINE);
+
+		for ($i=1; isset($tags[$i]); $i++) {
+			$r->sadd('tag:'.$tags[$i], self::PREFIX.$key);
+		}
+
+		$r->exec();
+	}
+
+	public function delete_tag($tag)
+	{
+		$keys = $this->m->get('tag:'.$tag);
+
+		if (!$keys) {
+			return;
+		}
+
+		$r = $this->m->multi(\Redis::PIPELINE);
+		$r->del($keys)
+			->del('tag:'.$tag)
+			->exec();
+	}
 }
