@@ -65,13 +65,36 @@ class JMVC {
 			}
 		}
 
+		$app_url = CURRENT_URL;
+
+		// Check for any internal URL mapping
+		if (isset($ROUTES)) {
+			$app_url = '/'.implode('/', $url_parts).'/';
+			foreach ($ROUTES as $in=>$out) {
+				$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
+
+				if ($count) {
+					$routed_parts = explode('?', $routed_url);
+					$app_url = $routed_parts[0];
+
+					if (isset($routed_parts[1]) && !empty($routed_parts[1])) {
+						foreach (explode('&', $routed_parts[1]) as $pair) {
+							list($key, $val) = explode('=', $pair);
+							$_GET[$key] = $val;
+							$_REQUEST[$key] = $val;
+						}
+					}
+
+					break;
+				}
+			}
+		}
+
 		// Set default context
 		if (defined('DEFAULT_SITE')) \jmvc\View::$CONTEXT_DEFAULTS['site'] = DEFAULT_SITE;
 		if (defined('DEFAULT_TEMPLATE')) \jmvc\View::$CONTEXT_DEFAULTS['template'] = DEFAULT_TEMPLATE;
 		if (defined('DEFAULT_CONTROLLER')) \jmvc\View::$CONTEXT_DEFAULTS['controller'] = DEFAULT_CONTROLLER;
 		if (defined('DEFAULT_VIEW')) \jmvc\View::$CONTEXT_DEFAULTS['view'] = DEFAULT_VIEW;
-
-		$app_url = CURRENT_URL;
 
 		// routing
 		if ($app_url == '/') {
@@ -101,30 +124,6 @@ class JMVC {
 				\jmvc::do404();
 			} else if (!isset($context['template'])) {
 				$context['template'] = \jmvc\View::$CONTEXT_DEFAULTS['template'];
-			}
-
-			// Check for any internal URL mapping
-			if (isset($ROUTES)) {
-				$app_url = '/'.implode('/', $url_parts).'/';
-				foreach ($ROUTES as $in=>$out) {
-					$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
-
-					if ($count) {
-						$routed_parts = explode('?', $routed_url);
-						$app_url = $routed_parts[0];
-
-						if (isset($routed_parts[1]) && !empty($routed_parts[1])) {
-							foreach (explode('&', $routed_parts[1]) as $pair) {
-								list($key, $val) = explode('=', $pair);
-								$_GET[$key] = $val;
-								$_REQUEST[$key] = $val;
-							}
-						}
-
-						$url_parts = explode('/', trim($app_url, '/'));
-						break;
-					}
-				}
 			}
 
 			// Get controller
