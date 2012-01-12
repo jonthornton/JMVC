@@ -69,7 +69,6 @@ class JMVC {
 
 		// Check for any internal URL mapping
 		if (isset($ROUTES)) {
-			$app_url = '/'.implode('/', $url_parts).'/';
 			foreach ($ROUTES as $in=>$out) {
 				$routed_url = preg_replace('%'.$in.'%', $out, $app_url, 1, $count);
 
