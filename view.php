@@ -157,6 +157,7 @@ class View {
 			self::$cacheme[$key] = array('set'=>array(), 'push'=>array(), 'reset'=>array());
 		}
 
+		ob_start();
 		$controller = Controller::factory($context, $args);
 		if ($controller && method_exists($controller, $context['view'])) {
 			$controller->$context['view']();
@@ -164,18 +165,16 @@ class View {
 			if ($override = $controller->view_override()) {
 				$context = self::push_context($override);
 			}
-
 		} else {
 			$controller = false;
 		}
 
 		if ($view_file = self::exists($context)) {
 			if ($controller) extract(get_object_vars($controller));
-
-			ob_start();
 			include($view_file);
-			$output = ob_get_clean();
 		}
+
+		$output = ob_get_clean();
 
 		// must find either a controller method or view file
 		if (!$controller && !$view_file) {
