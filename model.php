@@ -382,7 +382,7 @@ abstract class Model {
 			static::$_group_by = null;
 		}
 
-		if (static::$_count_query) {
+		if (isset(static::$_count_query)) {
 			$sql = str_replace('[[WHERE]]', static::make_criteria($criteria), static::$_count_query);
 		} else {
 			$sql = 'SELECT COUNT(*) FROM '.static::$_table.' '.static::make_criteria($criteria);
