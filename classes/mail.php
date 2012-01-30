@@ -25,6 +25,11 @@ class Mail {
 		return $this;
 	}
 
+	public function tab()
+	{
+		//stubbed out for now
+	}
+
 	public function messagePlain($message)
 	{
 		$this->plain_body = $message;
@@ -56,6 +61,7 @@ class Mail {
 		$mail->Subject = $this->subject;
 		$mail->From = MAIL_REPLY_TO;
 		$mail->FromName = MAIL_FROM_NAME;
+		$mail->Sender = MAIL_REPLY_TO;
 		$mail->Body = $this->body;
 
 		if (substr(trim($this->body), 0, 1) == '<') {

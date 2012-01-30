@@ -1132,8 +1132,8 @@ class PHPMailer {
     } else {
       $result .= sprintf("Message-ID: <%s@%s>%s", $uniq_id, $this->ServerHostname(), $this->LE);
     }
-    $result .= $this->HeaderLine('X-Priority', $this->Priority);
-    $result .= $this->HeaderLine('X-Mailer', 'PHPMailer '.$this->Version.' (phpmailer.sourceforge.net)');
+    #$result .= $this->HeaderLine('X-Priority', $this->Priority);
+    #$result .= $this->HeaderLine('X-Mailer', 'PHPMailer '.$this->Version.' (phpmailer.sourceforge.net)');
 
     if($this->ConfirmReadingTo != '') {
       $result .= $this->HeaderLine('Disposition-Notification-To', '<' . trim($this->ConfirmReadingTo) . '>');
