@@ -30,6 +30,16 @@ class Mail {
 		//stubbed out for now
 	}
 
+	public function fromName($name)
+	{
+		$this->fromName = $name;
+	}
+
+	public function replyTo($email)
+	{
+		$this->replyTo = $email;
+	}
+
 	public function messagePlain($message)
 	{
 		$this->plain_body = $message;
@@ -60,8 +70,13 @@ class Mail {
 
 		$mail->Subject = $this->subject;
 		$mail->From = MAIL_REPLY_TO;
-		$mail->FromName = MAIL_FROM_NAME;
+		$mail->FromName = $this->fromName ?: MAIL_FROM_NAME;
 		$mail->Sender = MAIL_REPLY_TO;
+
+		if ($this->replyTo) {
+			$mail->AddReplyTo($this->replyTo);
+		}
+
 		$mail->Body = $this->body;
 
 		if (substr(trim($this->body), 0, 1) == '<') {
