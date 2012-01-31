@@ -4,7 +4,7 @@ namespace jmvc\classes;
 
 class Debug {
 
-	public static $panels = array();
+	public static $links = array();
 
 	private function __construct()
 	{
@@ -18,25 +18,31 @@ class Debug {
 		}
 	}
 
-	public static function add_panel($label, $link_text, $url)
+	public static function add_link($label, $link_text, $url)
 	{
-		self::$panels[] = array('label'=>$label, 'link_text'=>$link_text, 'url'=>$url);
+		self::$links[] = array('label'=>$label, 'link_text'=>$link_text, 'url'=>$url);
 	}
 
 	public static function make_toolbar()
 	{
 		$content = '';
 		$infowindows = '';
+		ob_start();
 
-		foreach (self::$panels as $panel) {
-			$content .= '<div class="panel">'.$panel['label'].': <a href="'.$panel['url'].'">'.$panel['link_text'].'</a></div>';
+		if (!empty(self::$links)) {
+			echo '<ul class="panel links">';
+			foreach (self::$links as $link) {
+				echo'<li>'.$link['label'].': <a href="'.$link['url'].'">'.$link['link_text'].'</a></li>';
+			}
+			echo '</ul>';
 		}
+
 
 		$stats = \jmvc\Db::$stats;
 		if (is_array($stats)) {
 			$total = $stats['select'] + $stats['insert'] + $stats['update'] + $stats['delete'];
 
-			$content .= '<div class="panel">
+			echo '<div class="panel">
 				<h3>Database Stats</h3>
 				<table class="data">
 					<tr>
@@ -66,7 +72,7 @@ class Debug {
 				$rows = '';
 				foreach ($queries as $query) {
 					$rows .= '<tr>
-						<td class="num">'.round($query['time'], 4).'</td>
+						<td class="num">'.round($query['time']*1000).'ms</td>
 						<td>'.self::table_names($query['query']).'
 						</td>
 						<td><a href="#" class="showquery">Show Query</a>
@@ -74,22 +80,22 @@ class Debug {
 					</tr>';
 				}
 
-				$infoWindows .= '<div id="db_queries">
+				$infoWindows .= '<div id="jmvc-debug-dbqueries">
 					<table class="data">
 						'.$rows.'
 					</table>
 				</div>';
 
-				$content .= '<a href="#" rel="db_queries" class="infoWindowLink">Show DB Queries</a>';
+				echo '<a href="#" rel="jmvc-debug-dbqueries" class="jmvc-debug-infoWindowLink">Show DB Queries</a>';
 			}
 
-			$content .= '</div>';
+			echo '</div>';
 		}
 
-		$stats = \jmvc\classes\Memcache::$stats;
+		$stats = \jmvc\classes\Cache_Interface::$stats;
 		if (is_array($stats)) {
-			$content .= '<div class="panel">
-				<h3>Memcache Stats</h3>
+			echo '<div class="panel">
+				<h3>Cache Stats</h3>
 				<table class="data">
 					<tr>
 						<td>Hits</td>
@@ -114,56 +120,34 @@ class Debug {
 					</tr>';
 				}
 
-				$infoWindows .= '<div id="cache_keys">
+				$infoWindows .= '<div id="jmvc-debug-cache-keys">
 					<table class="data">
 						'.$rows.'
 					</table>
 				</div>';
 
-				$content .= '<a href="#" rel="cache_keys" class="infoWindowLink">Show Keys</a>';
+				echo '<a href="#" rel="jmvc-debug-cache-keys" class="jmvc-debug-infoWindowLink">Show Keys</a>';
 			}
 
-			$content .= '</div>';
+			echo '</div>';
 		}
 
-		$stats = \jmvc\classes\File_Cache::$stats;
-		if (is_array($stats)) {
-			$content .= '<div class="panel">
-				<h3>File Cache Stats</h3>
-				<table class="data">
-					<tr>
-						<td>Hits</td>
-						<td class="num">'.$stats['hits'].'</td>
-					</tr>
-					<tr>
-						<td>Misses</td>
-						<td class="num">'.$stats['misses'].'</td>
-					</tr>
-					<tr>
-						<td>Writes</td>
-						<td class="num">'.$stats['writes'].'</td>
-					</tr>
-				</table>
-			</div>';
-		}
-
+		$content = ob_get_clean();
 		$b = \jmvc\classes\Benchmark::get('total');
 
-		return '<div id="admin_debug">
-			<div id="debug_toolbar">
-				<h2>Admin Toolbar</h2>
-
+		return '<div id="jmvc-debug-container">
+			<div id="jmvc-debug-toolbar">
 				'.$content.'
 
-				<ul class="panel options">
-					<li id="bust_cache">Cache Buster</li>
+				<ul class="panel">
+					<li class="jmvc-debug-toggle-option" id="jmvc-bust-cache">Cache Buster</li>
+					<li>'.round($b['time']*1000).'ms</li>
 				</ul>
-
-				<div>'.$b['time'].' sec</div>
+				<div style="clear: both"></div>
 			</div>
-			<div id="debug_openbutton">X</div>
+			<div class="jmvc-debug-toggle">X</div>
 		</div>
-		<div id="infoWindows">'.$infoWindows.'</div>
+		<div id="jmvc-debug-infoWindows">'.$infoWindows.'</div>
 
 		<script type="text/javascript" src="/js/debug.js"></script>
 		';

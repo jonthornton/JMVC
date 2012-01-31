@@ -1,48 +1,57 @@
-$(function() { $('head').append('<link rel="stylesheet" href="/css/debug.css" type="text/css" />'); });
+$('head').append('<link rel="stylesheet" href="/css/debug.css" type="text/css" />');
 
-var debug_toolbar = $("#debug_toolbar");
+setTimeout(function() {
+	var toolbar = $("#jmvc-debug-toolbar");
+	var toolbar_height = toolbar.height();
 
-if (!$.cookie('debug_toolbar')) {
-	debug_toolbar.hide();
-}
-
-$("#debug_openbutton").bind("click", function() { 
-	debug_toolbar.slideToggle(250); 
-	
-	if ($.cookie('debug_toolbar')) {
-		$.cookie('debug_toolbar', null, { path: '/', expires: 0});
+	if (!$.cookie('jmvc-debug-toolbar')) {
+		toolbar.hide();
 	} else {
-		$.cookie('debug_toolbar', 1, { path: '/', expires: 0});
+		$('body').css('margin-bottom', toolbar_height+50);
 	}
-});
 
-debug_toolbar.find('.options li').each(function() {
-	var $this = $(this);
-	if ($.cookie(this.id)) {
-		$this.addClass('on');
-	}
-	
-	$this.bind('click', function() {
-		var $this = $(this);
-		
-		if ($this.hasClass('on')) {
-			$.cookie(this.id, null, { path: '/', expires: 0});
-			$this.removeClass('on');
+	$(".jmvc-debug-toggle").bind("click", function() {
+
+		if (toolbar.is(':hidden')) {
+			toolbar.slideDown(200);
+			$('body').css('margin-bottom', toolbar_height);
+			$.cookie('jmvc-debug-toolbar', 1, { path: '/', expires: 0});
 		} else {
-			$.cookie(this.id, 1, { path: '/', expires: 0});
+			toolbar.slideUp(200);
+			$('#jmvc-debug-infoWindows').hide();
+			$('body').css('margin-bottom', 0);
+			$.cookie('jmvc-debug-toolbar', null, { path: '/', expires: 0});
+		}
+	});
+
+	toolbar.find('.jmvc-debug-toggle-option').each(function() {
+		var $this = $(this);
+		if ($.cookie(this.id)) {
 			$this.addClass('on');
 		}
-	})
-});
 
-$('.infoWindowLink').bind('click', function() {
-	console.log(this.rel);
-	$('#'+this.rel).toggle(300);
-	return false;
-});
+		$this.bind('click', function() {
+			var $this = $(this);
 
-$('#db_queries .showquery').bind('click', function() {
-	$(this).hide().siblings('.query').slideDown(300);
-	return false;
-});
+			if ($this.hasClass('on')) {
+				$.cookie(this.id, null, { path: '/', expires: 0});
+				$this.removeClass('on');
+			} else {
+				$.cookie(this.id, 1, { path: '/', expires: 0});
+				$this.addClass('on');
+			}
+		})
+	});
 
+	$('.jmvc-debug-infoWindowLink').bind('click', function() {
+		console.log(this.rel);
+		$('#'+this.rel).toggle(200);
+		return false;
+	});
+
+	$('#jmvc-debug-dbqueries .showquery').bind('click', function() {
+		$(this).hide().siblings('.query').slideDown(200);
+		return false;
+	});
+
+}, 1000);
