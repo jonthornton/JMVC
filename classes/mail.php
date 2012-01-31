@@ -92,6 +92,8 @@ class Mail {
 
 		if (IS_PRODUCTION) {
 			return $mail->Send();
+		} else {
+			\jmvc::log(print_r($mail, true), 'mail');
 		}
 	}
 }
