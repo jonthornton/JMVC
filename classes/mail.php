@@ -25,7 +25,7 @@ class Mail {
 		return $this;
 	}
 
-	public function tab()
+	public function tag()
 	{
 		//stubbed out for now
 	}
