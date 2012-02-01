@@ -69,8 +69,6 @@ abstract class Controller {
 			$this->context_override = $context;
 		} else if (is_string($context)) {
 			$this->context_override = array('view'=>$context);
-		} else {
-			return $this->context_override;
 		}
 	}
 

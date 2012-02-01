@@ -134,9 +134,10 @@ class Debug {
 
 		$content = ob_get_clean();
 		$b = \jmvc\classes\Benchmark::get('total');
+		$display = (isset($_COOKIE['jmvc-debug-toolbar'])) ? '' : 'style="display:none;"';
 
 		return '<div id="jmvc-debug-container">
-			<div id="jmvc-debug-toolbar">
+			<div id="jmvc-debug-toolbar" '.$display.'>
 				'.$content.'
 
 				<ul class="panel">

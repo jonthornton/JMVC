@@ -238,12 +238,8 @@ abstract class Model {
 		$this->_values = $data;
 		$this->_obj_id = $data['id'];
 
-		if (self::$obj_cache_count[static::$_table]) {
-			self::$obj_cache[static::$_table] = array();
-		}
-
+		// cache the object in memory for the duration of the request
 		self::$obj_cache[static::$_table][$this->_obj_id] = $this;
-		self::$obj_cache_count[static::$_table]++;
 	}
 
 	/**

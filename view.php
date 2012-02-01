@@ -182,7 +182,7 @@ class View {
 				Template: '.$context['template'].', Site: '.$context['site']);
 		}
 
-		if ($override) {
+		if (isset($override) && $override) {
 			self::pop_context($override);
 		}
 		self::pop_context($view_name);

@@ -106,9 +106,11 @@ class JMVC {
 
 			// Set site
 			if (Controller::exists($url_parts[0], 'template')) $context['site'] = array_shift($url_parts);
-			if ($context['site'] == \jmvc\View::$CONTEXT_DEFAULTS['site']) { // block direct url for default site
-				\jmvc::do404();
-			} else if (!isset($context['site'])) {
+			if (isset($context['site'])) {
+				if ($context['site'] == \jmvc\View::$CONTEXT_DEFAULTS['site']) { // block direct url for default site
+					\jmvc::do404();
+				}
+			} else {
 				$context['site'] = \jmvc\View::$CONTEXT_DEFAULTS['site'];
 			}
 
@@ -119,9 +121,11 @@ class JMVC {
 
 			// Set template
 			if (method_exists('controllers\\'.$context['site'].'\Template', $url_parts[0])) $context['template'] = array_shift($url_parts);
-			if ($context['template'] == \jmvc\View::$CONTEXT_DEFAULTS['template']) { // block direct url for default template
-				\jmvc::do404();
-			} else if (!isset($context['template'])) {
+			if (isset($context['template'])) {
+				if ($context['template'] == \jmvc\View::$CONTEXT_DEFAULTS['template']) { // block direct url for default template
+					\jmvc::do404();
+				}
+			} else {
 				$context['template'] = \jmvc\View::$CONTEXT_DEFAULTS['template'];
 			}
 
@@ -139,7 +143,7 @@ class JMVC {
 			}
 
 			// Get view
-			$possible_view = str_replace('-', '_', $url_parts[0]);
+			$possible_view = empty($url_parts) ? null : str_replace('-', '_', $url_parts[0]);
 			if ($possible_view == \jmvc\View::$CONTEXT_DEFAULTS['view']) { // block direct url for default view
 				\jmvc::do404();
 			}

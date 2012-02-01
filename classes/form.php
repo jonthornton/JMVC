@@ -50,12 +50,14 @@ class Form extends Validation {
 
 	public function offsetGet($key)
 	{
-		if (is_array($this->data[$key])) {
-			return $this->data[$key];
-		} else if ($this->data[$key] == '') {
-			return;
-		} else {
-			return self::get_clean($this->data[$key]);
+		if (isset($this->data[$key])) {
+			if (is_array($this->data[$key])) {
+				return $this->data[$key];
+			} else if ($this->data[$key] == '') {
+				return;
+			} else {
+				return self::get_clean($this->data[$key]);
+			}
 		}
 	}
 
@@ -213,6 +215,8 @@ class Form extends Validation {
 
 		if ($value) {
 			$data['value'] = $value;
+		} else if (!isset($data['value'])) {
+			$data['value'] = null;
 		}
 
 		self::add_class($data, 'time');

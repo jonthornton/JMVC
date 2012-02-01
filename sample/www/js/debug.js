@@ -4,9 +4,7 @@ setTimeout(function() {
 	var toolbar = $("#jmvc-debug-toolbar");
 	var toolbar_height = toolbar.height();
 
-	if (!$.cookie('jmvc-debug-toolbar')) {
-		toolbar.hide();
-	} else {
+	if ($.cookie('jmvc-debug-toolbar')) {
 		$('body').css('margin-bottom', toolbar_height+50);
 	}
 

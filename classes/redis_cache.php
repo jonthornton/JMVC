@@ -32,7 +32,7 @@ class Redis_Cache extends Cache_Interface {
 
 	public function get($key, &$result, $nobust=false)
 	{
-		if (BUST_CACHE && !$nobust) {
+		if (defined('BUST_CACHE') && !$nobust) {
 			$this->delete($key);
 			self::$stats['misses']++;
 			self::$stats['keys'][] = array($key, 'miss');
