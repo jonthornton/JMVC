@@ -34,7 +34,7 @@ class Memcache_Stub extends Cache_Interface {
 
 	public function get($key, &$result, $nobust=false)
 	{
-		if (BUST_CACHE && !$nobust) {
+		if (defined('BUST_CACHE') && !$nobust) {
 			return false;
 		}
 

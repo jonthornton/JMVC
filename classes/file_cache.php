@@ -22,7 +22,7 @@ class File_Cache {
 
 	public static function get($key, $expires=0)
 	{
-		if (!IS_PRODUCTION || (defined('BUST_CACHE') && BUST_CACHE)) {
+		if (!IS_PRODUCTION || (defined('BUST_CACHE')) {
 			self::$stats['misses']++;
 			return false;
 		}
