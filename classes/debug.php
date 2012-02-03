@@ -132,6 +132,21 @@ class Debug {
 			echo '</div>';
 		}
 
+		if (isset($GLOBALS['_CONFIG']['redis'])) {
+			$r = new \Redis();
+			$r->connect($GLOBALS['_CONFIG']['redis']['host'], $GLOBALS['_CONFIG']['redis']['port']);
+
+			$mail_count = $r->llen('jmvc:rmail');
+
+			if ($mail_count) {
+				$encoded_message = $r->lindex('jmvc:rmail', 0);
+				$message = json_decode($encoded_message);
+				if (time() - $message->created > 1800) {
+					throw new \Exception('Mail queue failure!');
+				}
+			}
+		}
+
 		$content = ob_get_clean();
 		$b = \jmvc\classes\Benchmark::get('total');
 		$display = (isset($_COOKIE['jmvc-debug-toolbar'])) ? '' : 'style="display:none;"';
@@ -143,6 +158,7 @@ class Debug {
 				<ul class="panel">
 					<li class="jmvc-debug-toggle-option" id="jmvc-bust-cache">Cache Buster</li>
 					<li>'.round($b['time']*1000).'ms</li>
+					<li>'.($mail_count ?: 0).' unsent emails</li>
 				</ul>
 				<div style="clear: both"></div>
 			</div>
