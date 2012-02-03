@@ -138,7 +138,7 @@ class Debug {
 
 			$mail_count = $r->llen('jmvc:rmail');
 
-			if ($mail_count) {
+			if (IS_PRODUCTION && $mail_count) {
 				$encoded_message = $r->lindex('jmvc:rmail', 0);
 				$message = json_decode($encoded_message);
 				if (time() - $message->created > 1800) {
