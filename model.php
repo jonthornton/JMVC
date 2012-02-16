@@ -490,6 +490,10 @@ abstract class Model {
 	 */
 	public function save($reload=true)
 	{
+		if (method_exists($this, 'before_save')) {
+			$this->before_save();
+		}
+
 		if (!$this->is_dirty()) {
 			return;
 		}
@@ -518,6 +522,10 @@ abstract class Model {
 			$this->_loaded = false;
 		} else {
 			array_merge($this->_values, $this->_dirty_values);
+		}
+
+		if (method_exists($this, 'after_save')) {
+			$this->after_save();
 		}
 
 		$this->_dirty_values = array();
