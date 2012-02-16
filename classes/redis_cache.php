@@ -8,14 +8,7 @@ class Redis_Cache extends Cache_Interface {
 
 	protected function __construct()
 	{
-		$config = $GLOBALS['_CONFIG']['redis'];
-		$this->m = new \Redis();
-
-		$rc = $this->m->connect($config['host'], $config['port']);
-
-		if (!$rc) {
-			throw new \Exception('Error connecting to redis server at '.$config['host'].' port '.$config['port']);
-		}
+		$this->m = \jmvc::redis();
 
 		self::$stats = array('hits'=>0, 'misses'=>0, 'writes'=>0, 'keys'=>array());
 	}

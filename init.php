@@ -321,6 +321,27 @@ class JMVC {
 		return $driver_instance;
 	}
 
+	/**
+	 * Retrieve an connection to Redis
+	 * @return \Redis
+	 */
+	public static function redis()
+	{
+		static $redis_instance = false;
+
+		if (!$redis_instance) {
+
+			if (isset($GLOBALS['_CONFIG']['redis'])) {
+				$redis_instance = new \Redis();
+				$redis_instance->connect($GLOBALS['_CONFIG']['redis']['host'], $GLOBALS['_CONFIG']['redis']['port']);
+			} else {
+				throw new \Exception('redis config not set!');
+			}
+		}
+
+		return $redis_instance;
+	}
+
 	public static function handle_exception($ex)
 	{
 		// clear the output buffer
