@@ -491,7 +491,7 @@ abstract class Model {
 	public function save($reload=true)
 	{
 		if (method_exists($this, 'before_save')) {
-			$this->before_save();
+			$before_out = $this->before_save();
 		}
 
 		if (!$this->is_dirty()) {
@@ -525,7 +525,7 @@ abstract class Model {
 		}
 
 		if (method_exists($this, 'after_save')) {
-			$this->after_save();
+			$this->after_save($before_out);
 		}
 
 		$this->_dirty_values = array();
