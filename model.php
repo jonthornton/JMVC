@@ -85,12 +85,21 @@ abstract class Model {
 	{
 		$data = $this->get_value($key);
 
-		if (isset(static::$_field_types[$key]) && static::$_field_types[$key] == 'array' && !is_array($data)) {
-			if (empty($data)) {
-				$this->_values[$key] = array();
-			} else {
-				$this->_values[$key] = unserialize($data);
-				$data = $this->_values[$key];
+		if (isset(static::$_field_types[$key])) {
+			if (static::$_field_types[$key] == 'array' && !is_array($data)) {
+				if (empty($data)) {
+					$this->_values[$key] = array();
+				} else {
+					$this->_values[$key] = unserialize($data);
+					$data = $this->_values[$key];
+				}
+			} else if (static::$_field_types[$key] == 'json' && !is_array($data)) {
+				if (empty($data)) {
+					$this->_values[$key] = array();
+				} else {
+					$this->_values[$key] = json_decode($data, true);
+					$data = $this->_values[$key];
+				}
 			}
 		}
 
@@ -499,8 +508,12 @@ abstract class Model {
 		}
 
 		foreach (array_keys($this->_dirty_values) as $key) {
-			if (static::$_field_types[$key] == 'array' && is_array($this->_dirty_values[$key])) {
-				$this->_dirty_values[$key] = serialize($this->_dirty_values[$key]);
+			if (isset(static::$_field_types[$key])) {
+				if (static::$_field_types[$key] == 'array' && is_array($this->_dirty_values[$key])) {
+					$this->_dirty_values[$key] = serialize($this->_dirty_values[$key]);
+				} else if (static::$_field_types[$key] == 'json' && is_array($this->_dirty_values[$key])) {
+					$this->_dirty_values[$key] = json_encode($this->_dirty_values[$key]);
+				}
 			}
 		}
 
