@@ -99,6 +99,9 @@ class JMVC {
 		if ($app_url == '/') {
 			$context = \jmvc\View::$CONTEXT_DEFAULTS;
 			$url_parts = array();
+		} else if ($app_url == '/css/') {
+			self::css();
+
 		} else {
 
 			// Parse each segment of the URL, left to right
@@ -179,6 +182,48 @@ class JMVC {
 		echo \jmvc\View::render(array('controller'=>'template', 'view'=>\jmvc\View::$CONTEXT_DEFAULTS['template'],
 			'site'=>\jmvc\View::$CONTEXT_DEFAULTS['site'], 'template'=>\jmvc\View::$CONTEXT_DEFAULTS['template']),
 			array('context'=>array('controller'=>'template', 'view'=>'do404')));
+		exit;
+	}
+
+	/**
+	 * Compile and concatinate LESS and CSS
+	 * @return void
+	 */
+	protected static function css()
+	{
+		if (!empty($_GET['files'])) $files = explode(',', $_GET['files']);
+		if (!is_array($files)) {
+			exit;
+		}
+
+		$last_change = 0;
+		foreach ($files as $file) {
+			$last_change = max($last_change, filemtime(APP_DIR.'../www'.$file));
+		}
+
+		// see if we can serve from cache
+		$r = \jmvc::redis();
+		$key = 'JMVC:css:'.md5(serialize($files).$last_change);
+		$css_out = $r->get($key);
+
+		if (!$css_out || $_GET['nocache']) {
+			foreach ($files as $file) {
+				if (substr($file, -4) == 'less') {
+					$lc = new \jmvc\classes\Lessc(APP_DIR.'../www'.$file);
+					$css = $lc->parse();
+				} else {
+					$css = file_get_contents(APP_DIR.'../www'.$file);
+				}
+
+				$out[] = "\n\n\n/*** ".$file." ***/\n\n".$css;
+			}
+
+			$css_out = implode(' ', $out);
+			$r->setex($key, 3600, $css_out);
+		}
+
+		header('Content-type: text/css');
+		echo $css_out;
 		exit;
 	}
 
