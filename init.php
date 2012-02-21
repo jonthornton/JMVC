@@ -18,6 +18,10 @@ class JMVC {
 
 		include(CONFIG_FILE);
 
+		if (!defined('IS_PRODUCTION')) {
+			throw new \Exception('IS_PRODUCTION not set! Please check '.CONFIG_FILE.'.');
+		}
+
 		include(JMVC_DIR.'view.php');
 		include(JMVC_DIR.'controller.php');
 
