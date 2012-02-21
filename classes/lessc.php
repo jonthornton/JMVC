@@ -1,5 +1,5 @@
 <?php
-
+namespace jmvc\classes;
 /**
  * lessphp v0.3.1
  * http://leafo.net/lessphp
@@ -1704,7 +1704,7 @@ class lessc {
 
 	// push a new block on the stack, used for parsing
 	function pushBlock($tags) {
-		$b = new stdclass;
+		$b = new \stdclass;
 		$b->parent = $this->env;
 
 		$b->id = self::$nextBlockId++;
@@ -1725,7 +1725,7 @@ class lessc {
 
 	// used for compiliation variable state
 	function pushEnv() {
-		$e = new stdclass;
+		$e = new \stdclass;
 		$e->parent = $this->env;
 
 		$this->store = array();
