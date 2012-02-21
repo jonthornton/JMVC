@@ -180,6 +180,8 @@ class Form extends Validation {
 			$data = array('name' => $data);
 		}
 
+		$data['type'] = 'date';
+
 		if ($value) {
 			$data['value'] = $value;
 			unset($value);
@@ -213,6 +215,8 @@ class Form extends Validation {
 			$data = array('name' => $data);
 		}
 
+		$data['type'] = 'time';
+
 		if ($value) {
 			$data['value'] = $value;
 		} else if (!isset($data['value'])) {
@@ -220,21 +224,7 @@ class Form extends Validation {
 		}
 
 		self::add_class($data, 'time');
-
-		return $this->dropdown($data, Array(''=>'Time...')+self::$HOURS, $data['value'], $extra, 'timepicker');
-	}
-
-	public static function normalize_time($inp)
-	{
-		if (empty($inp)) {
-			return null;
-		}
-
-		if (!is_numeric($inp)) {
-			$inp = self::time2int($inp);
-		}
-
-		return self::int2time($inp);
+		return $this->input($data, null, $extra);
 	}
 
 	public static function time2int($time)
@@ -344,7 +334,7 @@ class Form extends Validation {
 		return '<textarea'.form::attributes($data, 'textarea').' '.$extra.'>'.htmlspecialchars(trim($value), ENT_COMPAT, 'ISO-8859-1', false).'</textarea>';
 	}
 
-	public function dropdown($data, $options, $selected=NULL, $extra = '', $use=null)
+	public function dropdown($data, $options, $selected=NULL, $extra = '')
 	{
 		if (!is_array($data)) {
 			$data = array('name' => $data);
@@ -357,10 +347,6 @@ class Form extends Validation {
 		}
 
 		unset($data['value']);
-
-		if ($use == 'timepicker') {
-			$selected = self::normalize_time($selected);
-		}
 
 		if ((isset($data['name']) && isset($this->errors[$data['name']])) || (isset($data['for']) && isset($this->messages[$data['for']]))) {
 			self::add_class($data, 'error');
