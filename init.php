@@ -44,10 +44,10 @@ class JMVC {
 
 		// define some helper constants
 		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
-			define('CURRENT_URL', substr(strtolower($_SERVER['REQUEST_URI']), 0, $qPos));
+			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
 			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos));
 		} else {
-			define('CURRENT_URL', strtolower($_SERVER['REQUEST_URI']));
+			define('CURRENT_URL', $_SERVER['REQUEST_URI']);
 			define('QUERY_STRING', '');
 		}
 
@@ -99,13 +99,12 @@ class JMVC {
 		if ($app_url == '/') {
 			$context = \jmvc\View::$CONTEXT_DEFAULTS;
 			$url_parts = array();
-		} else if ($app_url == '/css/') {
+		} else if (substr($app_url, 0, 5) == '/css/') {
 			self::css();
 
 		} else {
-
 			// Parse each segment of the URL, left to right
-			$url_parts = explode('/', trim($app_url, '/'));
+			 $url_parts = explode('/', trim($app_url, '/'));
 
 			// Set site
 			if (Controller::exists($url_parts[0], 'template')) $context['site'] = array_shift($url_parts);
@@ -191,7 +190,10 @@ class JMVC {
 	 */
 	protected static function css()
 	{
-		if (!empty($_GET['files'])) $files = explode(',', $_GET['files']);
+		// for CDN compatibility, args are base64 encoded in the URL
+		parse_str(base64_decode(substr(CURRENT_URL, 5, -1)), $args);
+
+		if (!empty($args['files'])) $files = explode(',', $args['files']);
 		if (!is_array($files)) {
 			exit;
 		}
@@ -206,7 +208,7 @@ class JMVC {
 		$key = 'JMVC:css:'.md5(serialize($files).$last_change);
 		$css_out = $r->get($key);
 
-		if (!$css_out || $_GET['nocache']) {
+		if (!$css_out || $args['nocache']) {
 			foreach ($files as $file) {
 				if (substr($file, -4) == 'less') {
 					$lc = new \jmvc\classes\Lessc(APP_DIR.'../www'.$file);
