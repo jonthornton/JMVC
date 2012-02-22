@@ -223,6 +223,10 @@ class Form extends Validation {
 			$data['value'] = null;
 		}
 
+		if (is_numeric($data['value'])) {
+			$data['value'] = self::int2time($data['value']);
+		}
+
 		self::add_class($data, 'time');
 		return $this->input($data, null, $extra);
 	}
@@ -249,7 +253,7 @@ class Form extends Validation {
 		return $hours*3600 + $matches[2]*60;
 	}
 
-	public static function int2time($ts)
+	public static function int2time($ts, $format='g:ia')
 	{
 		if (!is_numeric($ts)) {
 			return $ts;
@@ -261,7 +265,7 @@ class Form extends Validation {
 
 		$ts = 1800*round($ts/1800);
 
-		return date('H:i', $ts);
+		return date($format, $ts);
 	}
 
 	public function get_date_time($date_key, $time_key)
@@ -581,6 +585,7 @@ class Form extends Validation {
 				case 'number':
 				case 'range':
 				case 'date':
+				case 'time':
 				case 'datetime':
 					// Only specific types of inputs use name to id matching
 					$attr['id'] = $attr['name'];
