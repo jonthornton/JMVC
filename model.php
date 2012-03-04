@@ -187,6 +187,7 @@ abstract class Model {
 	public function __unset($key)
 	{
 		unset($this->_dirty_values[$key]);
+		unset($this->_values[$key]);
 	}
 
 	/**
