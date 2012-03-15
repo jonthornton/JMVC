@@ -2,7 +2,7 @@
 // Instructions: set this to be run by cron once per minute, and use Solo to prevent more than 1 instance from running
 // http://timkay.com/solo/
 
-include('parkwhiz.com/app/cron/cron_helper.php');
+include('cron_helper.php');
 
 $redis = \jmvc::Redis();
 
