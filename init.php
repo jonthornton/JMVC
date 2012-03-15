@@ -234,9 +234,28 @@ class JMVC {
 	}
 
 	/**
+	 * Place a job in the JMVC job queue. Requires job-worker.php to be running
+	 * @param $class The model name to call or instantiate
+	 * @param $method The model class method to call
+	 * @param $obj_id Optional; if provided, the object with that ID will be instantiated, otherwise $method will be called statically.
+	 * @param $args Arguments to be passed to $method
+	 * @param $priority Can be either 'high' or 'low'
+	 */
+	public static function defer($class, $method, $obj_id=null, $args=array(), $priority='low')
+	{
+		if (!in_array($priority, array('high', 'low'))) {
+			throw new \Exception('Invalid priority type: '.$priority);
+		}
+
+		$r = \jmvc::redis();
+		$job = array('class'=>$class, 'method'=>$method, 'obj_id'=>$obj_id, 'args'=>$args);
+		$r->rpush('JMVC:jobs:'.$priority, json_encode($job));
+	}
+
+	/**
 	 * Call a hook during a certain part of the app lifecycle. Hooks are defined in a global $HOOKS array
 	 * with keys matching hook names. Only 'post_routing' is supported at this time.
-	 * @param strin $hook Hook to call. Only 'post_routing' is supported at this time
+	 * @param string $hook Hook to call. Only 'post_routing' is supported at this time
 	 * @param mixed &$args Arbitrary argument to be passed to hook function. Passed by reference.
 	 * @return void
 	 */
