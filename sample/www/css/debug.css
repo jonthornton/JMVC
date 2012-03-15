@@ -1,4 +1,7 @@
-
+#jmvc-debug-infoWindows ul,
+#jmvc-debug-container ul { list-style: none; margin: 0; padding: 0; }
+#jmvc-debug-infoWindows .data td,
+#jmvc-debug-container .data td { padding: 2px 3px; border: 1px solid #ddd; }
 #jmvc-debug-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10; }
 .jmvc-debug-toggle { font: bold 15px arial; cursor: pointer; width: 20px; text-align: center; background: #000; color: #fff; padding: 5px; }
 #jmvc-debug-container > .jmvc-debug-toggle { position: absolute; bottom: 0; right: 0; z-index: 0; }

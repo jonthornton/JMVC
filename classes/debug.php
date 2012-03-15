@@ -145,6 +145,12 @@ class Debug {
 					throw new \Exception('Mail queue failure!');
 				}
 			}
+
+			$jobs_count = $r->llen('JMVC:jobs:low') + $r->llen('JMVC:jobs:high');
+
+			if (IS_PRODUCTION && $jobs_count > 200) {
+				throw new \Exception('Job queue failure!');
+			}
 		}
 
 		$content = ob_get_clean();
@@ -159,6 +165,7 @@ class Debug {
 					<li class="jmvc-debug-toggle-option" id="jmvc-bust-cache">Cache Buster</li>
 					<li>'.round($b['time']*1000).'ms</li>
 					<li>'.($mail_count ?: 0).' unsent emails</li>
+					<li>'.($jobs_count ?: 0).' pending jobs</li>
 				</ul>
 				<div style="clear: both"></div>
 			</div>
