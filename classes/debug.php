@@ -153,8 +153,22 @@ class Debug {
 			}
 		}
 
+		$end = \jmvc::trace('End');
+		$rows = '';
+		foreach (\jmvc::$traces as $trace) {
+			$rows .= '<tr>
+				<td class="num">'.round($trace['time']).'ms</td>
+				<td>'.$trace['message'].'</td>
+			</tr>';
+		}
+
+		$infoWindows .= '<div id="jmvc-debug-traces">
+			<table class="data">
+				'.$rows.'
+			</table>
+		</div>';
+
 		$content = ob_get_clean();
-		$b = \jmvc\classes\Benchmark::get('total');
 		$display = (isset($_COOKIE['jmvc-debug-toolbar'])) ? '' : 'style="display:none;"';
 
 		return '<div id="jmvc-debug-container">
@@ -163,7 +177,7 @@ class Debug {
 
 				<ul class="panel">
 					<li class="jmvc-debug-toggle-option" id="jmvc-bust-cache">Cache Buster</li>
-					<li>'.round($b['time']*1000).'ms</li>
+					<li><a href="#" rel="jmvc-debug-traces" class="jmvc-debug-infoWindowLink">'.round($end['time']).'ms</a></li>
 					<li>'.($mail_count ?: 0).' unsent emails</li>
 					<li>'.($jobs_count ?: 0).' pending jobs</li>
 				</ul>

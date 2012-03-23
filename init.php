@@ -2,9 +2,10 @@
 
 use jmvc\Controller;
 use jmvc\View;
-use jmvc\classes\Benchmark;
 
 class JMVC {
+
+	public static $traces = array();
 
 	/**
 	 * Main bootstrapping function. Initialize framework, perform routing, hand things off to template controller.
@@ -12,10 +13,9 @@ class JMVC {
 	 */
 	public static function init()
 	{
-		// Load classes that will always be used; faster than autoloader
-		include(JMVC_DIR.'classes/benchmark.php');
-		Benchmark::start('total');
+		self::trace('Start');
 
+		// Load classes that will always be used; faster than autoloader
 		include(CONFIG_FILE);
 
 		if (!defined('IS_PRODUCTION')) {
@@ -369,6 +369,26 @@ class JMVC {
 			fwrite($log, $data."\n\n");
 			fclose($log);
 		}
+	}
+
+	/**
+	 * Set a trace point. Points are measured in milliseconds from script start time
+	 * @param string $message The trace message
+	 * @return void
+	 */
+	public static function trace($message)
+	{
+		static $start_time;
+
+		if (!$start_time) {
+			$start_time = microtime(true);
+		}
+
+		$trace = array('time'=>(microtime(true)-$start_time)*1000,
+						'message'=>$message);
+
+		self::$traces[] = $trace;
+		return $trace;
 	}
 
 	/**

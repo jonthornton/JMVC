@@ -20,11 +20,14 @@ class Redis_Cache extends Cache_Interface {
 
 	public function delete($key)
 	{
+		\jmvc::trace('redis-cache delete: '.$key);
 		return $this->m->delete(self::PREFIX.$key);
 	}
 
 	public function get($key, &$result, $nobust=false)
 	{
+		\jmvc::trace('redis-cache get: '.$key);
+
 		if (defined('BUST_CACHE') && !$nobust) {
 			$this->delete($key);
 			self::$stats['misses']++;
@@ -45,17 +48,21 @@ class Redis_Cache extends Cache_Interface {
 		if ($data === false) {
 			self::$stats['misses']++;
 			self::$stats['keys'][] = array($key, 'miss');
+			\jmvc::trace('redis-cache got: '.$key);
 			return false;
 		} else {
 			self::$stats['hits']++;
 			self::$stats['keys'][] = array($key, 'hit');
 			$result = self::defalsify(unserialize($data));
+			\jmvc::trace('redis-cache got: '.$key);
 			return true;
 		}
 	}
 
 	public function set($key, $val, $expires=0)
 	{
+		\jmvc::trace('redis-cache write: '.$key);
+
 		self::$stats['writes']++;
 		self::$stats['keys'][] = array($key, 'write');
 
