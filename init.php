@@ -13,7 +13,7 @@ class JMVC {
 	 */
 	public static function init()
 	{
-		self::trace('Start');
+		self::trace('init');
 
 		// Load classes that will always be used; faster than autoloader
 		include(CONFIG_FILE);
@@ -42,6 +42,8 @@ class JMVC {
 		set_error_handler(array('JMVC', 'handle_error'), E_ERROR | E_WARNING);
 		register_shutdown_function(array('JMVC', 'fatal_error_checker'));
 
+		self::trace('bootstrap complete');
+
 		if (!isset($_SERVER['REQUEST_URI'])) { //don't do routing if we're not running as a web server process
 			return;
 		}
@@ -69,6 +71,8 @@ class JMVC {
 			}
 		}
 
+		self::trace('redirects complete');
+
 		$app_url = CURRENT_URL;
 
 		// Check for any internal URL mapping
@@ -92,6 +96,8 @@ class JMVC {
 				}
 			}
 		}
+
+		self::trace('routes complete');
 
 		// Set default context
 		if (defined('DEFAULT_SITE')) \jmvc\View::$CONTEXT_DEFAULTS['site'] = DEFAULT_SITE;
@@ -162,7 +168,10 @@ class JMVC {
 			}
 		}
 
+		self::trace('routing complete');
+
 		self::hook('post_routing', $context);
+		self::trace('post_routing hooks complete');
 
 		// Hand things off to the template controller
 		ob_start();
