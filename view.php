@@ -125,6 +125,7 @@ class View {
 	public static function render($view_name=null, $args=array(), $cache_expires=null)
 	{
 		$context = self::push_context($view_name, $parent);
+		\jmvc::trace('render '.$context['controller'].'.'.$context['view']);
 
 		if (method_exists('jmvc\\Controller', $context['view'])) {
 			\jmvc::do404();
