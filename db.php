@@ -290,8 +290,9 @@ class Db {
 			throw new \ErrorException($message, 0, 1, $query, 0);
 		}
 
-		while ($this->write_db->next_result()) {
-			// need to clear out db results before issuing new queries
+		// need to clear out db results before issuing new queries
+		while ($this->write_db->more_results()) {
+			$this->write_db->next_result();
 		}
 
 		return $result;
