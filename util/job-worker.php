@@ -17,7 +17,7 @@ while ($job = $redis->blpop('JMVC:jobs:high', 'JMVC:jobs:low', 0)) {
 		$obj = $classname::factory($job->obj_id);
 
 		if (!$obj) {
-			throw \Exception($job->class.' #'.$job->obj_id.' not found!');
+			throw new \Exception($job->class.' #'.$job->obj_id.' not found!');
 		}
 
 		$callback = array($obj, $job->method);
@@ -27,7 +27,7 @@ while ($job = $redis->blpop('JMVC:jobs:high', 'JMVC:jobs:low', 0)) {
 	}
 
 	if (!is_callable($callback)) {
-		throw \Exception('Method not found!');
+		throw new \Exception('Method '.$job->class.':'.$job->method.' not found!');
 	}
 
 	call_user_func_array($callback, $job->args);
