@@ -41,6 +41,7 @@ class JMVC {
 		set_exception_handler(array('JMVC', 'handle_exception'));
 		set_error_handler(array('JMVC', 'handle_error'), E_ERROR | E_WARNING);
 		register_shutdown_function(array('JMVC', 'fatal_error_checker'));
+		if (defined('TRACE_THRESHOLD')) register_shutdown_function(array('JMVC', 'check_trace'));
 
 		self::trace('bootstrap complete');
 
@@ -375,7 +376,7 @@ class JMVC {
 		$log = @fopen(LOG_DIR.'/'.$host.$logname.'.log', 'a');
 
 		if ($log) {
-			fwrite($log, $data."\n\n");
+			fwrite($log, date('g:i:sa M j, Y')."----------------\n".$data."\n\n");
 			fclose($log);
 		}
 	}
@@ -393,11 +394,27 @@ class JMVC {
 			$start_time = microtime(true);
 		}
 
-		$trace = array('time'=>(microtime(true)-$start_time)*1000,
+		$trace = array('time'=>(int)((microtime(true)-$start_time)*1000),	// round to nearest integer
 						'message'=>$message);
 
 		self::$traces[] = $trace;
 		return $trace;
+	}
+
+	public static function check_trace()
+	{
+		if (defined('NO_TRACE_CHECK')) return;
+
+		$last_trace = array_pop(self::$traces);
+		if ($last_trace['time'] > TRACE_THRESHOLD) {
+			$message = '';
+			foreach (self::$traces as $trace) {
+				$message .= $trace['time']."\t".$trace['message']."\n";
+			}
+
+			$message .= $last_trace['time']."\t".$last_trace['message'];
+			self::log($message, 'traces');
+		}
 	}
 
 	/**
