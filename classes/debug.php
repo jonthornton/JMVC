@@ -153,7 +153,8 @@ class Debug {
 			}
 		}
 
-		$end = \jmvc::trace('End');
+		$end = array_pop(\jmvc::$traces);
+		\jmvc::$traces[] = $end;
 		$rows = '';
 		foreach (\jmvc::$traces as $trace) {
 			$rows .= '<tr>
