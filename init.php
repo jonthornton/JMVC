@@ -178,6 +178,8 @@ class JMVC {
 		ob_start();
 		echo \jmvc\View::render(array_merge($context, array('controller'=>'template', 'view'=>$context['template'])),
 			array_merge($url_parts, array('context'=>$context)));
+
+		self::hook('post_render', $context);
 	}
 
 	/**
