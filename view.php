@@ -189,6 +189,10 @@ class View {
 		self::pop_context($view_name);
 
 		if ($cache_expires !== null) {
+			if ($cache_expires == 'controller') {
+				$cache_expires = $controller->cache_expires;
+			}
+
 			self::cache()->set($key, $output, $cache_expires);
 			self::cache()->set($key.'meta', self::$cacheme[$key], $cache_expires);
 
