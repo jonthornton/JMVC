@@ -260,7 +260,7 @@ class JMVC {
 		}
 
 		$r = \jmvc::redis();
-		$job = array('class'=>$class, 'method'=>$method, 'obj_id'=>$obj_id, 'args'=>$args);
+		$job = array('class'=>$class, 'method'=>$method, 'obj_id'=>$obj_id, 'args'=>$args, 'created'=>time());
 		$r->rpush('JMVC:jobs:'.$priority, json_encode($job));
 	}
 
