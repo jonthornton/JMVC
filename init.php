@@ -462,18 +462,19 @@ class JMVC {
 
 	public static function handle_exception($ex)
 	{
-		// clear the output buffer
-		while(ob_get_length()) { ob_end_clean(); }
-
-		if (IS_PRODUCTION) {
-			self::notify_admin($ex->getFile(), self::make_error_report($ex->getFile(), $ex->getLine(), $ex->getMessage()));
-			header('HTTP/1.1 500 Internal Server Error');
-
-		} else {
+		if (!IS_PRODUCTION) {
+			// clear the output buffer
+			while(ob_get_length()) { ob_end_clean(); }
 			include(JMVC_DIR.'exception_html.php');
+			die();
 		}
 
-		die();
+		self::notify_admin($ex->getFile(), self::make_error_report($ex->getFile(), $ex->getLine(), $ex->getMessage()));
+
+		// clear the output buffer
+		while(ob_get_length()) { ob_end_clean(); }
+		header('HTTP/1.1 500 Internal Server Error');
+		die;
 	}
 
 	public static function handle_error($errno, $errstr, $errfile, $errline)
@@ -491,18 +492,19 @@ class JMVC {
 		}
 	}
 
-	private static function notify_admin($file, $message)
+	public static function notify_admin($file, $message)
 	{
 		self::log(date('r')."\n".$message, 'php_errors');
 
-		if (!file_exists(LOG_DIR.'/error_state')) {
+		$lockfile = LOG_DIR.'/error_state';
+		$last_notification = (file_exists($lockfile)) ? filemtime($lockfile) : 0;
+		if ($last_notification == 0 || (DEFINED('ADMIN_ALERT_FREQ') && time() - $last_notification > ADMIN_ALERT_FREQ)) {
+			touch($lockfile);
 			mail(ADMIN_EMAIL, 'Error in '.$file, $message);
 
 			if (defined('ADMIN_ALERT')) {
 				mail(ADMIN_ALERT, 'Error on '.$_SERVER['HTTP_HOST'], 'check email');
 			}
-
-			touch(LOG_DIR.'/error_state');
 		}
 	}
 

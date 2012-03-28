@@ -142,14 +142,14 @@ class Debug {
 				$encoded_message = $r->lindex('jmvc:rmail', 0);
 				$message = json_decode($encoded_message);
 				if (time() - $message->created > 1800) {
-					throw new \Exception('Mail queue failure!');
+					\jmvc::notify_admin('Mail queue', 'stale message from '.date('r', $message->created));
 				}
 			}
 
 			$jobs_count = $r->llen('JMVC:jobs:low') + $r->llen('JMVC:jobs:high');
 
 			if (IS_PRODUCTION && $jobs_count > 200) {
-				throw new \Exception('Job queue failure!');
+				\jmvc::notify_admin('Job queue', 'backed up!');
 			}
 		}
 
@@ -191,5 +191,4 @@ class Debug {
 		<script type="text/javascript" src="/js/debug.js"></script>
 		';
 	}
-
 }
