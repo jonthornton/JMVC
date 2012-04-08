@@ -83,7 +83,17 @@ abstract class Model {
 
 	public function __get($key)
 	{
-		$data = $this->get_value($key);
+		if (array_key_exists($key, $this->_dirty_values)) {
+			return $this->_dirty_values[$key];
+		}
+
+		if (!$this->_loaded) {
+			$this->load();
+		}
+
+		if (array_key_exists($key, $this->_values)) {
+			$data = $this->_values[$key];
+		}
 
 		if (isset(static::$_field_types[$key])) {
 			if (static::$_field_types[$key] == 'array' && !is_array($data)) {
@@ -104,23 +114,6 @@ abstract class Model {
 		}
 
 		return $data;
-	}
-
-	private function get_value($key)
-	{
-		if (array_key_exists($key, $this->_dirty_values)) {
-			return $this->_dirty_values[$key];
-		}
-
-		if (!$this->_loaded) {
-			$this->load();
-		}
-
-		if (array_key_exists($key, $this->_values)) {
-			return $this->_values[$key];
-		}
-
-		return null;
 	}
 
 	public function id()
