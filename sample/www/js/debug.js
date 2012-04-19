@@ -42,7 +42,6 @@ setTimeout(function() {
 	});
 
 	$('.jmvc-debug-infoWindowLink').bind('click', function() {
-		console.log(this.rel);
 		$('#'+this.rel).toggle(200);
 		return false;
 	});

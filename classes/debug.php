@@ -137,23 +137,25 @@ class Debug {
 			$r->connect($GLOBALS['_CONFIG']['redis']['host'], $GLOBALS['_CONFIG']['redis']['port']);
 
 			$mail_count = $r->llen('jmvc:rmail');
-
 			if (IS_PRODUCTION && $mail_count) {
 				$encoded_message = $r->lindex('jmvc:rmail', 0);
-				$message = json_decode($encoded_message);
-				if (time() - $message->created > 1800) {
-					\jmvc::notify_admin('Mail queue', 'stale message from '.date('r', $message->created));
+				if ($encoded_message) {
+					$message = json_decode($encoded_message);
+					if (time() - $message->created > 1800) {
+						\jmvc::notify_admin('Mail queue', 'stale message from '.date('r', $message->created));
+					}
 				}
 			}
 
 			$jobs_count = $r->llen('JMVC:jobs:low') + $r->llen('JMVC:jobs:high');
-
 			if (IS_PRODUCTION && $jobs_count) {
 				$encoded_message = $r->lindex('JMVC:jobs:high', 0);
 				if (!$encoded_message) $encoded_message = $r->lindex('JMVC:jobs:low', 0);
-				$message = json_decode($encoded_message);
-				if (time() - $message->created > 1800) {
-					\jmvc::notify_admin('Job queue', 'stale job from '.date('r', $message->created));
+				if ($encoded_message) {
+					$message = json_decode($encoded_message);
+					if (time() - $message->created > 1800) {
+						\jmvc::notify_admin('Job queue', 'stale job from '.date('r', $message->created));
+					}
 				}
 			}
 		}
