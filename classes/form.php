@@ -190,7 +190,7 @@ class Form extends Validation {
 		if (isset($data['value']) && is_numeric($data['value'])) {
 			$ts = $data['value'];
 			$data['value'] = date('n/j/Y', $ts);
-			$data['data-html5-value'] = date('Y-m-d', $ts); // date format for HTML5 date inputs
+			$data['data-timestamp'] = $ts; // timestamp for use in javascript
 		}
 
 		self::add_class($data, 'date');
@@ -228,7 +228,7 @@ class Form extends Validation {
 		if (is_numeric($data['value'])) {
 			$ts = $data['value'];
 			$data['value'] = self::int2time($ts);
-			$data['data-html5-value'] = self::int2time($ts, 'H:i'); // time format for HTML5 time inputs
+			$data['data-timestamp'] = $ts; // timestamp for use in javascript
 		}
 
 		self::add_class($data, 'time');
