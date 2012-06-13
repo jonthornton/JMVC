@@ -338,12 +338,17 @@ class View {
 		if (!empty(Session::$d['flash'][$bucket])) {
 			$out = '';
 			foreach (Session::$d['flash'][$bucket] as $msg) {
-				if (substr($msg, 0, 7) == '<script') {
-					$out .= $msg;
+				if (is_array($msg)) {
+					$out .= '<div class="'.$msg['class'].'">'.$msg['msg'].'</div>';
 				} else {
-					$out .= '<div class="msg">'.$msg.'</div>';
+					if (substr($msg, 0, 7) == '<script') {
+						$out .= $msg;
+					} else {
+						$out .= '<div class="msg">'.$msg.'</div>';
+					}
 				}
 			}
+
 			unset(Session::$d['flash'][$bucket]);
 			return $out;
 		}
