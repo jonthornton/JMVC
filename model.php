@@ -5,10 +5,12 @@ namespace jmvc;
 class DataException extends \Exception {
 
 	protected $field;
+	protected $data;
 
-	public function __construct($field, $message)
+	public function __construct($field, $message, $data=null)
 	{
 		$this->field = $field;
+		$this->data = $data;
 
 		parent::__construct($message);
 	}
@@ -16,6 +18,11 @@ class DataException extends \Exception {
 	public function getField()
 	{
 		return $this->field;
+	}
+
+	public function getData()
+	{
+		return $this->data;
 	}
 }
 
