@@ -460,7 +460,7 @@ class JMVC {
 		return $redis_instance;
 	}
 
-	public static function handle_exception($ex)
+	public static function handle_exception($e)
 	{
 		// clear the output buffer
 		while(ob_get_length()) { ob_end_clean(); }
@@ -470,7 +470,7 @@ class JMVC {
 			die();
 		}
 
-		self::notify_admin($ex);
+		self::notify_admin($e);
 
 		// clear the output buffer
 		header('HTTP/1.1 500 Internal Server Error');
@@ -492,17 +492,20 @@ class JMVC {
 		}
 	}
 
-	public static function notify_admin($file, $message=false)
+	public static function notify_admin($e)
 	{
 		if (defined(SENTRY_ENDPOINT)) {
 			require_once(JMVC_DIR.'Raven/Client.php');
 			require_once(JMVC_DIR.'Raven/Compat.php');
 			require_once(JMVC_DIR.'Raven/Stacktrace.php');
 			$client = new Raven_Client(SENTRY_ENDPOINT);
-			$client->captureException($ex);
+			$client->captureException($e);
 			exit();
 		}
-		
+
+		$file = $e->getFile();
+		$message = self::make_error_report($e->getFile(), $e->getLine(), $e->getMessage());
+
 		self::log(date('r')."\n".$message, 'php_errors');
 
 		$lockfile = LOG_DIR.'/error_state';
