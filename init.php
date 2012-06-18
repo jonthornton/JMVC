@@ -460,7 +460,7 @@ class JMVC {
 		return $redis_instance;
 	}
 
-	public static function handle_exception($e)
+	public static function handle_exception($ex)
 	{
 		// clear the output buffer
 		while(ob_get_length()) { ob_end_clean(); }
@@ -470,7 +470,7 @@ class JMVC {
 			die();
 		}
 
-		self::notify_admin($e);
+		self::notify_admin($ex);
 
 		// clear the output buffer
 		header('HTTP/1.1 500 Internal Server Error');
