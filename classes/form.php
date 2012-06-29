@@ -180,8 +180,6 @@ class Form extends Validation {
 			$data = array('name' => $data);
 		}
 
-		$data['type'] = 'date';
-
 		if ($value) {
 			$data['value'] = $value;
 			unset($value);
@@ -216,8 +214,6 @@ class Form extends Validation {
 		if (!is_array($data)) {
 			$data = array('name' => $data);
 		}
-
-		$data['type'] = 'time';
 
 		if ($value) {
 			$data['value'] = $value;
