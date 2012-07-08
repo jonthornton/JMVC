@@ -142,7 +142,7 @@ class Debug {
 				if ($encoded_message) {
 					$message = json_decode($encoded_message);
 					if (time() - $message->created > 1800) {
-						\jmvc::notify_admin('Mail queue', 'stale message from '.date('r', $message->created));
+						\jmvc::notify_admin(new \Exception('Mail queue: stale message from '.date('r', $message->created)));
 					}
 				}
 			}
@@ -154,7 +154,7 @@ class Debug {
 				if ($encoded_message) {
 					$message = json_decode($encoded_message);
 					if (time() - $message->created > 1800) {
-						\jmvc::notify_admin('Job queue', 'stale job from '.date('r', $message->created));
+						\jmvc::notify_admin(new \Exception('Job queue: stale job from '.date('r', $message->created)));
 					}
 				}
 			}
