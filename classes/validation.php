@@ -476,52 +476,37 @@ class Validation implements \ArrayAccess {
 		$this->error_messages = array_merge($this->error_messages, $messages);
 	}
 
-	public function errors($messages=false)
+	public function errors($messages=array())
 	{
-		$field_messages = array();
-		foreach ($this->messages as $field) {
-			$field_messages += $field;
-		}
 
-		if (!$messages) {
-			if (!empty($this->error_messages)) {
-				$messages = $this->error_messages;
-			} else {
-				$out = array();
-				foreach ($this->errors as $key=>$error) {
-					$out[] = $key.':'.$error;
-				}
-				return array_unique($out + $field_messages);
-			}
-		}
+		$messages = array_merge($this->error_messages, $messages);
 
-		$errors = array();
-		foreach ($this->errors as $input => $error)
-		{
+
+		$out = $this->messages;
+		foreach ($this->errors as $input => $error) {
 			if (isset($messages[$input])) {
-
 				if (is_array($messages[$input])) {
 					if (is_string($error) && (isset($messages[$input][$error]))) {
-						$errors[] = $messages[$input][$error];
+						$out[$input] = $messages[$input][$error];
 					} else if (isset($messages[$input]['default'])) {
-						$errors[] = $messages[$input]['default'];
+						$out[$input] = $messages[$input]['default'];
 					} else {
-						$errors[] = $input.':'.$error;
+						$out[$input] = $input.':'.$error;
 					}
 				} else {
-					$errors[] = $messages[$input];
+					$out[$input] = $messages[$input];
 				}
 
 			} else {
 				if (isset($messages['default'])) {
-					$errors[] = $messages['default'];
+					$out[$input] = $messages['default'];
 				} else {
-					$errors[] = $input.':'.$error;
+					$out[$input] = $input.':'.$error;
 				}
 			}
 		}
 
-		return array_unique($errors + $field_messages);
+		return $out;
 	}
 
 
