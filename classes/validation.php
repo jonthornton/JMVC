@@ -434,41 +434,13 @@ class Validation implements \ArrayAccess {
 
 	public function message($input, $message=false)
 	{
-		if (!is_array($this->messages[$input])) {
-			$this->messages[$input] = array();
-		}
-
 		if ($message) {
-			$this->messages[$input][] = $message;
+			$this->messages[$input] = $message;
 			return;
+		} else {
+			$messages = $this->errors();
+			return $messages[$input];
 		}
-
-		$errors = array();
-		if (isset($this->errors[$input])) {
-			if (isset($this->messages[$input])) {
-
-				if (is_array($messages[$input])) {
-					if ((isset($messages[$input][$this->errors[$input]]))) {
-						$errors[] = $messages[$input][$this->errors[$input]];
-					} else if (isset($messages[$input]['default'])) {
-						$errors[] = $messages['default'];
-					} else {
-						$errors[] = $input.':'.$this->errors[$input];
-					}
-				} else {
-					$errors[] = $messages[$input];
-				}
-
-			} else {
-				if (isset($messages['default'])) {
-					$errors[] = $messages['default'];
-				} else {
-					$errors[] = $input.':'.$this->errors[$input];
-				}
-			}
-		}
-
-		return array_unique($errors + $this->messages[$input]);
 	}
 
 	public function set_error_messages($messages)
@@ -478,9 +450,7 @@ class Validation implements \ArrayAccess {
 
 	public function errors($messages=array())
 	{
-
 		$messages = array_merge($this->error_messages, $messages);
-
 
 		$out = $this->messages;
 		foreach ($this->errors as $input => $error) {
