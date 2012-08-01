@@ -241,6 +241,8 @@ class JMVC {
 		}
 
 		header('Content-type: text/css');
+		header('Cache-Control: max-age=31556926, public');
+		header('Expires: '.date('r', time()+31536000));
 		echo $css_out;
 		exit;
 	}
