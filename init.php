@@ -216,7 +216,12 @@ class JMVC {
 
 		$last_change = 0;
 		foreach ($files as $file) {
-			$last_change = max($last_change, filemtime(APP_DIR.'../www'.$file));
+			$file = APP_DIR.'../www'.$file;
+			if (!file_exists($file)) {
+				\jmvc::do404();
+			}
+
+			$last_change = max($last_change, filemtime($file));
 		}
 
 		// see if we can serve from cache
