@@ -50,11 +50,12 @@ class JMVC {
 		}
 
 		// define some helper constants
-		if ($qPos = strpos($_SERVER['REQUEST_URI'], '?')) {
-			define('CURRENT_URL', substr($_SERVER['REQUEST_URI'], 0, $qPos));
-			define('QUERY_STRING', substr($_SERVER['REQUEST_URI'], $qPos));
+		$uri = strip_tags($_SERVER['REQUEST_URI']);	// defend against XSS
+		if ($qPos = strpos($uri, '?')) {
+			define('CURRENT_URL', substr($uri, 0, $qPos));
+			define('QUERY_STRING', substr($uri, $qPos));
 		} else {
-			define('CURRENT_URL', $_SERVER['REQUEST_URI']);
+			define('CURRENT_URL', $uri);
 			define('QUERY_STRING', '');
 		}
 
