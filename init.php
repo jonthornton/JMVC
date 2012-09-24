@@ -50,7 +50,7 @@ class JMVC {
 		}
 
 		// define some helper constants
-		$uri = strip_tags($_SERVER['REQUEST_URI']);	// defend against XSS
+		$uri = strip_tags(urldecode($_SERVER['REQUEST_URI']));	// defend against XSS
 		if ($qPos = strpos($uri, '?')) {
 			define('CURRENT_URL', substr($uri, 0, $qPos));
 			define('QUERY_STRING', substr($uri, $qPos));
