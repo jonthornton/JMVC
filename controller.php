@@ -89,6 +89,12 @@ abstract class Controller {
 			header('HTTP/1.1 303 See Other');
 		}
 
+		if (strpos($url, '://') === false) {
+			$host = ($_SERVER['HTTPS'] ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+		} else {
+			$host = '';
+		}
+
 		header('location: '.$url);
 		exit();
 	}
