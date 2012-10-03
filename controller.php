@@ -95,6 +95,9 @@ abstract class Controller {
 			$host = '';
 		}
 
+		// remove tabs and newlines, which break HTTP headers
+		$url = str_replace(["\n", "\r", "\t"], ' ', $url);
+
 		header('location: '.$url);
 		exit();
 	}
